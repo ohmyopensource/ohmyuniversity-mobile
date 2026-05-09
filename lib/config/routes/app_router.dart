@@ -4,63 +4,135 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/didattica/presentation/pages/didattica_page.dart';
+import '../../features/explore/presentation/pages/explore_page.dart';
+import '../../features/chat/presentation/pages/chat_page.dart';
+import '../../features/aziende/presentation/pages/aziende_page.dart';
 import '../routes/app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.login,
-    debugLogDiagnostics: true, // da disabilitare in produzione
+    debugLogDiagnostics: true,
     routes: [
-      // ── Auth ──────────────────────────────────────────
+      //  Auth ================================
       GoRoute(
         path: AppRoutes.login,
         name: AppRoutes.loginName,
         builder: (context, state) => const LoginPage(),
       ),
 
-      // ── App shell (con bottom navigation) ─────────────
-      ShellRoute(
-        builder: (context, state, child) {
-          return AppShell(child: child);
+      // App shell ================================
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return AppShell(navigationShell: navigationShell);
         },
-        routes: [
-          GoRoute(
-            path: AppRoutes.home,
-            name: AppRoutes.homeName,
-            builder: (context, state) => const HomePage(),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                name: AppRoutes.homeName,
+                builder: (context, state) => const HomePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.didattica,
+                name: AppRoutes.didatticaName,
+                builder: (context, state) => const DidatticaPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.explore,
+                name: AppRoutes.exploreName,
+                builder: (context, state) => const ExplorePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.chat,
+                name: AppRoutes.chatName,
+                builder: (context, state) => const ChatPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.aziende,
+                name: AppRoutes.aziendeName,
+                builder: (context, state) => const AziendePage(),
+              ),
+            ],
           ),
         ],
       ),
     ],
 
-    // Redirect globale — da implementare quando avremo l'auth state
-    // redirect: (context, state) {
-    //   final isAuthenticated = ref.read(authStateProvider).isAuthenticated;
-    //   if (!isAuthenticated && state.matchedLocation != AppRoutes.login) {
-    //     return AppRoutes.login;
-    //   }
-    //   return null;
-    // },
-
     errorBuilder: (context, state) => Scaffold(
       body: Center(
-        child: Text('Pagina non trovata: ${state.error}'),
+        child: Text('Page not found: ${state.error}'),
       ),
     ),
   );
 });
 
-// Shell widget con BottomNavigationBar — da espandere con le feature
+// Shell Widget ================================
 class AppShell extends StatelessWidget {
-  const AppShell({super.key, required this.child});
+  const AppShell({super.key, required this.navigationShell});
 
-  final Widget child;
+  final StatefulNavigationShell navigationShell;
+
+  static const _destinations = [
+    NavigationDestination(
+      icon: Icon(Icons.home_outlined),
+      selectedIcon: Icon(Icons.home),
+      label: 'Home',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.school_outlined),
+      selectedIcon: Icon(Icons.school),
+      label: 'Didattica',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.language_outlined),
+      selectedIcon: Icon(Icons.language),
+      label: 'Explore',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.chat_bubble_outline),
+      selectedIcon: Icon(Icons.chat_bubble),
+      label: 'Chat',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.business_center_outlined),
+      selectedIcon: Icon(Icons.business_center),
+      label: 'Aziende',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: child,
-      // TODO: aggiungere BottomNavigationBar quando avremo più feature
+      body: navigationShell,
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: navigationShell.currentIndex,
+        onDestinationSelected: (index) {
+          navigationShell.goBranch(
+            index,
+            initialLocation: index == navigationShell.currentIndex,
+          );
+        },
+        destinations: _destinations,
+      ),
     );
   }
 }

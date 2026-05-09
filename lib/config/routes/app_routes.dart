@@ -1,23 +1,23 @@
-/// Costanti centralizzate per tutte le route dell'app.
-/// Usare sempre questi valori invece di stringhe hardcoded.
+/// Centralized constants for all app routes.
+/// Always use these values instead of hardcoded strings.
 abstract final class AppRoutes {
-  // ── Auth ──────────────────────────────────────────────
+  // Auth ================================
   static const login = '/login';
   static const loginName = 'login';
 
-  // ── Home ──────────────────────────────────────────────
+  // Bottom bar tabs ================================
   static const home = '/home';
   static const homeName = 'home';
 
-// ── (Future) Libretto ─────────────────────────────────
-// static const libretto = '/libretto';
-// static const librettoName = 'libretto';
+  static const didattica = '/didattica';
+  static const didatticaName = 'didattica';
 
-// ── (Future) Calendario ───────────────────────────────
-// static const calendario = '/calendario';
-// static const calendarioName = 'calendario';
+  static const explore = '/explore';
+  static const exploreName = 'explore';
 
-// ── (Future) Tasse ────────────────────────────────────
-// static const tasse = '/tasse';
-// static const tasseName = 'tasse';
+  static const chat = '/chat';
+  static const chatName = 'chat';
+
+  static const aziende = '/aziende';
+  static const aziendeName = 'aziende';
 }
