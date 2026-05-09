@@ -82,3 +82,17 @@ app.*.map.json
 **/ios/Runner/GeneratedPluginRegistrant.*
 **/ios/Flutter/Generated.xcconfig
 *.ipa
+
+# ================================
+# Code Generation (build_runner)
+# ================================
+*.g.dart
+*.freezed.dart
+
+# ================================
+# Environment
+# ================================
+.env
+.env.*
+!.env.example
+lib/**/env.g.dart
