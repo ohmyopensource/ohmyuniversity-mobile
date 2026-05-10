@@ -8,6 +8,10 @@ import '../../features/didattica/presentation/pages/didattica_page.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/chat/presentation/pages/chat_page.dart';
 import '../../features/aziende/presentation/pages/aziende_page.dart';
+import '../../features/preferiti/presentation/pages/preferiti_page.dart';
+import '../../features/notifiche/presentation/pages/notifiche_page.dart';
+import '../../shared/widgets/app_top_bar.dart';
+import '../../shared/widgets/app_drawer.dart';
 import '../routes/app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -20,6 +24,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.login,
         name: AppRoutes.loginName,
         builder: (context, state) => const LoginPage(),
+      ),
+
+      // Preferiti ================================
+      GoRoute(
+        path: AppRoutes.preferiti,
+        name: AppRoutes.preferitiName,
+        builder: (context, state) => const PreferitiPage(),
+      ),
+
+      // Notifiche ================================
+      GoRoute(
+        path: AppRoutes.notifiche,
+        name: AppRoutes.notificheName,
+        builder: (context, state) => const NotifichePage(),
       ),
 
       // App shell ================================
@@ -86,10 +104,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 });
 
 // Shell Widget ================================
-class AppShell extends StatelessWidget {
+class AppShell extends StatefulWidget {
   const AppShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
+
+  @override
+  State<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends State<AppShell> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   static const _destinations = [
     NavigationDestination(
@@ -122,13 +147,16 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      key: _scaffoldKey,
+      appBar: AppTopBar(scaffoldKey: _scaffoldKey),
+      endDrawer: const AppDrawer(),
+      body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
+        selectedIndex: widget.navigationShell.currentIndex,
         onDestinationSelected: (index) {
-          navigationShell.goBranch(
+          widget.navigationShell.goBranch(
             index,
-            initialLocation: index == navigationShell.currentIndex,
+            initialLocation: index == widget.navigationShell.currentIndex,
           );
         },
         destinations: _destinations,

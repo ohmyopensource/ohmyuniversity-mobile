@@ -5,7 +5,7 @@ abstract final class AppRoutes {
   static const login = '/login';
   static const loginName = 'login';
 
-  // Bottom bar tabs ================================
+  // Bottom bar ================================
   static const home = '/home';
   static const homeName = 'home';
 
@@ -20,4 +20,12 @@ abstract final class AppRoutes {
 
   static const aziende = '/aziende';
   static const aziendeName = 'aziende';
+
+  // Top bar ================================
+  static const preferiti = '/preferiti';
+  static const preferitiName = 'preferiti';
+
+  // Drawer ================================
+  static const notifiche = '/notifiche';
+  static const notificheName = 'notifiche';
 }
