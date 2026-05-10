@@ -1,7 +1,13 @@
 /// Centralized constants for all app routes.
 /// Always use these values instead of hardcoded strings.
 abstract final class AppRoutes {
-  // Auth ================================
+  // Pre-auth ================================
+  static const splash = '/';
+  static const splashName = 'splash';
+
+  static const onboarding = '/onboarding';
+  static const onboardingName = 'onboarding';
+
   static const login = '/login';
   static const loginName = 'login';
 
