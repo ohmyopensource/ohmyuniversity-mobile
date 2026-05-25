@@ -1,4 +1,4 @@
-# ================================
+﻿# ================================
 # OhMyUniversity! - Mobile
 # ================================
 
@@ -64,6 +64,11 @@ dependencies:
 
   # UI - Animations ================================
   animations: ^2.0.11
+  lucide_icons: ^0.257.0
+  google_fonts: ^8.1.0
+  lottie: ^3.3.1
+  flutter_svg:
+
 
 # ================================
 # Dev Dependencies
@@ -92,10 +97,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # assets:
-  #   - assets/images/
-  #   - assets/icons/
-
+  assets:
+    - assets/icons/
+    - assets/animations/
+    - assets/animations/onboarding/
   # fonts:
   #   - family: Schyler
   #     fonts:

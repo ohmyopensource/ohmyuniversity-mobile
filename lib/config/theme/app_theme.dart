@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
+import 'app_typography.dart';
+import 'app_colors.dart';
 
 abstract final class AppTheme {
-  static const _seedColor = Color(0xFF1A73E8);
+  static const _seedColor = AppColors.primary;
 
   static ThemeData light() {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: _seedColor,
-      brightness: Brightness.light,
-    );
+    final colorScheme =
+        ColorScheme.fromSeed(
+          seedColor: _seedColor,
+          brightness: Brightness.light,
+        ).copyWith(
+          surface: AppColors.background,
+          primary: AppColors.primary,
+          secondary: AppColors.secondary,
+          tertiary: AppColors.cta,
+          onSurface: AppColors.textPrimary,
+        );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      fontFamily: 'Inter',
+      textTheme: AppTypography.textTheme(Brightness.light),
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
@@ -66,7 +75,7 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      fontFamily: 'Inter',
+      textTheme: AppTypography.textTheme(Brightness.dark),
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
