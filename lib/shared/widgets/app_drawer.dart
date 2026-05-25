@@ -23,25 +23,19 @@ class UniversityInfo {
 /// End drawer accessible from the top bar menu icon.
 /// Shows university info, notifications, and grouped navigation items.
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({
-    super.key,
-    this.notificationCount = 0,
-  });
+  const AppDrawer({super.key, this.notificationCount = 0});
 
   final int notificationCount;
 
   // TODO: replace with real data from active profile provider
   static const _mockUniversity = UniversityInfo(
-    name: 'Università degli Studi',
+    name: 'UniversitÃƒÂ  degli Studi',
     websiteUrl: 'https://www.university.edu',
     mailUrl: 'https://mail.university.edu',
   );
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Drawer(
       child: SafeArea(
         child: Column(
@@ -65,7 +59,7 @@ class AppDrawer extends StatelessWidget {
                     label: 'Trasporti',
                   ),
                   _DrawerItem(
-                    label: 'Raggiungi l\'università',
+                    label: 'Raggiungi l\'universitÃƒÂ ',
                     onTap: () => _close(context),
                   ),
                   _DrawerItem(
@@ -80,14 +74,8 @@ class AppDrawer extends StatelessWidget {
                     icon: Icons.open_in_new_outlined,
                     label: 'Portali',
                   ),
-                  _DrawerItem(
-                    label: 'Esse3',
-                    onTap: () => _close(context),
-                  ),
-                  _DrawerItem(
-                    label: 'Cineca',
-                    onTap: () => _close(context),
-                  ),
+                  _DrawerItem(label: 'Esse3', onTap: () => _close(context)),
+                  _DrawerItem(label: 'Cineca', onTap: () => _close(context)),
 
                   const _SectionDivider(),
 
@@ -108,10 +96,7 @@ class AppDrawer extends StatelessWidget {
                   const _SectionDivider(),
 
                   // Info ================================
-                  _SectionHeader(
-                    icon: Icons.info_outline,
-                    label: 'Info',
-                  ),
+                  _SectionHeader(icon: Icons.info_outline, label: 'Info'),
                   _DrawerItem(
                     label: 'Rubrica docenti',
                     onTap: () => _close(context),
@@ -124,10 +109,7 @@ class AppDrawer extends StatelessWidget {
                     label: 'Impostazioni',
                     onTap: () => _close(context),
                   ),
-                  _DrawerItem(
-                    label: 'Info app',
-                    onTap: () => _close(context),
-                  ),
+                  _DrawerItem(label: 'Info app', onTap: () => _close(context)),
                 ],
               ),
             ),
@@ -155,9 +137,7 @@ class _DrawerHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 8, 12),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: colorScheme.outlineVariant),
-        ),
+        border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
       ),
       child: Row(
         children: [

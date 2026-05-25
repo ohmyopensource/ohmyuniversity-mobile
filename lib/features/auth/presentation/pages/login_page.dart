@@ -3,19 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../config/routes/app_routes.dart';
-
-// Mock Data universities ================================
+import '../providers/auth_provider.dart';
+import '../../domain/usecases/login_usecase.dart';
 
 const _mockUniversities = [
-  'UNIMOL — Università degli Studi del Molise',
-  'UNISA — Università degli Studi di Salerno',
-  'UNIBO — Università di Bologna',
-  'UNIMI — Università degli Studi di Milano',
-  'UNIROMA1 — Sapienza',
-  'UNINA — Università degli Studi di Napoli Federico II',
+  'UNIMOL - Universita degli Studi del Molise',
+  'UNISA - Universita degli Studi di Salerno',
+  'UNIBO - Universita di Bologna',
+  'UNIMI - Universita degli Studi di Milano',
+  'UNIROMA1 - Sapienza',
+  'UNINA - Universita degli Studi di Napoli Federico II',
 ];
-
-// Page ================================
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -29,13 +27,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _isLoading = false;
 
   Future<void> _proceed() async {
-    if (_selectedUniversity == null) return;
+    final university = _selectedUniversity;
+    if (university == null) return;
+
     setState(() => _isLoading = true);
 
-    // TODO: store selected university and trigger SSO via flutter_appauth
-    await Future.delayed(const Duration(milliseconds: 600)); // mock delay
+    await ref
+        .read(loginUseCaseProvider)
+        .call(LoginParams(university: university));
 
     if (!mounted) return;
+
+    ref.read(isAuthenticatedProvider.notifier).setAuthenticated(true);
+
     setState(() => _isLoading = false);
     context.goNamed(AppRoutes.homeName);
   }
@@ -53,7 +57,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Language selector ================================
               Align(
                 alignment: Alignment.topRight,
                 child: Padding(
@@ -61,10 +64,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: _LanguageSelector(),
                 ),
               ),
-
               const Spacer(flex: 2),
-
-              // Logo ================================
               Container(
                 width: 100,
                 height: 100,
@@ -78,10 +78,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   color: colorScheme.onPrimaryContainer,
                 ),
               ),
-
               const SizedBox(height: 24),
-
-              // Title ================================
               Text(
                 'OhMyUniversity!',
                 style: theme.textTheme.headlineSmall?.copyWith(
@@ -96,22 +93,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
-
               const Spacer(flex: 2),
-
-              // University dropdown ================================
               _UniversityDropdown(
                 selected: _selectedUniversity,
                 universities: _mockUniversities,
-                onChanged: (v) => setState(() => _selectedUniversity = v),
+                onChanged: (value) {
+                  setState(() => _selectedUniversity = value);
+                },
               ),
-
               const SizedBox(height: 16),
-
-              // Proceed button ================================
               FilledButton(
-                onPressed:
-                (_selectedUniversity != null && !_isLoading) ? _proceed : null,
+                onPressed: (_selectedUniversity != null && !_isLoading)
+                    ? _proceed
+                    : null,
                 style: FilledButton.styleFrom(
                   minimumSize: const Size(double.infinity, 52),
                   shape: RoundedRectangleBorder(
@@ -120,25 +114,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
                 child: _isLoading
                     ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: colorScheme.onPrimary,
-                  ),
-                )
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.onPrimary,
+                        ),
+                      )
                     : const Text('Prosegui'),
               ),
-
               const Spacer(flex: 3),
-
-              // Not a student yet ================================
               Padding(
                 padding: const EdgeInsets.only(bottom: 24),
                 child: GestureDetector(
-                  onTap: () {
-                    // TODO: open university enrolment info
-                  },
+                  onTap: () {},
                   child: RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
@@ -169,8 +158,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 }
 
-// University dropdown ================================
-
 class _UniversityDropdown extends StatelessWidget {
   const _UniversityDropdown({
     required this.selected,
@@ -198,7 +185,7 @@ class _UniversityDropdown extends StatelessWidget {
           value: selected,
           isExpanded: true,
           hint: Text(
-            'Scegli università',
+            'Scegli universita',
             style: theme.textTheme.bodyLarge?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -208,22 +195,18 @@ class _UniversityDropdown extends StatelessWidget {
             color: colorScheme.onSurfaceVariant,
           ),
           borderRadius: BorderRadius.circular(12),
-          items: universities
-              .map(
-                (u) => DropdownMenuItem(
-              value: u,
-              child: Text(u, style: theme.textTheme.bodyMedium),
-            ),
-          )
-              .toList(),
+          items: universities.map((university) {
+            return DropdownMenuItem(
+              value: university,
+              child: Text(university, style: theme.textTheme.bodyMedium),
+            );
+          }).toList(),
           onChanged: onChanged,
         ),
       ),
     );
   }
 }
-
-// Language selector ================================
 
 class _LanguageSelector extends StatefulWidget {
   @override
@@ -244,12 +227,11 @@ class _LanguageSelectorState extends State<_LanguageSelector> {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: ['ITA', 'ENG'].map((lang) {
-          final isSelected = _selected == lang;
+        children: ['ITA', 'ENG'].map((language) {
+          final isSelected = _selected == language;
           return GestureDetector(
             onTap: () {
-              setState(() => _selected = lang);
-              // TODO: trigger locale change via Riverpod
+              setState(() => _selected = language);
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -258,7 +240,7 @@ class _LanguageSelectorState extends State<_LanguageSelector> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                lang,
+                language,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
