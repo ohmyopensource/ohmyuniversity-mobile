@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/splash/presentation/pages/splash_page.dart';
-import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/academic_career/presentation/pages/academic_career_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/didattica/presentation/pages/didattica_page.dart';
-import '../../features/explore/presentation/pages/explore_page.dart';
-import '../../features/chat/presentation/pages/chat_page.dart';
 import '../../features/aziende/presentation/pages/aziende_page.dart';
-import '../../features/preferiti/presentation/pages/preferiti_page.dart';
+import '../../features/chat/presentation/pages/chat_page.dart';
+import '../../features/explore/presentation/pages/explore_page.dart';
+import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/notifiche/presentation/pages/notifiche_page.dart';
-import '../../shared/widgets/app_top_bar.dart';
+import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/preferiti/presentation/pages/preferiti_page.dart';
+import '../../features/services/presentation/pages/services_page.dart';
+import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../shared/widgets/app_drawer.dart';
+import '../../shared/widgets/app_top_bar.dart';
 import '../routes/app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -21,7 +22,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     routes: [
-      // Pre-auth ================================
       GoRoute(
         path: AppRoutes.splash,
         name: AppRoutes.splashName,
@@ -37,8 +37,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.loginName,
         builder: (context, state) => const LoginPage(),
       ),
-
-      // Pushed on top ================================
       GoRoute(
         path: AppRoutes.preferiti,
         name: AppRoutes.preferitiName,
@@ -49,59 +47,74 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.notificheName,
         builder: (context, state) => const NotifichePage(),
       ),
-
-      // App shell ================================
+      GoRoute(
+        path: AppRoutes.services,
+        name: AppRoutes.servicesName,
+        builder: (context, state) => const ServicesPage(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return AppShell(navigationShell: navigationShell);
         },
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: AppRoutes.home,
-              name: AppRoutes.homeName,
-              builder: (context, state) => const HomePage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: AppRoutes.didattica,
-              name: AppRoutes.didatticaName,
-              builder: (context, state) => const DidatticaPage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: AppRoutes.explore,
-              name: AppRoutes.exploreName,
-              builder: (context, state) => const ExplorePage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: AppRoutes.chat,
-              name: AppRoutes.chatName,
-              builder: (context, state) => const ChatPage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: AppRoutes.aziende,
-              name: AppRoutes.aziendeName,
-              builder: (context, state) => const AziendePage(),
-            ),
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                name: AppRoutes.homeName,
+                builder: (context, state) => const HomePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.academicCareer,
+                name: AppRoutes.academicCareerName,
+                builder: (context, state) => const AcademicCareerPage(),
+              ),
+              GoRoute(
+                path: AppRoutes.didattica,
+                name: AppRoutes.didatticaName,
+                builder: (context, state) => const AcademicCareerPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.explore,
+                name: AppRoutes.exploreName,
+                builder: (context, state) => const ExplorePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.chat,
+                name: AppRoutes.chatName,
+                builder: (context, state) => const ChatPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.aziende,
+                name: AppRoutes.aziendeName,
+                builder: (context, state) => const AziendePage(),
+              ),
+            ],
+          ),
         ],
       ),
     ],
-
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(child: Text('Page not found: ${state.error}')),
-    ),
+    errorBuilder: (context, state) =>
+        Scaffold(body: Center(child: Text('Page not found: ${state.error}'))),
   );
 });
 
-// Shell Widget ================================
 class AppShell extends StatefulWidget {
   const AppShell({super.key, required this.navigationShell});
 
@@ -162,4 +175,3 @@ class _AppShellState extends State<AppShell> {
     );
   }
 }
-

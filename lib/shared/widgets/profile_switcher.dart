@@ -39,11 +39,11 @@ class StudentProfile {
 // Public entry point ================================
 
 void showProfileSwitcher(
-    BuildContext context, {
-      required List<StudentProfile> profiles,
-      required VoidCallback onAddAccount,
-      required VoidCallback onLogout,
-    }) {
+  BuildContext context, {
+  required List<StudentProfile> profiles,
+  required VoidCallback onAddAccount,
+  required VoidCallback onLogout,
+}) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -54,15 +54,16 @@ void showProfileSwitcher(
       return FadeTransition(
         opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
         child: ScaleTransition(
-          scale: Tween<double>(begin: 0.95, end: 1.0).animate(
-            CurvedAnimation(parent: animation, curve: Curves.easeOut),
-          ),
+          scale: Tween<double>(
+            begin: 0.95,
+            end: 1.0,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
           alignment: Alignment.topLeft,
           child: child,
         ),
       );
     },
-    pageBuilder: (context, _, __) => _ProfileSwitcherOverlay(
+    pageBuilder: (_, _, _) => _ProfileSwitcherOverlay(
       profiles: profiles,
       onAddAccount: onAddAccount,
       onLogout: onLogout,
@@ -98,7 +99,7 @@ class _ProfileSwitcherOverlay extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha: 0.15),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                 ),
@@ -109,7 +110,7 @@ class _ProfileSwitcherOverlay extends StatelessWidget {
               children: [
                 // Profile list ================================
                 ...profiles.map(
-                      (profile) => _ProfileTile(
+                  (profile) => _ProfileTile(
                     profile: profile,
                     onTap: () {
                       // TODO: switch active profile
@@ -273,10 +274,7 @@ class _ProfileAvatar extends StatelessWidget {
       padding: const EdgeInsets.all(2.5),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(
-          color: Colors.green,
-          width: 2.5,
-        ),
+        border: Border.all(color: Colors.green, width: 2.5),
       ),
       child: avatar,
     );

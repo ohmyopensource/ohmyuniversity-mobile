@@ -5,10 +5,7 @@ import '../../config/routes/app_routes.dart';
 import 'profile_switcher.dart';
 
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
-  const AppTopBar({
-    super.key,
-    required this.scaffoldKey,
-  });
+  const AppTopBar({super.key, required this.scaffoldKey});
 
   final GlobalKey<ScaffoldState> scaffoldKey;
 
@@ -111,13 +108,11 @@ class _TopBarIcon extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onTap,
-    this.badge,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onTap;
-  final int? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -129,19 +124,12 @@ class _TopBarIcon extends StatelessWidget {
       size: 24,
     );
 
-    if (badge != null && badge! > 0) {
-      iconWidget = Badge(label: Text('$badge'), child: iconWidget);
-    }
-
     return Tooltip(
       message: tooltip,
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: iconWidget,
-        ),
+        child: Padding(padding: const EdgeInsets.all(14), child: iconWidget),
       ),
     );
   }

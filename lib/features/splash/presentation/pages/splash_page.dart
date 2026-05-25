@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../../../config/routes/app_routes.dart';
-import '../../../auth/providers/auth_provider.dart';
-import '../../../onboarding/providers/onboarding_provider.dart';
-
+import '../../../../core/constants/app_assets.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../onboarding/presentation/providers/onboarding_provider.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -35,8 +36,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
   }
 
   Future<void> _navigate() async {
-    // Minimum splash display time
-    await Future.delayed(const Duration(milliseconds: 2000));
+    await Future.delayed(const Duration(milliseconds: 2400));
     if (!mounted) return;
 
     final hasSeenOnboarding = ref.read(onboardingCompletedProvider);
@@ -60,47 +60,33 @@ class _SplashPageState extends ConsumerState<SplashPage>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
-      body: FadeTransition(
-        opacity: _fadeIn,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-
-              // Logo placeholder
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: colorScheme.primaryContainer,
+      body: SafeArea(
+        child: FadeTransition(
+          opacity: _fadeIn,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  AppAssets.animatedLogo,
+                  width: 300,
+                  height: 300,
+                  fit: BoxFit.contain,
                 ),
-                child: Icon(
-                  Icons.school,
-                  size: 56,
-                  color: colorScheme.onPrimaryContainer,
-                ),
-              ),
-
-              const Spacer(),
-
-              // App name
-              Padding(
-                padding: const EdgeInsets.only(bottom: 48),
-                child: Text(
+                const SizedBox(height: 8),
+                Text(
                   'OhMyUniversity!',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0.5,
+                  style: textTheme.titleMedium?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

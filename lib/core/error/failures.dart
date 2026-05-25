@@ -7,7 +7,9 @@ sealed class Failure {
 
 /// Errore di rete (no connection, timeout, ecc.)
 final class NetworkFailure extends Failure {
-  const NetworkFailure({super.message = 'Errore di rete. Controlla la connessione.'});
+  const NetworkFailure({
+    super.message = 'Errore di rete. Controlla la connessione.',
+  });
 }
 
 /// Risposta HTTP con status code di errore (4xx, 5xx)
@@ -18,7 +20,9 @@ final class ServerFailure extends Failure {
 
 /// Errore di autenticazione (token scaduto, non autorizzato)
 final class AuthFailure extends Failure {
-  const AuthFailure({super.message = 'Sessione scaduta. Effettua nuovamente il login.'});
+  const AuthFailure({
+    super.message = 'Sessione scaduta. Effettua nuovamente il login.',
+  });
 }
 
 /// Errore di parsing / formato dati inatteso
@@ -28,5 +32,7 @@ final class ParseFailure extends Failure {
 
 /// Errore generico / inaspettato
 final class UnexpectedFailure extends Failure {
-  const UnexpectedFailure({super.message = 'Si è verificato un errore inatteso.'});
+  const UnexpectedFailure({
+    super.message = 'Si è verificato un errore inatteso.',
+  });
 }

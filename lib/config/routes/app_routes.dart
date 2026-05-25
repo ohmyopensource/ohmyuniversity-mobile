@@ -15,6 +15,9 @@ abstract final class AppRoutes {
   static const home = '/home';
   static const homeName = 'home';
 
+  static const academicCareer = '/academic-career';
+  static const academicCareerName = 'academic-career';
+
   static const didattica = '/didattica';
   static const didatticaName = 'didattica';
 
@@ -26,6 +29,9 @@ abstract final class AppRoutes {
 
   static const aziende = '/aziende';
   static const aziendeName = 'aziende';
+
+  static const services = '/services';
+  static const servicesName = 'services';
 
   // Top bar ================================
   static const preferiti = '/preferiti';
