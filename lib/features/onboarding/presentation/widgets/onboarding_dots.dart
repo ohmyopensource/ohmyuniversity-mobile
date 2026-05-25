@@ -12,23 +12,22 @@ class OnboardingDots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: List.generate(count, (index) {
         final isActive = index == currentIndex;
 
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 260),
           curve: Curves.easeInOut,
-          margin: const EdgeInsets.only(right: 6),
+          margin: const EdgeInsets.symmetric(horizontal: 3),
           width: isActive ? 24 : 8,
           height: 8,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(12),
             color: isActive
-                ? colorScheme.primary
-                : colorScheme.outlineVariant,
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.34),
           ),
         );
       }),
