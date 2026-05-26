@@ -10,6 +10,13 @@ import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/notifiche/presentation/pages/notifiche_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/orientamento/presentation/pages/argomenti/come_funziona_universita_page.dart';
+import '../../features/orientamento/presentation/pages/argomenti/errori_comuni_page.dart';
+import '../../features/orientamento/presentation/pages/argomenti/quiz_autovalutazione_page.dart';
+import '../../features/orientamento/presentation/pages/argomenti/sbocchi_lavorativi_page.dart';
+import '../../features/orientamento/presentation/pages/argomenti/scegli_corso_page.dart';
+import '../../features/orientamento/presentation/pages/argomenti/vita_universitaria_page.dart';
+import '../../features/orientamento/presentation/pages/orientamento_page.dart';
 import '../../features/preferiti/presentation/pages/preferiti_page.dart';
 import '../../features/services/presentation/pages/services_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
@@ -22,6 +29,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     routes: [
+      // Pre-auth ================================
       GoRoute(
         path: AppRoutes.splash,
         name: AppRoutes.splashName,
@@ -37,6 +45,45 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.loginName,
         builder: (context, state) => const LoginPage(),
       ),
+
+      // Orientation ================================
+      GoRoute(
+        path: AppRoutes.orientamento,
+        name: AppRoutes.orientamentoName,
+        builder: (context, state) => const OrientamentoPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.orientamentoScegliCorso,
+        name: AppRoutes.orientamentoScegliCorsoName,
+        builder: (context, state) => const ScegliCorsoPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.orientamentoQuiz,
+        name: AppRoutes.orientamentoQuizName,
+        builder: (context, state) => const QuizAutovalutazionePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.orientamentoComeFunziona,
+        name: AppRoutes.orientamentoComeFunzionaName,
+        builder: (context, state) => const ComeFunzionaUniversitaPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.orientamentoVitaUniversitaria,
+        name: AppRoutes.orientamentoVitaUniversitariaName,
+        builder: (context, state) => const VitaUniversitariaPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.orientamentoSbocchi,
+        name: AppRoutes.orientamentoSbocchiName,
+        builder: (context, state) => const SbocchiLavorativiPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.orientamentoErroriComuni,
+        name: AppRoutes.orientamentoErroriComuniName,
+        builder: (context, state) => const ErroriComuniPage(),
+      ),
+
+      // Pushed routes ================================
       GoRoute(
         path: AppRoutes.preferiti,
         name: AppRoutes.preferitiName,
@@ -52,6 +99,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.servicesName,
         builder: (context, state) => const ServicesPage(),
       ),
+
+      // App shell ================================
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return AppShell(navigationShell: navigationShell);
@@ -115,6 +164,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   );
 });
 
+// Shell widget ================================
 class AppShell extends StatefulWidget {
   const AppShell({super.key, required this.navigationShell});
 

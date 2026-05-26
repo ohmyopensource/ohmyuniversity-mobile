@@ -11,6 +11,30 @@ abstract final class AppRoutes {
   static const login = '/login';
   static const loginName = 'login';
 
+  // Orientation (pre-auth | non-student) ================================
+  static const orientamento = '/orientamento';
+  static const orientamentoName = 'orientamento';
+
+  static const orientamentoScegliCorso = '/orientamento/scegli-corso';
+  static const orientamentoScegliCorsoName = 'orientamento-scegli-corso';
+
+  static const orientamentoQuiz = '/orientamento/quiz';
+  static const orientamentoQuizName = 'orientamento-quiz';
+
+  static const orientamentoComeFunziona = '/orientamento/come-funziona';
+  static const orientamentoComeFunzionaName = 'orientamento-come-funziona';
+
+  static const orientamentoVitaUniversitaria =
+      '/orientamento/vita-universitaria';
+  static const orientamentoVitaUniversitariaName =
+      'orientamento-vita-universitaria';
+
+  static const orientamentoSbocchi = '/orientamento/sbocchi';
+  static const orientamentoSbocchiName = 'orientamento-sbocchi';
+
+  static const orientamentoErroriComuni = '/orientamento/errori-comuni';
+  static const orientamentoErroriComuniName = 'orientamento-errori-comuni';
+
   // Bottom bar ================================
   static const home = '/home';
   static const homeName = 'home';

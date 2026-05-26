@@ -127,7 +127,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 24),
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () => context.goNamed(AppRoutes.orientamentoName),
                   child: RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
