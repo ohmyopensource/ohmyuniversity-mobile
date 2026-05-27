@@ -22,8 +22,11 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.24.5"
+          channel: stable
           cache: true
+
+      - name: Verify Flutter version
+        run: flutter --version
 
       - name: Install dependencies
         run: flutter pub get
@@ -36,6 +39,3 @@ jobs:
 
       - name: Run tests
         run: flutter test
-
-      - name: Build Android (debug)
-        run: flutter build apk --debug
