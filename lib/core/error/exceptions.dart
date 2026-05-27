@@ -1,6 +1,3 @@
-// Eccezioni tecniche lanciate nel Data Layer.
-// Vengono catturate dai repository e convertite in Failure.
-
 class NetworkException implements Exception {
   const NetworkException([this.message = 'Errore di rete']);
   final String message;

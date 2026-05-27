@@ -37,18 +37,10 @@ class _SplashPageState extends ConsumerState<SplashPage>
 
   Future<void> _navigate() async {
     await Future.delayed(const Duration(milliseconds: 2400));
+
     if (!mounted) return;
 
-    final hasSeenOnboarding = ref.read(onboardingCompletedProvider);
-    final isAuthenticated = ref.read(isAuthenticatedProvider);
-
-    if (!hasSeenOnboarding) {
-      context.goNamed(AppRoutes.onboardingName);
-    } else if (isAuthenticated) {
-      context.goNamed(AppRoutes.homeName);
-    } else {
-      context.goNamed(AppRoutes.loginName);
-    }
+    context.goNamed(AppRoutes.onboardingName);
   }
 
   @override

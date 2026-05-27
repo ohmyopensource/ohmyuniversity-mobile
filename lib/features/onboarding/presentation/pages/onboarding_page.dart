@@ -27,12 +27,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     super.dispose();
   }
 
-  Future<void> _finish() async {
+  void _finish() {
     if (_isFinishing) return;
     _isFinishing = true;
 
-    await completeOnboarding(ref);
-    if (!mounted) return;
     context.goNamed(AppRoutes.loginName);
   }
 
