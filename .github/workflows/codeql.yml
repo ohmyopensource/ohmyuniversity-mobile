@@ -24,8 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         language:
-          - dart
-          - javascript-typescript
+          - java
 
     steps:
       - name: Checkout repository
@@ -36,18 +35,6 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: stable
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Analyze project
-        run: flutter analyze
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
