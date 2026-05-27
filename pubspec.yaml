@@ -101,6 +101,7 @@ flutter:
     - assets/icons/
     - assets/animations/
     - assets/animations/onboarding/
+    - assets/animations/orientation/
   # fonts:
   #   - family: Schyler
   #     fonts:
