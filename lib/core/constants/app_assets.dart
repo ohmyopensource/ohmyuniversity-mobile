@@ -10,4 +10,12 @@ abstract final class AppAssets {
       'assets/animations/onboarding/community4.json';
   static const onboardingBusinessStrategy5 =
       'assets/animations/onboarding/business strategy5.json';
+  static const orientationTetrisLoop =
+      'assets/animations/orientation/tetris_loop.json';
+
+  static const orientationPencilRuler =
+      'assets/animations/orientation/pencil_ruler.json';
+
+  static const orientationDesigningIcon =
+      'assets/animations/orientation/designing_icon.json';
 }

@@ -1,69 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../config/routes/app_routes.dart';
+import '../../../../core/constants/app_assets.dart';
+import '../widgets/orientation_path_card.dart';
 
-class _ArgomentoItem {
-  const _ArgomentoItem({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.routeName,
-  });
+class OrientamentoPage extends StatefulWidget {
+  const OrientamentoPage({super.key});
 
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final String routeName;
+  @override
+  State<OrientamentoPage> createState() => _OrientamentoPageState();
 }
 
-const _argomenti = [
-  _ArgomentoItem(
-    title: 'Scegli il corso adatto a te',
-    subtitle:
-    'Scopri come trovare il corso universitario più adatto alle tue passioni e al tuo futuro.',
-    icon: Icons.explore_outlined,
-    routeName: AppRoutes.orientamentoScegliCorsoName,
-  ),
-  _ArgomentoItem(
-    title: 'Quiz e Autovalutazione',
-    subtitle:
-    'Valuta le tue attitudini e scopri quali corsi e università potrebbero fare al caso tuo.',
-    icon: Icons.quiz_outlined,
-    routeName: AppRoutes.orientamentoQuizName,
-  ),
-  _ArgomentoItem(
-    title: 'Come funziona l\'università',
-    subtitle:
-    'CFU, esami, sessioni, frequenza: tutto quello che devi sapere prima di iniziare.',
-    icon: Icons.school_outlined,
-    routeName: AppRoutes.orientamentoComeFunzionaName,
-  ),
-  _ArgomentoItem(
-    title: 'Vita universitaria concreta',
-    subtitle:
-    'Orari, studio, gestione del tempo e vita da fuorisede: cosa aspettarsi davvero.',
-    icon: Icons.home_outlined,
-    routeName: AppRoutes.orientamentoVitaUniversitariaName,
-  ),
-  _ArgomentoItem(
-    title: 'Sbocchi lavorativi reali',
-    subtitle:
-    'Dati reali su occupazione, stipendi e prospettive per ogni macro-area di studio.',
-    icon: Icons.work_outline,
-    routeName: AppRoutes.orientamentoSbocchiName,
-  ),
-  _ArgomentoItem(
-    title: 'Errori comuni da evitare',
-    subtitle:
-    'Le trappole più frequenti di chi si iscrive all\'università e come evitarle.',
-    icon: Icons.warning_amber_outlined,
-    routeName: AppRoutes.orientamentoErroriComuniName,
-  ),
-];
+class _OrientamentoPageState extends State<OrientamentoPage> {
+  int? _selectedCardIndex;
 
-class OrientamentoPage extends StatelessWidget {
-  const OrientamentoPage({super.key});
+  void _handleCardTap(int index, String routeName) {
+    if (_selectedCardIndex != index) {
+      setState(() => _selectedCardIndex = index);
+      return;
+    }
+
+    context.goNamed(routeName);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,180 +31,70 @@ class OrientamentoPage extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Orientamento'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.goNamed(AppRoutes.loginName),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // ── Header ──────────────────────────────────
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  colorScheme.primaryContainer,
-                  colorScheme.secondaryContainer,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.school,
-                  size: 36,
-                  color: colorScheme.onPrimaryContainer,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Vuoi iscriverti all\'università\nper la prima volta?',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onPrimaryContainer,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Ti aiutiamo noi. Esplora gli argomenti qui sotto e scopri tutto quello che devi sapere.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onPrimaryContainer.withOpacity(0.8),
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          Text(
-            'Argomenti',
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              letterSpacing: 0.5,
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          // ── Topic list ───────────────────────────────
-          ...List.generate(_argomenti.length, (index) {
-            final item = _argomenti[index];
-            return _ArgomentoTile(item: item, index: index);
-          }),
-
-          const SizedBox(height: 24),
-
-          // ── Already a student ────────────────────────
-          Center(
-            child: GestureDetector(
-              onTap: () => context.goNamed(AppRoutes.loginName),
-              child: RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                  children: [
-                    const TextSpan(text: 'Sei già uno studente? '),
-                    TextSpan(
-                      text: 'Clicca qui',
-                      style: TextStyle(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.underline,
-                        decorationColor: colorScheme.primary,
-                      ),
-                    ),
-                  ],
+      backgroundColor: colorScheme.surface,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                onPressed: () => context.goNamed(AppRoutes.loginName),
+                icon: const Icon(LucideIcons.arrowLeft),
+                color: colorScheme.onSurface,
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shape: const CircleBorder(),
+                  side: BorderSide(color: colorScheme.outlineVariant),
                 ),
               ),
             ),
-          ),
-
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-}
-
-class _ArgomentoTile extends StatelessWidget {
-  const _ArgomentoTile({required this.item, required this.index});
-
-  final _ArgomentoItem item;
-  final int index;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: () => context.goNamed(item.routeName),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    item.icon,
-                    size: 22,
-                    color: colorScheme.onPrimaryContainer,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        item.subtitle,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          height: 1.3,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.chevron_right,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ],
+            const SizedBox(height: 20),
+            Text(
+              'Vuoi iniziare un nuovo percorso?\nPrima, togli ogni dubbio.',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: colorScheme.onSurface,
+                height: 1.15,
+              ),
             ),
-          ),
+            const SizedBox(height: 38),
+            OrientationPathCard(
+              title: 'Scopri il tuo percorso',
+              subtitle:
+                  'Valuta le tue passioni, fai il quiz attitudinale ed evita di scegliere per moda.',
+              animationAsset: AppAssets.orientationTetrisLoop,
+              isSelected: _selectedCardIndex == 0,
+              onTap: () => _handleCardTap(
+                0,
+                AppRoutes.orientamentoScegliCorsoName,
+              ),
+            ),
+            const SizedBox(height: 38),
+            OrientationPathCard(
+              title: 'Affronta l\'università',
+              subtitle:
+                  'Scopri cosa sono i CFU, come funzionano gli esami e come gestire la vita da fuorisede.',
+              animationAsset: AppAssets.orientationPencilRuler,
+              isSelected: _selectedCardIndex == 1,
+              onTap: () => _handleCardTap(
+                1,
+                AppRoutes.orientamentoComeFunzionaName,
+              ),
+            ),
+            const SizedBox(height: 38),
+            OrientationPathCard(
+              title: 'Oltre la Laurea',
+              subtitle:
+                  'Sii consapevole del dopo e assicurati di non cadere nelle classiche trappole.',
+              animationAsset: AppAssets.orientationDesigningIcon,
+              isSelected: _selectedCardIndex == 2,
+              onTap: () => _handleCardTap(
+                2,
+                AppRoutes.orientamentoSbocchiName,
+              ),
+            ),
+          ],
         ),
       ),
     );
