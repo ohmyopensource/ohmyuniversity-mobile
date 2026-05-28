@@ -6,6 +6,10 @@ import '../../features/academic_career/presentation/pages/academic_career_page.d
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/aziende/presentation/pages/aziende_page.dart';
 import '../../features/chat/presentation/pages/chat_page.dart';
+import '../../features/didattica/presentation/pages/administrative_page.dart';
+import '../../features/didattica/presentation/pages/didattica_page.dart';
+import '../../features/didattica/presentation/pages/study_plan_page.dart';
+import '../../features/didattica/presentation/pages/tuition_fees_page.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/notifiche/presentation/pages/notifiche_page.dart';
@@ -99,7 +103,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.servicesName,
         builder: (context, state) => const ServicesPage(),
       ),
-
+      GoRoute(
+        path: AppRoutes.academicCareer,
+        name: AppRoutes.academicCareerName,
+        builder: (context, state) => const AcademicCareerPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.didatticaStudyPlan,
+        name: AppRoutes.didatticaStudyPlanName,
+        builder: (context, state) => const StudyPlanPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.didatticaTuitionFees,
+        name: AppRoutes.didatticaTuitionFeesName,
+        builder: (context, state) => const TuitionFeesPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.didatticaAdministrative,
+        name: AppRoutes.didatticaAdministrativeName,
+        builder: (context, state) => const AdministrativePage(),
+      ),
       // App shell ================================
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -118,14 +141,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.academicCareer,
-                name: AppRoutes.academicCareerName,
-                builder: (context, state) => const AcademicCareerPage(),
-              ),
-              GoRoute(
                 path: AppRoutes.didattica,
                 name: AppRoutes.didatticaName,
-                builder: (context, state) => const AcademicCareerPage(),
+                builder: (context, state) => const DidatticaPage(),
               ),
             ],
           ),

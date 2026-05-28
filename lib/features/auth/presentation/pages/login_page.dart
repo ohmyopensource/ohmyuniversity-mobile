@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../config/routes/app_routes.dart';
@@ -66,16 +67,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
               const Spacer(flex: 2),
               Container(
-                width: 100,
-                height: 100,
+                width: 132,
+                height: 132,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: colorScheme.primaryContainer,
+                  color: colorScheme.primaryContainer.withValues(alpha: 0.42),
                 ),
-                child: Icon(
-                  Icons.school,
-                  size: 48,
-                  color: colorScheme.onPrimaryContainer,
+                child: Center(
+                  child: SvgPicture.asset(
+                    'assets/icons/logo.svg',
+                    width: 92,
+                    height: 92,
+                    colorFilter: ColorFilter.mode(
+                      colorScheme.primary,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),

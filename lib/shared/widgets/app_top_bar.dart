@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../config/routes/app_routes.dart';
+import '../../config/theme/app_colors.dart';
 import 'profile_switcher.dart';
 
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
@@ -10,9 +12,8 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
 
   @override
-  Size get preferredSize => const Size.fromHeight(72);
+  Size get preferredSize => const Size.fromHeight(78);
 
-  // TODO: replace with real profiles from auth provider
   static const _mockProfiles = [
     StudentProfile(
       name: 'Mario Rossi',
@@ -34,102 +35,116 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Background pill ================================
-            Container(
-              height: 52,
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(28),
+    return Material(
+      color: AppColors.secondary.withValues(alpha: 0.38),
+      child: SafeArea(
+        bottom: false,
+        child: Container(
+          height: 54,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          decoration: BoxDecoration(
+            color: AppColors.background.withValues(alpha: 0.92),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
               ),
-            ),
-
-            // Icons row ================================
-            Row(
-              children: [
-                // Profile
-                _TopBarIcon(
-                  icon: Icons.account_circle_outlined,
-                  tooltip: 'Profile',
-                  onTap: () => showProfileSwitcher(
-                    context,
-                    profiles: _mockProfiles,
-                    onAddAccount: () {
-                      // TODO: trigger add account flow
-                    },
-                    onLogout: () {
-                      // TODO: trigger logout use case
-                    },
+            ],
+          ),
+          child: Row(
+            children: [
+              _TopBarGroup(
+                children: [
+                  _TopBarAction(
+                    icon: LucideIcons.userCircle,
+                    tooltip: 'Profile',
+                    onTap: () => showProfileSwitcher(
+                      context,
+                      profiles: _mockProfiles,
+                      onAddAccount: () {},
+                      onLogout: () {},
+                    ),
                   ),
-                ),
-
-                // Search
-                _TopBarIcon(
-                  icon: Icons.search,
-                  tooltip: 'Search',
-                  onTap: () {
-                    // TODO: open search
-                  },
-                ),
-
-                const Spacer(),
-
-                // Favourites
-                _TopBarIcon(
-                  icon: Icons.favorite_border,
-                  tooltip: 'Favourites',
-                  onTap: () => context.pushNamed(AppRoutes.preferitiName),
-                ),
-
-                // Drawer
-                _TopBarIcon(
-                  icon: Icons.menu,
-                  tooltip: 'Menu',
-                  onTap: () => scaffoldKey.currentState?.openEndDrawer(),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 14),
+                  _TopBarAction(
+                    icon: LucideIcons.search,
+                    tooltip: 'Search',
+                    hasSoftBackground: true,
+                    onTap: () {},
+                  ),
+                ],
+              ),
+              const Spacer(),
+              _TopBarGroup(
+                children: [
+                  _TopBarAction(
+                    icon: LucideIcons.heart,
+                    tooltip: 'Favourites',
+                    onTap: () => context.pushNamed(AppRoutes.preferitiName),
+                  ),
+                  const SizedBox(width: 14),
+                  _TopBarAction(
+                    icon: LucideIcons.menu,
+                    tooltip: 'Menu',
+                    onTap: () => scaffoldKey.currentState?.openEndDrawer(),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _TopBarIcon extends StatelessWidget {
-  const _TopBarIcon({
+class _TopBarGroup extends StatelessWidget {
+  const _TopBarGroup({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(mainAxisSize: MainAxisSize.min, children: children);
+  }
+}
+
+class _TopBarAction extends StatelessWidget {
+  const _TopBarAction({
     required this.icon,
     required this.tooltip,
     required this.onTap,
+    this.hasSoftBackground = false,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onTap;
+  final bool hasSoftBackground;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    Widget iconWidget = Icon(
-      icon,
-      color: colorScheme.onSurfaceVariant,
-      size: 24,
-    );
-
     return Tooltip(
       message: tooltip,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(24),
-        onTap: onTap,
-        child: Padding(padding: const EdgeInsets.all(14), child: iconWidget),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(999),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: onTap,
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: hasSoftBackground
+                  ? AppColors.textPrimary.withValues(alpha: 0.06)
+                  : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: AppColors.textPrimary, size: 23),
+          ),
+        ),
       ),
     );
   }
