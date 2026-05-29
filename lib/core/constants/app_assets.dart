@@ -1,5 +1,6 @@
 abstract final class AppAssets {
   static const logo = 'assets/icons/logo.svg';
+  static const homeIllustration = 'assets/icons/mobile-application.svg';
   static const animatedLogo = 'assets/animations/logo.json';
 
   static const onboardingLogo1 = 'assets/animations/onboarding/logo-1.json';

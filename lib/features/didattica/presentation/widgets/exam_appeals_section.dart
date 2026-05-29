@@ -16,8 +16,8 @@ class ExamAppealsSection extends ConsumerStatefulWidget {
 
 class _ExamAppealsSectionState extends ConsumerState<ExamAppealsSection>
     with TickerProviderStateMixin {
-  static const _greenSurface = Color(0xFFE3F4E8);
-  static const _greenActive = Color(0xFFC6DDCF);
+  static const _blueSurface = Color(0xFFEEFDFF);
+  static const _blueActive = Color(0xFFBFDCEB);
 
   int? _selectedMonth;
   int _selectedStatus = 0;
@@ -91,7 +91,7 @@ class _ExamAppealsSectionState extends ConsumerState<ExamAppealsSection>
       child: Container(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 14),
         decoration: BoxDecoration(
-          color: const Color(0xFFE7EDE6),
+          color: _blueSurface,
           borderRadius: BorderRadius.circular(19),
         ),
         child: Column(
@@ -100,8 +100,8 @@ class _ExamAppealsSectionState extends ConsumerState<ExamAppealsSection>
             AppealsMonthTabs(
               months: months,
               selectedMonth: selectedMonth,
-              activeColor: _greenActive,
-              inactiveColor: _greenSurface.withValues(alpha: 0.76),
+              activeColor: _blueActive,
+              inactiveColor: AppColors.background.withValues(alpha: 0.58),
               onChanged: _changeMonth,
             ),
             const SizedBox(height: 10),
@@ -140,9 +140,9 @@ class _AppealStatusControl extends StatelessWidget {
       height: 48,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.25),
+        color: AppColors.background.withValues(alpha: 0.34),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.35)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.34)),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -159,7 +159,7 @@ class _AppealStatusControl extends StatelessWidget {
                 width: indicatorWidth,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: ExamAppealsSectionStateColors.statusIndicator,
+                    color: AppColors.background.withValues(alpha: 0.86),
                     borderRadius: BorderRadius.circular(999),
                     boxShadow: [
                       BoxShadow(
@@ -203,7 +203,7 @@ class _AppealStatusControl extends StatelessWidget {
 }
 
 abstract final class ExamAppealsSectionStateColors {
-  static const statusIndicator = Color(0xFFEAF8EE);
+  static const statusIndicator = AppColors.background;
 }
 
 class _StatusTab extends StatelessWidget {
@@ -263,6 +263,7 @@ class _ExamAppealTile extends StatelessWidget {
         final iconSize = isCompact ? 38.0 : 42.0;
         final gap = isCompact ? 7.0 : 9.0;
         const trailingWidth = 46.0;
+        final isDisabledAppeal = !appeal.isBooked && !appeal.isBookable;
 
         return Container(
           constraints: const BoxConstraints(minHeight: 76),
@@ -271,12 +272,14 @@ class _ExamAppealTile extends StatelessWidget {
             vertical: 9,
           ),
           decoration: BoxDecoration(
-            color: ExamAppealsSectionStateColors.statusIndicator.withValues(
-              alpha: 0.88,
-            ),
+            color: isDisabledAppeal
+                ? const Color(0xFFE8EAED)
+                : AppColors.background.withValues(alpha: 0.82),
             borderRadius: BorderRadius.circular(13),
             border: Border.all(
-              color: AppColors.textPrimary.withValues(alpha: 0.16),
+              color: isDisabledAppeal
+                  ? AppColors.textPrimary.withValues(alpha: 0.12)
+                  : AppColors.textPrimary.withValues(alpha: 0.18),
             ),
           ),
           child: Row(
@@ -285,12 +288,16 @@ class _ExamAppealTile extends StatelessWidget {
                 width: iconSize,
                 height: iconSize,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFBDE8CB),
+                  color: isDisabledAppeal
+                      ? AppColors.textPrimary.withValues(alpha: 0.10)
+                      : const Color(0xFFBFDCEB),
                   borderRadius: BorderRadius.circular(13),
                 ),
-                child: const Icon(
+                child: Icon(
                   LucideIcons.calendarDays,
-                  color: AppColors.textPrimary,
+                  color: isDisabledAppeal
+                      ? AppColors.textPrimary.withValues(alpha: 0.46)
+                      : Color(0xFF5B93AE),
                   size: 20,
                 ),
               ),
@@ -408,8 +415,8 @@ class _AppealBookingStateButtonState extends State<_AppealBookingStateButton> {
     final isEnabled = widget.isBookable;
     final backgroundColor = isEnabled
         ? _isPressed
-              ? const Color(0xFF4EAD72)
-              : const Color(0xFF62C985)
+              ? const Color(0xFF2F7FD6)
+              : AppColors.labelBlue
         : AppColors.textPrimary.withValues(alpha: 0.12);
 
     return AnimatedScale(
@@ -475,9 +482,7 @@ class _EmptyAppealsTile extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
-        color: ExamAppealsSectionStateColors.statusIndicator.withValues(
-          alpha: 0.72,
-        ),
+        color: AppColors.background.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(13),
       ),
       child: Text(

@@ -250,7 +250,7 @@ class DidatticaMockDataSource {
 
   DidatticaStatisticsModel getStatistics() {
     return DidatticaStatisticsModel(
-      projectedGraduationBase: 84.33,
+      projectedGraduationBase: 90,
       maxGraduationBase: 110,
       averageTrend: [
         AverageTrendPointModel(date: DateTime(2026, 5, 23), value: 30),
