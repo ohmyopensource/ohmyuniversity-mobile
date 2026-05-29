@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../features/academic_career/presentation/pages/academic_career_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -197,29 +198,29 @@ class _AppShellState extends State<AppShell> {
 
   static const _destinations = [
     NavigationDestination(
-      icon: Icon(Icons.home_outlined),
-      selectedIcon: Icon(Icons.home),
+      icon: Icon(LucideIcons.home),
+      selectedIcon: Icon(LucideIcons.home),
       label: 'Home',
     ),
     NavigationDestination(
-      icon: Icon(Icons.school_outlined),
-      selectedIcon: Icon(Icons.school),
+      icon: Icon(LucideIcons.graduationCap),
+      selectedIcon: Icon(LucideIcons.graduationCap),
       label: 'Didattica',
     ),
     NavigationDestination(
-      icon: Icon(Icons.language_outlined),
-      selectedIcon: Icon(Icons.language),
-      label: 'Explore',
+      icon: Icon(LucideIcons.globe2),
+      selectedIcon: Icon(LucideIcons.globe2),
+      label: 'Futuro',
     ),
     NavigationDestination(
-      icon: Icon(Icons.chat_bubble_outline),
-      selectedIcon: Icon(Icons.chat_bubble),
+      icon: Icon(LucideIcons.messageSquare),
+      selectedIcon: Icon(LucideIcons.messageSquare),
       label: 'Chat',
     ),
     NavigationDestination(
-      icon: Icon(Icons.business_center_outlined),
-      selectedIcon: Icon(Icons.business_center),
-      label: 'Aziende',
+      icon: Icon(LucideIcons.briefcase),
+      selectedIcon: Icon(LucideIcons.briefcase),
+      label: 'Partner',
     ),
   ];
 

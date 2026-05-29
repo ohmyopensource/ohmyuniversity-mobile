@@ -302,20 +302,11 @@ class _CareerMetricsGrid extends StatelessWidget {
           ),
           SizedBox(height: 12),
           Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: _MetricTile(
-                    label: 'Cfu acquisiti',
-                    value: '90/180',
-                    showProgress: true,
-                  ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: _MetricTile(label: 'Base di laurea', value: '99'),
-                ),
-              ],
+            child: _MetricTile(
+              label: 'Cfu acquisiti',
+              value: '90/180',
+              showProgress: true,
+              isWide: true,
             ),
           ),
         ],
@@ -329,18 +320,23 @@ class _MetricTile extends StatelessWidget {
     required this.label,
     required this.value,
     this.showProgress = false,
+    this.isWide = false,
   });
 
   final String label;
   final String value;
   final bool showProgress;
+  final bool isWide;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 10),
+      padding: EdgeInsets.symmetric(
+        horizontal: isWide ? 14 : 9,
+        vertical: isWide ? 12 : 10,
+      ),
       decoration: BoxDecoration(
         color: StudentCareerSummaryCard._tileColor,
         borderRadius: BorderRadius.circular(17),
@@ -352,48 +348,106 @@ class _MetricTile extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w700,
-              height: 1.05,
-              fontSize: 10,
-            ),
-          ),
-          const SizedBox(height: 7),
-          FittedBox(
-            child: Text(
-              value,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w900,
-                height: 1,
-              ),
-            ),
-          ),
-          if (showProgress) ...[
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: LinearProgressIndicator(
-                value: 0.5,
-                minHeight: 5,
-                backgroundColor: Colors.white.withValues(alpha: 0.72),
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  StudentCareerSummaryCard._successColor,
+      child: isWide
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w800,
+                          height: 1,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    FittedBox(
+                      child: Text(
+                        value,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w900,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: LinearProgressIndicator(
+                    value: 0.5,
+                    minHeight: 7,
+                    backgroundColor: Colors.white.withValues(alpha: 0.74),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      StudentCareerSummaryCard._successColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '90 CFU completati su 180',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: AppColors.textPrimary.withValues(alpha: 0.64),
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                  ),
+                ),
+              ],
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                    height: 1.05,
+                    fontSize: 10,
+                  ),
+                ),
+                const SizedBox(height: 7),
+                FittedBox(
+                  child: Text(
+                    value,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w900,
+                      height: 1,
+                    ),
+                  ),
+                ),
+                if (showProgress) ...[
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
+                    child: LinearProgressIndicator(
+                      value: 0.5,
+                      minHeight: 5,
+                      backgroundColor: Colors.white.withValues(alpha: 0.72),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        StudentCareerSummaryCard._successColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
-        ],
-      ),
     );
   }
 }

@@ -29,7 +29,7 @@ class AppDrawer extends StatelessWidget {
 
   // TODO: replace with real data from active profile provider
   static const _mockUniversity = UniversityInfo(
-    name: 'UniversitÃƒÂ  degli Studi',
+    name: 'UNIMOL',
     websiteUrl: 'https://www.university.edu',
     mailUrl: 'https://mail.university.edu',
   );
@@ -59,7 +59,7 @@ class AppDrawer extends StatelessWidget {
                     label: 'Trasporti',
                   ),
                   _DrawerItem(
-                    label: 'Raggiungi l\'universitÃƒÂ ',
+                    label: 'Raggiungi UNIMOL',
                     onTap: () => _close(context),
                   ),
                   _DrawerItem(
