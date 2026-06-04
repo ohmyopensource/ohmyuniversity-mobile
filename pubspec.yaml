@@ -1,4 +1,4 @@
-﻿# ================================
+# ================================
 # OhMyUniversity! - Mobile
 # ================================
 
@@ -21,7 +21,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # Navigation ================================
-  go_router: ^17.2.3
+  go_router: ^17.3.0
 
   # State Management + DI ================================
   flutter_riverpod: ^3.1.0
