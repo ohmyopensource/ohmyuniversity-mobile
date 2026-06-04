@@ -20,14 +20,14 @@ class ErroriComuniPage extends StatelessWidget {
             color: Color(0xFFEA4335),
             title: 'Scegliere per moda',
             body:
-                'Informatica, economia, marketing: ci sono corsi che "vanno" in un certo periodo storico. Ma se non ti appassionano, il rischio di abbandonare è altissimo. Il mercato del lavoro cambia: punta su ciò che ti motiva, non su ciò che è trendy.',
+                'Informatica, economia, marketing: ci sono corsi che "vanno" in un certo periodo storico. Ma se non ti appassionano, il rischio di abbandonare \u00E8 altissimo. Il mercato del lavoro cambia: punta su ci\u00F2 che ti motiva, non su ci\u00F2 che \u00E8 trendy.',
           ),
           _ErrorCard(
             icon: Icons.people_outline,
             color: Color(0xFFFF6D00),
             title: 'Seguire gli amici',
             body:
-                'Andare nella stessa università degli amici può sembrare rassicurante. Ma se il corso non è giusto per te, saranno tre anni difficili. La scelta universitaria è personale: i tuoi amici avranno i loro percorsi, tu abbi il tuo.',
+                'Andare nella stessa universit\u00E0 degli amici pu\u00F2 sembrare rassicurante. Ma se il corso non \u00E8 giusto per te, saranno tre anni difficili. La scelta universitaria \u00E8 personale: i tuoi amici avranno i loro percorsi, tu abbi il tuo.',
           ),
           _ErrorCard(
             icon: Icons.functions_outlined,
@@ -41,21 +41,21 @@ class ErroriComuniPage extends StatelessWidget {
             color: Color(0xFF1A73E8),
             title: 'Non informarsi sugli esami',
             body:
-                'Molti studenti si iscrivono senza aver mai visto un esame del corso che scelgono. Cerca su YouTube, chiedi a studenti degli anni superiori, leggi i forum universitari. Sapere cosa ti aspetta è già metà del lavoro.',
+                'Molti studenti si iscrivono senza aver mai visto un esame del corso che scelgono. Cerca su YouTube, chiedi a studenti degli anni superiori, leggi i forum universitari. Sapere cosa ti aspetta \u00E8 gi\u00E0 met\u00E0 del lavoro.',
           ),
           _ErrorCard(
             icon: Icons.event_busy_outlined,
             color: Color(0xFF34A853),
             title: 'Rimandare la prima sessione',
             body:
-                'Il primo anno è fondamentale. Chi rimanda gli esami della prima sessione tende ad accumulare ritardo che diventa sempre più difficile da recuperare. Inizia subito, anche se non sei sicuro di essere pronto.',
+                'Il primo anno \u00E8 fondamentale. Chi rimanda gli esami della prima sessione tende ad accumulare ritardo che diventa sempre pi\u00F9 difficile da recuperare. Inizia subito, anche se non sei sicuro di essere pronto.',
           ),
           _ErrorCard(
             icon: Icons.attach_money_outlined,
             color: Color(0xFFFBBC04),
             title: 'Non informarsi su borse e agevolazioni',
             body:
-                'Migliaia di studenti perdono ogni anno borse di studio e agevolazioni semplicemente perché non fanno domanda in tempo. Controlla i bandi DSU regionali, le borse di merito, i posti in residenza: i soldi ci sono, bisogna saperli trovare.',
+                'Migliaia di studenti perdono ogni anno borse di studio e agevolazioni semplicemente perch\u00E9 non fanno domanda in tempo. Controlla i bandi DSU regionali, le borse di merito, i posti in residenza: i soldi ci sono, bisogna saperli trovare.',
           ),
         ],
       ),
