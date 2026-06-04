@@ -6,7 +6,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../../config/theme/app_colors.dart';
 import 'dashboard_empty_state.dart';
-import 'dashboard_grid_background.dart';
 import 'dashboard_widget_picker.dart';
 
 class DashboardGrid extends StatefulWidget {
@@ -30,7 +29,7 @@ class _DashboardGridState extends State<DashboardGrid> {
     if (_isEditing) return;
 
     _cancelLongPressTimer();
-    _longPressTimer = Timer(const Duration(seconds: 2), () {
+    _longPressTimer = Timer(const Duration(seconds: 1), () {
       if (!mounted) return;
 
       HapticFeedback.mediumImpact();
@@ -81,15 +80,7 @@ class _DashboardGridState extends State<DashboardGrid> {
       onTapCancel: _cancelLongPressTimer,
       child: Stack(
         children: [
-          Positioned.fill(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 240),
-              child: _isEditing
-                  ? const DashboardGridBackground()
-                  : const DashboardEmptyState(),
-            ),
-          ),
-
+          Positioned.fill(child: DashboardEmptyState(isEditing: _isEditing)),
           if (_isEditing)
             Positioned(
               top: 16,

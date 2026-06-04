@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../../config/constants/app_day_greeting.dart';
 import '../../../../../config/theme/app_colors.dart';
@@ -11,30 +12,46 @@ class HomeWelcomeCard extends StatelessWidget {
     final theme = Theme.of(context);
     final greeting = AppDayGreeting.resolve();
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.background.withValues(alpha: 0.88),
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: AppColors.secondary.withValues(alpha: 0.08),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppColors.secondary.withValues(alpha: 0.16),
+            ),
           ),
-        ],
-      ),
-      child: Text(
-        '$greeting, Mario',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: theme.textTheme.titleLarge?.copyWith(
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w900,
-          height: 1,
+          child: const Icon(
+            LucideIcons.userCircle,
+            color: AppColors.textPrimary,
+            size: 25,
+          ),
         ),
-      ),
+        const SizedBox(height: 8),
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(text: '$greeting, '),
+              const TextSpan(
+                text: 'Mario',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w800,
+            height: 1,
+          ),
+        ),
+      ],
     );
   }
 }

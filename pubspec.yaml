@@ -1,4 +1,4 @@
-﻿# ================================
+# ================================
 # OhMyUniversity! - Mobile
 # ================================
 
@@ -100,6 +100,7 @@ flutter:
   assets:
     - assets/icons/
     - assets/animations/
+    - assets/animations/home/
     - assets/animations/onboarding/
     - assets/animations/orientation/
   # fonts:
@@ -113,3 +114,4 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
+
