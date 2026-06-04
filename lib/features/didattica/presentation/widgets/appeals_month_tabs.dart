@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../config/theme/app_colors.dart';
+import '../../domain/entities/exam_appeal_month_entity.dart';
 
 class AppealsMonthTabs extends StatelessWidget {
   const AppealsMonthTabs({
@@ -12,11 +13,11 @@ class AppealsMonthTabs extends StatelessWidget {
     required this.onChanged,
   });
 
-  final List<int> months;
-  final int selectedMonth;
+  final List<ExamAppealMonthEntity> months;
+  final ExamAppealMonthEntity? selectedMonth;
   final Color activeColor;
   final Color inactiveColor;
-  final ValueChanged<int> onChanged;
+  final ValueChanged<ExamAppealMonthEntity> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class AppealsMonthTabs extends StatelessWidget {
             SizedBox(
               width: 96,
               child: _MonthTab(
-                label: _monthLabel(months[index]),
+                label: _monthLabel(months[index].month),
                 isSelected: selectedMonth == months[index],
                 activeColor: activeColor,
                 inactiveColor: inactiveColor,

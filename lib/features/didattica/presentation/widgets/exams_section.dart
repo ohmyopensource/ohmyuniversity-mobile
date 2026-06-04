@@ -17,6 +17,7 @@ class _ExamsSectionState extends ConsumerState<ExamsSection>
     with TickerProviderStateMixin {
   int _selectedYear = 1;
   int _selectedSemester = 0;
+  final Map<String, int> _provisionalGrades = {};
 
   List<int> _availableYears(List<DidatticaExamCourseEntity> courses) {
     final years = courses.map((course) => course.year).toSet().toList()..sort();
@@ -50,6 +51,10 @@ class _ExamsSectionState extends ConsumerState<ExamsSection>
     if (semester == _selectedSemester) return;
 
     setState(() => _selectedSemester = semester);
+  }
+
+  void _changeProvisionalGrade(String courseId, int grade) {
+    setState(() => _provisionalGrades[courseId] = grade);
   }
 
   @override
@@ -88,7 +93,11 @@ class _ExamsSectionState extends ConsumerState<ExamsSection>
             ),
             const SizedBox(height: 10),
             for (var index = 0; index < visibleCourses.length; index++) ...[
-              _ExamCourseTile(course: visibleCourses[index]),
+              _ExamCourseTile(
+                course: visibleCourses[index],
+                provisionalGrade: _provisionalGrades[visibleCourses[index].id],
+                onProvisionalGradeChanged: _changeProvisionalGrade,
+              ),
               if (index != visibleCourses.length - 1)
                 const SizedBox(height: 10),
             ],
@@ -320,9 +329,15 @@ class _SemesterTab extends StatelessWidget {
 }
 
 class _ExamCourseTile extends StatelessWidget {
-  const _ExamCourseTile({required this.course});
+  const _ExamCourseTile({
+    required this.course,
+    required this.provisionalGrade,
+    required this.onProvisionalGradeChanged,
+  });
 
   final DidatticaExamCourseEntity course;
+  final int? provisionalGrade;
+  final void Function(String courseId, int grade) onProvisionalGradeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -330,13 +345,20 @@ class _ExamCourseTile extends StatelessWidget {
 
     return Container(
       constraints: const BoxConstraints(minHeight: 58),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(12, 8, 7, 8),
       decoration: BoxDecoration(
-        color: AppColors.background.withValues(alpha: 0.82),
+        color: Colors.white.withValues(alpha: 0.86),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: AppColors.textPrimary.withValues(alpha: 0.18),
+          color: AppColors.textPrimary.withValues(alpha: 0.045),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -376,8 +398,8 @@ class _ExamCourseTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary.withValues(alpha: 0.72),
+                    fontWeight: FontWeight.w600,
                     height: 1,
                   ),
                 ),
@@ -385,40 +407,172 @@ class _ExamCourseTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 9),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '${course.credits}',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w900,
-                  height: 0.95,
-                ),
-              ),
-              Text(
-                'CFU',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w900,
-                  height: 1,
-                ),
-              ),
-            ],
+          _CreditsBadge(credits: course.credits),
+          const SizedBox(width: 8),
+          _ExamGradeBox(
+            course: course,
+            provisionalGrade: provisionalGrade,
+            onChanged: (grade) => onProvisionalGradeChanged(course.id, grade),
           ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 30,
-            child: Text(
-              course.grade ?? '',
-              textAlign: TextAlign.right,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w900,
-                height: 1,
+        ],
+      ),
+    );
+  }
+}
+
+class _CreditsBadge extends StatelessWidget {
+  const _CreditsBadge({required this.credits});
+
+  final int credits;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SizedBox(
+      width: 34,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '$credits',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w900,
+              height: 0.95,
+            ),
+          ),
+          Text(
+            'CFU',
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w900,
+              height: 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ExamGradeBox extends StatelessWidget {
+  const _ExamGradeBox({
+    required this.course,
+    required this.provisionalGrade,
+    required this.onChanged,
+  });
+
+  final DidatticaExamCourseEntity course;
+  final int? provisionalGrade;
+  final ValueChanged<int> onChanged;
+
+  static final _availableGrades = List<int>.generate(31, (index) => 30 - index);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final label = course.passed
+        ? course.grade ?? '-'
+        : '${provisionalGrade ?? _parseGrade(course.grade) ?? '--'}';
+
+    if (course.passed) {
+      return _GradeSurface(
+        label: label,
+        textColor: AppColors.textPrimary.withValues(alpha: 0.82),
+        backgroundColor: AppColors.textPrimary.withValues(alpha: 0.08),
+        borderColor: Colors.transparent,
+      );
+    }
+
+    return PopupMenuButton<int>(
+      tooltip: 'Aggiungi voto provvisorio',
+      initialValue: provisionalGrade ?? _parseGrade(course.grade),
+      color: Colors.white,
+      elevation: 8,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+      constraints: const BoxConstraints(maxHeight: 260, minWidth: 54),
+      onSelected: onChanged,
+      itemBuilder: (context) => [
+        for (final grade in _availableGrades)
+          PopupMenuItem<int>(
+            value: grade,
+            height: 36,
+            child: Center(
+              child: Text(
+                '$grade',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
           ),
+      ],
+      child: _GradeSurface(
+        label: label,
+        textColor: AppColors.textPrimary,
+        backgroundColor: const Color(0xFFF7F7F3),
+        borderColor: AppColors.cta.withValues(alpha: 0.13),
+        showChevron: true,
+      ),
+    );
+  }
+
+  int? _parseGrade(String? grade) {
+    if (grade == null) return null;
+    return int.tryParse(grade.replaceAll('L', ''));
+  }
+}
+
+class _GradeSurface extends StatelessWidget {
+  const _GradeSurface({
+    required this.label,
+    required this.textColor,
+    required this.backgroundColor,
+    required this.borderColor,
+    this.showChevron = false,
+  });
+
+  final String label;
+  final Color textColor;
+  final Color backgroundColor;
+  final Color borderColor;
+  final bool showChevron;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+      width: 43,
+      height: 47,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(11),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.w900,
+              height: 1,
+            ),
+          ),
+          if (showChevron)
+            Icon(
+              LucideIcons.chevronDown,
+              size: 12,
+              color: textColor.withValues(alpha: 0.72),
+            ),
         ],
       ),
     );
