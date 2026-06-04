@@ -5,8 +5,6 @@ import 'package:lottie/lottie.dart';
 
 import '../../../../config/routes/app_routes.dart';
 import '../../../../core/constants/app_assets.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../onboarding/presentation/providers/onboarding_provider.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});

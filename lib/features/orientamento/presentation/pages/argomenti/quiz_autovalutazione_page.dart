@@ -4,7 +4,6 @@ import '../../widgets/info_section.dart';
 import '../../widgets/orientamento_card.dart';
 import '../orientamento_shell.dart';
 
-
 class QuizAutovalutazionePage extends StatelessWidget {
   const QuizAutovalutazionePage({super.key});
 
@@ -27,25 +26,25 @@ class QuizAutovalutazionePage extends StatelessWidget {
                   icon: Icons.school_outlined,
                   title: 'Scegli l\'università',
                   body:
-                  'Prima di fare un quiz, è utile già avere in mente due o tre atenei che ti attraggono. Il quiz ti aiuterà a capire se la tua scelta è coerente con il tuo profilo.',
+                      'Prima di fare un quiz, è utile già avere in mente due o tre atenei che ti attraggono. Il quiz ti aiuterà a capire se la tua scelta è coerente con il tuo profilo.',
                 ),
                 InfoSection(
                   icon: Icons.menu_book_outlined,
                   title: 'Scegli il corso universitario',
                   body:
-                  'Ogni corso ha prerequisiti diversi. Sapere verso quale corso ti stai orientando ti permette di fare una autovalutazione più precisa e mirata.',
+                      'Ogni corso ha prerequisiti diversi. Sapere verso quale corso ti stai orientando ti permette di fare una autovalutazione più precisa e mirata.',
                 ),
                 InfoSection(
                   icon: Icons.account_tree_outlined,
                   title: 'Macro-area del corso',
                   body:
-                  'Le macro-aree (ING/INF, TUR, MED, LET, ECO...) raggruppano corsi con caratteristiche simili. Conoscere la tua macro-area ti aiuta a capire il tipo di ragionamento e le competenze che ti saranno richieste.',
+                      'Le macro-aree (ING/INF, TUR, MED, LET, ECO...) raggruppano corsi con caratteristiche simili. Conoscere la tua macro-area ti aiuta a capire il tipo di ragionamento e le competenze che ti saranno richieste.',
                 ),
                 InfoSection(
                   icon: Icons.checklist_outlined,
                   title: 'Test d\'ingresso',
                   body:
-                  'Molti corsi prevedono un test d\'ingresso — alcuni selettivi (medicina, architettura), altri orientativi (ingegneria, economia). In questa sezione troverai l\'elenco dei test per ogni università selezionata e materiale per prepararti.',
+                      'Molti corsi prevedono un test d\'ingresso — alcuni selettivi (medicina, architettura), altri orientativi (ingegneria, economia). In questa sezione troverai l\'elenco dei test per ogni università selezionata e materiale per prepararti.',
                 ),
               ],
             ),
@@ -67,7 +66,11 @@ class QuizAutovalutazionePage extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Icon(Icons.quiz, size: 40, color: colorScheme.onPrimaryContainer),
+                Icon(
+                  Icons.quiz,
+                  size: 40,
+                  color: colorScheme.onPrimaryContainer,
+                ),
                 const SizedBox(height: 12),
                 Text(
                   'Quiz in arrivo',
@@ -81,7 +84,9 @@ class QuizAutovalutazionePage extends StatelessWidget {
                   'Stiamo integrando i dati di MUR e European Data Portal per offrirti un quiz di autovalutazione personalizzato. Torna presto!',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                    color: colorScheme.onPrimaryContainer.withValues(
+                      alpha: 0.8,
+                    ),
                     height: 1.4,
                   ),
                 ),
