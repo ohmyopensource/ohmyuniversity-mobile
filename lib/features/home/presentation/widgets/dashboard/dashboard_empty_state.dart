@@ -5,14 +5,24 @@ import 'package:lottie/lottie.dart';
 
 import '../../../../../config/theme/app_colors.dart';
 import '../../../../../core/constants/app_assets.dart';
-import 'dashboard_grid_background.dart';
+import '../../models/dashboard_widget_item.dart';
+import 'dashboard_widget_board.dart';
 import 'home_academic_info_card.dart';
 import 'home_welcome_card.dart';
 
 class DashboardEmptyState extends StatelessWidget {
-  const DashboardEmptyState({super.key, required this.isEditing});
+  const DashboardEmptyState({
+    super.key,
+    required this.isEditing,
+    required this.items,
+    required this.onWidgetMoved,
+    required this.onWidgetRemoved,
+  });
 
   final bool isEditing;
+  final List<DashboardWidgetItem> items;
+  final void Function(String id, int columnDelta, int rowDelta) onWidgetMoved;
+  final ValueChanged<String> onWidgetRemoved;
 
   @override
   Widget build(BuildContext context) {
@@ -36,14 +46,16 @@ class DashboardEmptyState extends StatelessWidget {
                   const SizedBox(height: 10),
                   SizedBox(
                     height: lowerContentHeight,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 240),
-                        child: isEditing
-                            ? const DashboardGridBackground()
-                            : const _DashboardEmptyContent(),
-                      ),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 240),
+                      child: items.isEmpty && !isEditing
+                          ? const _DashboardEmptyContent()
+                          : DashboardWidgetBoard(
+                              items: items,
+                              isEditing: isEditing,
+                              onWidgetMoved: onWidgetMoved,
+                              onWidgetRemoved: onWidgetRemoved,
+                            ),
                     ),
                   ),
                 ],
@@ -91,7 +103,7 @@ class _DashboardEmptyContent extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "E' tutto cos\u00EC pulito...",
+                    "E' tutto così pulito...",
                     textAlign: TextAlign.center,
                     style: theme.textTheme.titleLarge?.copyWith(
                       color: AppColors.textPrimary,
