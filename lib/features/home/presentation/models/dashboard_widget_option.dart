@@ -117,9 +117,9 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.bookOpenCheck,
     accentColor: Color(0xFF5B93AE),
     accentBackgroundColor: Color(0xFFEAF1F5),
-    columnSpan: 2,
-    rowSpan: 1,
-    size: Size(204, 98),
+    columnSpan: 4,
+    rowSpan: 5,
+    size: Size(304, 322),
   );
 
   static const appeals = DashboardWidgetOption(
@@ -129,9 +129,9 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.calendarDays,
     accentColor: Color(0xFF62A77D),
     accentBackgroundColor: Color(0xFFEAF5EE),
-    columnSpan: 2,
-    rowSpan: 1,
-    size: Size(204, 98),
+    columnSpan: 4,
+    rowSpan: 4,
+    size: Size(304, 314),
   );
 
   static const tuitionFees = DashboardWidgetOption(
@@ -141,9 +141,9 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.creditCard,
     accentColor: Color(0xFFE1A72F),
     accentBackgroundColor: Color(0xFFF8F2DF),
-    columnSpan: 2,
-    rowSpan: 1,
-    size: Size(204, 98),
+    columnSpan: 4,
+    rowSpan: 4,
+    size: Size(304, 296),
   );
 
   static const all = [

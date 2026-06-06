@@ -36,11 +36,12 @@ class _DashboardGridState extends State<DashboardGrid> {
     if (_isEditing) return;
 
     _cancelLongPressTimer();
-    _longPressTimer = Timer(const Duration(seconds: 1), () {
+    _longPressTimer = Timer(const Duration(milliseconds: 650), () {
       if (!mounted) return;
 
       HapticFeedback.mediumImpact();
-      setState(() => _isEditing = true);
+      _longPressTimer = null;
+      _openWidgetPicker();
     });
   }
 

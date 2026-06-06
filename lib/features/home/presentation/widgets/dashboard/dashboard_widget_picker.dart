@@ -5,8 +5,32 @@ import '../../../../../config/theme/app_colors.dart';
 import '../../models/dashboard_widget_option.dart';
 import 'dashboard_widget_content.dart';
 
-class DashboardWidgetPicker extends StatelessWidget {
+class DashboardWidgetPicker extends StatefulWidget {
   const DashboardWidgetPicker({super.key});
+
+  @override
+  State<DashboardWidgetPicker> createState() => _DashboardWidgetPickerState();
+}
+
+class _DashboardWidgetPickerState extends State<DashboardWidgetPicker> {
+  String? _selectedOptionKey;
+
+  void _selectOption(DashboardWidgetOption option) {
+    if (_selectedOptionKey == option.key) return;
+
+    HapticFeedback.selectionClick();
+    setState(() => _selectedOptionKey = option.key);
+  }
+
+  void _confirmOption(DashboardWidgetOption option) {
+    if (_selectedOptionKey != option.key) {
+      _selectOption(option);
+      return;
+    }
+
+    HapticFeedback.mediumImpact();
+    Navigator.of(context).pop(option);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,10 +104,9 @@ class DashboardWidgetPicker extends StatelessWidget {
 
                           return _DashboardWidgetPreviewTile(
                             option: option,
-                            onSelected: () {
-                              HapticFeedback.mediumImpact();
-                              Navigator.of(context).pop(option);
-                            },
+                            isSelected: _selectedOptionKey == option.key,
+                            onTap: () => _selectOption(option),
+                            onLongPress: () => _confirmOption(option),
                           );
                         },
                       ),
@@ -102,32 +125,65 @@ class DashboardWidgetPicker extends StatelessWidget {
 class _DashboardWidgetPreviewTile extends StatelessWidget {
   const _DashboardWidgetPreviewTile({
     required this.option,
-    required this.onSelected,
+    required this.isSelected,
+    required this.onTap,
+    required this.onLongPress,
   });
 
   final DashboardWidgetOption option;
-  final VoidCallback onSelected;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final borderColor = isSelected
+        ? AppColors.labelBlue
+        : AppColors.textPrimary.withValues(alpha: 0.04);
+    final backgroundColor = isSelected
+        ? AppColors.labelBlue.withValues(alpha: 0.055)
+        : Colors.transparent;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onLongPress: onSelected,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
+        onTap: onTap,
+        onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(23),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(23),
+            border: Border.all(color: borderColor, width: isSelected ? 1.4 : 1),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppColors.labelBlue.withValues(alpha: 0.12),
+                      blurRadius: 14,
+                      offset: const Offset(0, 7),
+                    ),
+                  ]
+                : null,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Center(
-                child: SizedBox(
-                  width: option.size.width,
-                  height: option.size.height,
-                  child: DashboardWidgetContent(option: option, preview: true),
+                child: IgnorePointer(
+                  child: SizedBox(
+                    width: option.size.width,
+                    height: option.size.height,
+                    child: DashboardWidgetContent(
+                      option: option,
+                      preview: true,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -137,7 +193,9 @@ class _DashboardWidgetPreviewTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  color: AppColors.textPrimary,
+                  color: isSelected
+                      ? AppColors.labelBlue
+                      : AppColors.textPrimary,
                   fontWeight: FontWeight.w900,
                   height: 1,
                   shadows: _titleShadows,
