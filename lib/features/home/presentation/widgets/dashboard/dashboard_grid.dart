@@ -36,10 +36,17 @@ class _DashboardGridState extends State<DashboardGrid> {
     if (_isEditing) return;
 
     _cancelLongPressTimer();
-    _longPressTimer = Timer(const Duration(seconds: 1), () {
+    _longPressTimer = Timer(const Duration(milliseconds: 650), () {
       if (!mounted) return;
 
       HapticFeedback.mediumImpact();
+      _longPressTimer = null;
+
+      if (_items.isEmpty) {
+        _openWidgetPicker();
+        return;
+      }
+
       setState(() => _isEditing = true);
     });
   }
@@ -68,7 +75,7 @@ class _DashboardGridState extends State<DashboardGrid> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           const SnackBar(
-            content: Text('Non c\'e spazio libero nella griglia'),
+            content: Text('Non c\'è spazio libero nella dashboard'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -186,8 +193,6 @@ class _DashboardGridState extends State<DashboardGrid> {
 
   @override
   Widget build(BuildContext context) {
-    final canShowWidgetActions = _isEditing || _items.isNotEmpty;
-
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => _startLongPressTimer(),
@@ -217,7 +222,7 @@ class _DashboardGridState extends State<DashboardGrid> {
                 child: const Icon(LucideIcons.x),
               ),
             ),
-          if (canShowWidgetActions)
+          if (_isEditing)
             Positioned(
               right: 20,
               bottom: 24,
