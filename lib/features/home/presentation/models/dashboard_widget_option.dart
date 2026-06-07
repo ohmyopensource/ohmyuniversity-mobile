@@ -81,7 +81,7 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.graduationCap,
     accentColor: Color(0xFF34A853),
     accentBackgroundColor: Color(0xFFE7F6EC),
-    columnSpan: 3,
+    columnSpan: 4,
     rowSpan: 1,
     size: Size(204, 98),
   );

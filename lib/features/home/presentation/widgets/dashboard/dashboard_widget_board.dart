@@ -37,20 +37,31 @@ class DashboardWidgetBoard extends StatelessWidget {
                   : const ColoredBox(color: AppColors.background),
             ),
             for (final item in items)
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 180),
-                curve: Curves.easeOutCubic,
-                left: item.column * cellSize + (_tileGap / 2),
-                top: item.row * cellSize + (_tileGap / 2),
-                width: item.option.size.width,
-                height: item.option.size.height,
-                child: DashboardPlacedWidgetTile(
-                  item: item,
-                  cellSize: cellSize,
-                  isEditing: isEditing,
-                  onMoved: onWidgetMoved,
-                  onRemoved: onWidgetRemoved,
-                ),
+              Builder(
+                builder: (context) {
+                  final areaLeft = item.column * cellSize + (_tileGap / 2);
+                  final areaWidth = item.columnSpan * cellSize - _tileGap;
+                  final itemWidth = item.columnSpan == _columns
+                      ? areaWidth
+                      : item.option.size.width.clamp(0, areaWidth).toDouble();
+                  final centeredLeft = areaLeft + ((areaWidth - itemWidth) / 2);
+
+                  return AnimatedPositioned(
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOutCubic,
+                    left: centeredLeft,
+                    top: item.row * cellSize + (_tileGap / 2),
+                    width: itemWidth,
+                    height: item.option.size.height,
+                    child: DashboardPlacedWidgetTile(
+                      item: item,
+                      cellSize: cellSize,
+                      isEditing: isEditing,
+                      onMoved: onWidgetMoved,
+                      onRemoved: onWidgetRemoved,
+                    ),
+                  );
+                },
               ),
           ],
         );

@@ -24,18 +24,36 @@ class DashboardEmptyState extends StatelessWidget {
   final void Function(String id, int columnDelta, int rowDelta) onWidgetMoved;
   final ValueChanged<String> onWidgetRemoved;
 
+  static const _horizontalPadding = 24.0;
+  static const _dashboardColumns = 4;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: LayoutBuilder(
         builder: (context, constraints) {
+          final dashboardWidth =
+              constraints.maxWidth - (_horizontalPadding * 2);
+          final cellSize = dashboardWidth / _dashboardColumns;
+          final occupiedRows = items.fold<int>(
+            0,
+            (maxRows, item) => math.max(maxRows, item.row + item.rowSpan),
+          );
           final lowerContentHeight = math.max(
             430.0,
-            constraints.maxHeight - 150,
+            math.max(
+              constraints.maxHeight - 150,
+              (occupiedRows * cellSize) + 48,
+            ),
           );
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 14, 24, 82),
+            padding: const EdgeInsets.fromLTRB(
+              _horizontalPadding,
+              14,
+              _horizontalPadding,
+              120,
+            ),
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Column(
@@ -103,7 +121,7 @@ class _DashboardEmptyContent extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "E' tutto così pulito...",
+                    "È tutto così pulito...",
                     textAlign: TextAlign.center,
                     style: theme.textTheme.titleLarge?.copyWith(
                       color: AppColors.textPrimary,
