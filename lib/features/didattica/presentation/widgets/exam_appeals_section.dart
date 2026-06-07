@@ -4,6 +4,8 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../config/theme/app_colors.dart';
 import '../../domain/entities/exam_appeal_entity.dart';
+import '../../domain/entities/exam_appeal_month_entity.dart';
+import '../providers/exam_appeal_months_provider.dart';
 import '../providers/exam_appeals_provider.dart';
 import 'appeals_month_tabs.dart';
 
@@ -19,48 +21,31 @@ class _ExamAppealsSectionState extends ConsumerState<ExamAppealsSection>
   static const _blueSurface = Color(0xFFEEFDFF);
   static const _blueActive = Color(0xFFBFDCEB);
 
-  int? _selectedMonth;
+  String? _selectedMonthId;
   int _selectedStatus = 0;
-
-  List<int> _availableMonths(List<ExamAppealEntity> appeals) {
-    final months = appeals.map((appeal) => appeal.month).toSet().toList();
-    months.sort(_compareSessionMonths);
-
-    return months;
-  }
 
   List<ExamAppealEntity> _visibleAppeals(
     List<ExamAppealEntity> appeals,
-    int selectedMonth,
+    ExamAppealMonthEntity selectedMonth,
   ) {
     final showBooked = _selectedStatus == 0;
 
     return appeals
         .where(
           (appeal) =>
-              appeal.month == selectedMonth && appeal.isBooked == showBooked,
+              appeal.month == selectedMonth.month &&
+              appeal.date.year == selectedMonth.year &&
+              appeal.isBooked == showBooked,
         )
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
   }
 
-  int _compareSessionMonths(int a, int b) {
-    const order = [6, 7, 9, 10, 1, 2];
-    final aIndex = order.indexOf(a);
-    final bIndex = order.indexOf(b);
-
-    if (aIndex == -1 && bIndex == -1) return a.compareTo(b);
-    if (aIndex == -1) return 1;
-    if (bIndex == -1) return -1;
-
-    return aIndex.compareTo(bIndex);
-  }
-
-  void _changeMonth(int month) {
-    if (month == _selectedMonth) return;
+  void _changeMonth(ExamAppealMonthEntity month) {
+    if (month.id == _selectedMonthId) return;
 
     setState(() {
-      _selectedMonth = month;
+      _selectedMonthId = month.id;
       _selectedStatus = 0;
     });
   }
@@ -74,15 +59,15 @@ class _ExamAppealsSectionState extends ConsumerState<ExamAppealsSection>
   @override
   Widget build(BuildContext context) {
     final appeals = ref.watch(examAppealsProvider);
-    final months = _availableMonths(appeals);
-    final selectedMonth = months.contains(_selectedMonth)
-        ? _selectedMonth!
-        : months.isNotEmpty
-        ? months.first
-        : 0;
-    final visibleAppeals = selectedMonth == 0
+    final months = ref.watch(visibleExamAppealMonthsProvider);
+    final selectedMonth = months.where((month) {
+      return month.id == _selectedMonthId;
+    }).firstOrNull;
+    final effectiveSelectedMonth =
+        selectedMonth ?? (months.isNotEmpty ? months.first : null);
+    final visibleAppeals = effectiveSelectedMonth == null
         ? <ExamAppealEntity>[]
-        : _visibleAppeals(appeals, selectedMonth);
+        : _visibleAppeals(appeals, effectiveSelectedMonth);
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 260),
@@ -99,7 +84,7 @@ class _ExamAppealsSectionState extends ConsumerState<ExamAppealsSection>
           children: [
             AppealsMonthTabs(
               months: months,
-              selectedMonth: selectedMonth,
+              selectedMonth: effectiveSelectedMonth,
               activeColor: _blueActive,
               inactiveColor: AppColors.background.withValues(alpha: 0.58),
               onChanged: _changeMonth,

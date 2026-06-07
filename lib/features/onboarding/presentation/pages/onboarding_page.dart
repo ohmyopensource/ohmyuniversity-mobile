@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../config/routes/app_routes.dart';
 import '../../../../config/theme/app_colors.dart';
-import '../providers/onboarding_provider.dart';
 import '../content/onboarding_slides.dart';
 import '../widgets/onboarding_dots.dart';
 import '../widgets/onboarding_slide.dart';

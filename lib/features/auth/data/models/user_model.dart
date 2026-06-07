@@ -8,12 +8,12 @@ class UserModel extends UserEntity {
     required super.university,
   });
 
-  factory UserModel.mock({required String university}) {
+  factory UserModel.mock({required String email, String name = 'Mario Rossi'}) {
     return UserModel(
       id: 'mock-user-1',
-      name: 'Mario Rossi',
-      email: 'mario.rossi@studenti.unimi.it',
-      university: university,
+      name: name,
+      email: email,
+      university: 'Universita degli Studi del Molise',
     );
   }
 }

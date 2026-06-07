@@ -19,37 +19,63 @@ class DashboardGridBackground extends StatelessWidget {
 
 class _DashboardGridPainter extends CustomPainter {
   static const _columns = 4;
-  static const _dashLength = 7.0;
-  static const _dashGap = 6.0;
+  static const _dashLength = 5.0;
+  static const _dashGap = 15.0;
+  static const _cornerRadius = 18.0;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = AppColors.textPrimary.withValues(alpha: 0.18)
-      ..strokeWidth = 1;
     final cellSize = size.width / _columns;
+    final linePaint = Paint()
+      ..color = AppColors.textPrimary.withValues(alpha: 0.12)
+      ..strokeWidth = 0.9
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
 
-    for (var x = 0.0; x <= size.width + 0.1; x += cellSize) {
-      _drawDashedLine(canvas, Offset(x, 0), Offset(x, size.height), paint);
+    final borderPaint = Paint()
+      ..color = AppColors.textPrimary.withValues(alpha: 0.16)
+      ..strokeWidth = 1
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    final gridRect = Rect.fromLTWH(0.5, 0.5, size.width - 1, size.height - 1);
+    final borderPath = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(gridRect, const Radius.circular(_cornerRadius)),
+      );
+
+    _drawDashedPath(canvas, borderPath, borderPaint);
+
+    for (var column = 1; column < _columns; column++) {
+      final x = column * cellSize;
+      _drawDashedLine(canvas, Offset(x, 0), Offset(x, size.height), linePaint);
     }
 
-    for (var y = 0.0; y <= size.height + 0.1; y += cellSize) {
-      _drawDashedLine(canvas, Offset(0, y), Offset(size.width, y), paint);
+    for (var y = cellSize; y < size.height; y += cellSize) {
+      _drawDashedLine(canvas, Offset(0, y), Offset(size.width, y), linePaint);
     }
   }
 
   void _drawDashedLine(Canvas canvas, Offset start, Offset end, Paint paint) {
-    final delta = end - start;
-    final distance = delta.distance;
-    final direction = delta / distance;
-    var drawn = 0.0;
+    final path = Path()
+      ..moveTo(start.dx, start.dy)
+      ..lineTo(end.dx, end.dy);
 
-    while (drawn < distance) {
-      final segmentStart = start + direction * drawn;
-      final segmentEnd =
-          start + direction * (drawn + _dashLength).clamp(0, distance);
-      canvas.drawLine(segmentStart, segmentEnd, paint);
-      drawn += _dashLength + _dashGap;
+    _drawDashedPath(canvas, path, paint);
+  }
+
+  void _drawDashedPath(Canvas canvas, Path path, Paint paint) {
+    for (final metric in path.computeMetrics()) {
+      var distance = 0.0;
+
+      while (distance < metric.length) {
+        final nextDistance = distance + _dashLength;
+        canvas.drawPath(
+          metric.extractPath(distance, nextDistance.clamp(0, metric.length)),
+          paint,
+        );
+        distance += _dashLength + _dashGap;
+      }
     }
   }
 

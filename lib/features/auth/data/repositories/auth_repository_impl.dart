@@ -8,8 +8,23 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthMockDataSource _dataSource;
 
   @override
-  Future<UserEntity> login({required String university}) {
-    return _dataSource.login(university: university);
+  Future<UserEntity> login({required String email, required String password}) {
+    return _dataSource.login(email: email, password: password);
+  }
+
+  @override
+  Future<UserEntity> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+  }) {
+    return _dataSource.register(
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      password: password,
+    );
   }
 
   @override

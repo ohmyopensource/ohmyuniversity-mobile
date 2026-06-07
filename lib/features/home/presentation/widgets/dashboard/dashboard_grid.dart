@@ -5,8 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../../config/theme/app_colors.dart';
+import '../../models/dashboard_widget_item.dart';
+import '../../models/dashboard_widget_option.dart';
 import 'dashboard_empty_state.dart';
-import 'dashboard_grid_background.dart';
 import 'dashboard_widget_picker.dart';
 
 class DashboardGrid extends StatefulWidget {
@@ -17,8 +18,13 @@ class DashboardGrid extends StatefulWidget {
 }
 
 class _DashboardGridState extends State<DashboardGrid> {
+  static const _columns = 4;
+  static const _maxRows = 20;
+
   Timer? _longPressTimer;
   bool _isEditing = false;
+  int _nextWidgetId = 0;
+  final List<DashboardWidgetItem> _items = [];
 
   @override
   void dispose() {
@@ -30,7 +36,7 @@ class _DashboardGridState extends State<DashboardGrid> {
     if (_isEditing) return;
 
     _cancelLongPressTimer();
-    _longPressTimer = Timer(const Duration(seconds: 2), () {
+    _longPressTimer = Timer(const Duration(seconds: 1), () {
       if (!mounted) return;
 
       HapticFeedback.mediumImpact();
@@ -51,7 +57,120 @@ class _DashboardGridState extends State<DashboardGrid> {
     setState(() => _isEditing = false);
   }
 
+  void _addWidget(DashboardWidgetOption option) {
+    final position = _findFirstFreePosition(
+      columnSpan: option.columnSpan,
+      rowSpan: option.rowSpan,
+    );
+
+    if (position == null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Non c\'e spazio libero nella griglia'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      return;
+    }
+
+    setState(() {
+      _items.add(
+        DashboardWidgetItem(
+          id: 'dashboard-widget-${_nextWidgetId++}',
+          option: option,
+          column: position.column,
+          row: position.row,
+          columnSpan: option.columnSpan,
+          rowSpan: option.rowSpan,
+        ),
+      );
+      _isEditing = true;
+    });
+  }
+
+  void _removeWidget(String id) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _items.removeWhere((item) => item.id == id);
+      _isEditing = true;
+    });
+  }
+
+  void _moveWidget(String id, int columnDelta, int rowDelta) {
+    setState(() {
+      final index = _items.indexWhere((item) => item.id == id);
+      if (index == -1) return;
+
+      final item = _items[index];
+      final maxColumn = _columns - item.columnSpan;
+      final nextColumn = (item.column + columnDelta).clamp(0, maxColumn);
+      final nextRow = (item.row + rowDelta).clamp(0, _maxRows - item.rowSpan);
+      final candidate = item.copyWith(column: nextColumn, row: nextRow);
+
+      if (!_isAreaFree(candidate, movingItemId: id)) {
+        HapticFeedback.selectionClick();
+        return;
+      }
+
+      _items[index] = candidate;
+    });
+  }
+
+  _GridPosition? _findFirstFreePosition({
+    required int columnSpan,
+    required int rowSpan,
+  }) {
+    for (var row = 0; row <= _maxRows - rowSpan; row++) {
+      for (var column = 0; column <= _columns - columnSpan; column++) {
+        final candidate = DashboardWidgetItem(
+          id: 'candidate',
+          option: DashboardWidgetOptions.placeholder,
+          column: column,
+          row: row,
+          columnSpan: columnSpan,
+          rowSpan: rowSpan,
+        );
+
+        if (_isAreaFree(candidate)) {
+          return _GridPosition(column: column, row: row);
+        }
+      }
+    }
+
+    return null;
+  }
+
+  bool _isAreaFree(DashboardWidgetItem candidate, {String? movingItemId}) {
+    if (candidate.column < 0 || candidate.row < 0) return false;
+    if (candidate.column + candidate.columnSpan > _columns) return false;
+    if (candidate.row + candidate.rowSpan > _maxRows) return false;
+
+    for (final item in _items) {
+      if (item.id == movingItemId) continue;
+      if (_itemsOverlap(candidate, item)) return false;
+    }
+
+    return true;
+  }
+
+  bool _itemsOverlap(DashboardWidgetItem first, DashboardWidgetItem second) {
+    final firstRight = first.column + first.columnSpan;
+    final firstBottom = first.row + first.rowSpan;
+    final secondRight = second.column + second.columnSpan;
+    final secondBottom = second.row + second.rowSpan;
+
+    return first.column < secondRight &&
+        firstRight > second.column &&
+        first.row < secondBottom &&
+        firstBottom > second.row;
+  }
+
   Future<void> _openWidgetPicker() async {
+    _cancelLongPressTimer();
+    setState(() => _isEditing = true);
+
     final selectedWidget = await showModalBottomSheet<DashboardWidgetOption>(
       context: context,
       useSafeArea: true,
@@ -62,18 +181,13 @@ class _DashboardGridState extends State<DashboardGrid> {
 
     if (!mounted || selectedWidget == null) return;
 
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text('${selectedWidget.title} selezionato'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    _addWidget(selectedWidget);
   }
 
   @override
   Widget build(BuildContext context) {
+    final canShowWidgetActions = _isEditing || _items.isNotEmpty;
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => _startLongPressTimer(),
@@ -82,34 +196,28 @@ class _DashboardGridState extends State<DashboardGrid> {
       child: Stack(
         children: [
           Positioned.fill(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 240),
-              child: _isEditing
-                  ? const DashboardGridBackground()
-                  : const DashboardEmptyState(),
+            child: DashboardEmptyState(
+              isEditing: _isEditing,
+              items: _items,
+              onWidgetMoved: _moveWidget,
+              onWidgetRemoved: _removeWidget,
             ),
           ),
-
           if (_isEditing)
             Positioned(
-              top: 16,
-              right: 18,
-              child: SafeArea(
-                child: IconButton.filledTonal(
-                  onPressed: _exitEditMode,
-                  icon: const Icon(LucideIcons.x),
-                  color: AppColors.textPrimary,
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.background.withValues(
-                      alpha: 0.92,
-                    ),
-                    fixedSize: const Size(42, 42),
-                    shape: const CircleBorder(),
-                  ),
-                ),
+              right: 20,
+              bottom: 78,
+              child: FloatingActionButton.small(
+                heroTag: 'dashboard-edit-close',
+                backgroundColor: const Color(0xFFE84C4F),
+                foregroundColor: Colors.white,
+                elevation: 4,
+                shape: const CircleBorder(),
+                onPressed: _exitEditMode,
+                child: const Icon(LucideIcons.x),
               ),
             ),
-          if (_isEditing)
+          if (canShowWidgetActions)
             Positioned(
               right: 20,
               bottom: 24,
@@ -127,4 +235,11 @@ class _DashboardGridState extends State<DashboardGrid> {
       ),
     );
   }
+}
+
+class _GridPosition {
+  const _GridPosition({required this.column, required this.row});
+
+  final int column;
+  final int row;
 }
