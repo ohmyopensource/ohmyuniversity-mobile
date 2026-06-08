@@ -1,12 +1,10 @@
-import '../models/average_trend_point_model.dart';
 import '../models/didattica_exam_course_model.dart';
-import '../models/didattica_statistics_model.dart';
 
 class DidatticaMockDataSource {
   const DidatticaMockDataSource();
 
   List<DidatticaExamCourseModel> getExamCourses() {
-    return const [
+    return [
       DidatticaExamCourseModel(
         id: 'exam-1-1-1',
         year: 1,
@@ -16,6 +14,7 @@ class DidatticaMockDataSource {
         credits: 9,
         grade: '30',
         passed: true,
+        completedAt: DateTime(2024, 2, 14),
       ),
       DidatticaExamCourseModel(
         id: 'exam-1-1-2',
@@ -36,6 +35,7 @@ class DidatticaMockDataSource {
         credits: 9,
         grade: '27',
         passed: true,
+        completedAt: DateTime(2024, 3, 4),
       ),
       DidatticaExamCourseModel(
         id: 'exam-1-1-4',
@@ -55,6 +55,7 @@ class DidatticaMockDataSource {
         credits: 12,
         grade: '28',
         passed: true,
+        completedAt: DateTime(2024, 6, 20),
       ),
       DidatticaExamCourseModel(
         id: 'exam-1-2-2',
@@ -65,6 +66,7 @@ class DidatticaMockDataSource {
         credits: 9,
         grade: '26',
         passed: true,
+        completedAt: DateTime(2024, 7, 8),
       ),
       DidatticaExamCourseModel(
         id: 'exam-1-2-3',
@@ -84,6 +86,7 @@ class DidatticaMockDataSource {
         credits: 6,
         grade: '25',
         passed: true,
+        completedAt: DateTime(2024, 9, 12),
       ),
       DidatticaExamCourseModel(
         id: 'exam-1-2-5',
@@ -103,6 +106,7 @@ class DidatticaMockDataSource {
         credits: 9,
         grade: '30L',
         passed: true,
+        completedAt: DateTime(2025, 2, 18),
       ),
       DidatticaExamCourseModel(
         id: 'exam-2-1-2',
@@ -122,6 +126,7 @@ class DidatticaMockDataSource {
         credits: 12,
         grade: '28',
         passed: true,
+        completedAt: DateTime(2025, 3, 7),
       ),
       DidatticaExamCourseModel(
         id: 'exam-2-1-4',
@@ -150,6 +155,7 @@ class DidatticaMockDataSource {
         credits: 9,
         grade: '29',
         passed: true,
+        completedAt: DateTime(2025, 6, 16),
       ),
       DidatticaExamCourseModel(
         id: 'exam-2-2-3',
@@ -160,6 +166,7 @@ class DidatticaMockDataSource {
         credits: 6,
         grade: '27',
         passed: true,
+        completedAt: DateTime(2025, 7, 3),
       ),
       DidatticaExamCourseModel(
         id: 'exam-2-2-4',
@@ -188,6 +195,7 @@ class DidatticaMockDataSource {
         credits: 6,
         grade: '27',
         passed: true,
+        completedAt: DateTime(2026, 2, 10),
       ),
       DidatticaExamCourseModel(
         id: 'exam-3-1-3',
@@ -198,6 +206,7 @@ class DidatticaMockDataSource {
         credits: 6,
         grade: '30',
         passed: true,
+        completedAt: DateTime(2026, 3, 2),
       ),
       DidatticaExamCourseModel(
         id: 'exam-3-1-4',
@@ -235,6 +244,7 @@ class DidatticaMockDataSource {
         credits: 6,
         grade: '28',
         passed: true,
+        completedAt: DateTime(2026, 6, 5),
       ),
       DidatticaExamCourseModel(
         id: 'exam-3-2-4',
@@ -246,18 +256,5 @@ class DidatticaMockDataSource {
         passed: false,
       ),
     ];
-  }
-
-  DidatticaStatisticsModel getStatistics() {
-    return DidatticaStatisticsModel(
-      projectedGraduationBase: 90,
-      maxGraduationBase: 110,
-      averageTrend: [
-        AverageTrendPointModel(date: DateTime(2026, 5, 23), value: 30),
-        AverageTrendPointModel(date: DateTime(2026, 6, 15), value: 28.7),
-        AverageTrendPointModel(date: DateTime(2026, 7, 10), value: 27.2),
-        AverageTrendPointModel(date: DateTime(2026, 8, 28), value: 25.5),
-      ],
-    );
   }
 }
