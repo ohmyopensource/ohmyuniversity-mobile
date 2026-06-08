@@ -54,11 +54,26 @@ class _StudentIdentityTileState extends State<StudentIdentityTile> {
 }
 
 class CareerMetricsGrid extends StatelessWidget {
-  const CareerMetricsGrid({super.key});
+  const CareerMetricsGrid({
+    super.key,
+    this.arithmeticAverage = '25.5',
+    this.weightedAverage = '25.5',
+    this.acquiredCredits = 90,
+    this.totalCredits = 180,
+  });
+
+  final String arithmeticAverage;
+  final String weightedAverage;
+  final int acquiredCredits;
+  final int totalCredits;
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    final progressValue = totalCredits == 0
+        ? 0.0
+        : (acquiredCredits / totalCredits).clamp(0.0, 1.0);
+
+    return SizedBox(
       height: AcademicSummaryTiles.summaryHeight,
       child: Column(
         children: [
@@ -68,26 +83,29 @@ class CareerMetricsGrid extends StatelessWidget {
                 Expanded(
                   child: CareerMetricTile(
                     label: 'Media aritmetica',
-                    value: '25.5',
+                    value: arithmeticAverage,
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: CareerMetricTile(
                     label: 'Media Ponderata',
-                    value: '25.5',
+                    value: weightedAverage,
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Expanded(
             child: CareerMetricTile(
               label: 'Cfu acquisiti',
-              value: '90/180',
+              value: '$acquiredCredits/$totalCredits',
               showProgress: true,
               isWide: true,
+              progressValue: progressValue,
+              progressCaption:
+                  '$acquiredCredits CFU completati su $totalCredits',
             ),
           ),
         ],
@@ -103,12 +121,16 @@ class CareerMetricTile extends StatelessWidget {
     required this.value,
     this.showProgress = false,
     this.isWide = false,
+    this.progressValue = 0.5,
+    this.progressCaption,
   });
 
   final String label;
   final String value;
   final bool showProgress;
   final bool isWide;
+  final double progressValue;
+  final String? progressCaption;
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +179,7 @@ class CareerMetricTile extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(999),
                   child: LinearProgressIndicator(
-                    value: 0.5,
+                    value: progressValue,
                     minHeight: 7,
                     backgroundColor: Colors.white.withValues(alpha: 0.74),
                     valueColor: const AlwaysStoppedAnimation<Color>(
@@ -167,7 +189,7 @@ class CareerMetricTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '90 CFU completati su 180',
+                  progressCaption ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.labelSmall?.copyWith(
@@ -209,7 +231,7 @@ class CareerMetricTile extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(999),
                     child: LinearProgressIndicator(
-                      value: 0.5,
+                      value: progressValue,
                       minHeight: 5,
                       backgroundColor: Colors.white.withValues(alpha: 0.72),
                       valueColor: const AlwaysStoppedAnimation<Color>(

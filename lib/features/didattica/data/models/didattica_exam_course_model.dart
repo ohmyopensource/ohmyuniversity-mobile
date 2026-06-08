@@ -10,5 +10,6 @@ class DidatticaExamCourseModel extends DidatticaExamCourseEntity {
     required super.credits,
     required super.passed,
     super.grade,
+    super.completedAt,
   });
 }

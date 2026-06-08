@@ -34,6 +34,8 @@ class DashboardWidgetContent extends StatelessWidget {
         value: '90/180',
         showProgress: true,
         isWide: true,
+        progressValue: 0.5,
+        progressCaption: '90 CFU completati su 180',
       ),
       'graduation_projection' => const GraduationProjectionTile(
         value: 90,

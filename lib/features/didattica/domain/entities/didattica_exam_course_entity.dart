@@ -8,6 +8,7 @@ class DidatticaExamCourseEntity {
     required this.credits,
     required this.passed,
     this.grade,
+    this.completedAt,
   });
 
   final String id;
@@ -18,4 +19,5 @@ class DidatticaExamCourseEntity {
   final int credits;
   final bool passed;
   final String? grade;
+  final DateTime? completedAt;
 }
