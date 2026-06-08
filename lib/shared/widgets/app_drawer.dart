@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/routes/app_routes.dart';
-
-// Mock Data models ================================
+import '../../config/theme/app_colors.dart';
 
 class UniversityInfo {
   const UniversityInfo({
@@ -18,98 +18,124 @@ class UniversityInfo {
   final String mailUrl;
 }
 
-// Drawer ================================
-
-/// End drawer accessible from the top bar menu icon.
-/// Shows university info, notifications, and grouped navigation items.
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key, this.notificationCount = 0});
 
   final int notificationCount;
 
-  // TODO: replace with real data from active profile provider
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
   static const _mockUniversity = UniversityInfo(
     name: 'UNIMOL',
-    websiteUrl: 'https://www.university.edu',
-    mailUrl: 'https://mail.university.edu',
+    websiteUrl: 'https://www.unimol.it',
+    mailUrl: 'https://mail.unimol.it',
   );
+
+  String? _expandedSectionId;
+
+  void _toggleSection(String sectionId) {
+    setState(() {
+      _expandedSectionId = _expandedSectionId == sectionId ? null : sectionId;
+    });
+  }
+
+  void _close() => Navigator.of(context).pop();
+
+  Future<void> _launch(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: AppColors.background,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header ================================
-            _DrawerHeader(university: _mockUniversity),
-
+            _DrawerHeader(university: _mockUniversity, onClose: _close),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 28),
+                physics: const BouncingScrollPhysics(),
                 children: [
-                  // Notifications ================================
-                  _NotificationTile(count: notificationCount),
-
-                  const _SectionDivider(),
-
-                  // Transportation ================================
-                  _SectionHeader(
-                    icon: Icons.directions_bus_outlined,
+                  _DrawerLabelTile(
+                    icon: LucideIcons.bell,
+                    label: 'Notifiche',
+                    badgeCount: widget.notificationCount,
+                    onTap: () {
+                      _close();
+                      context.pushNamed(AppRoutes.notificheName);
+                    },
+                  ),
+                  const SizedBox(height: 6),
+                  _DrawerLabelTile(
+                    icon: LucideIcons.globe2,
+                    label: 'Web',
+                    onTap: () => _launch(_mockUniversity.websiteUrl),
+                  ),
+                  const SizedBox(height: 6),
+                  _DrawerLabelTile(
+                    icon: LucideIcons.mail,
+                    label: 'Mail',
+                    onTap: () => _launch(_mockUniversity.mailUrl),
+                  ),
+                  const SizedBox(height: 12),
+                  _DrawerAccordionSection(
+                    id: 'transport',
+                    icon: LucideIcons.bus,
                     label: 'Trasporti',
+                    isExpanded: _expandedSectionId == 'transport',
+                    onTap: () => _toggleSection('transport'),
+                    children: [
+                      _DrawerSubItem(label: 'Raggiungi UNIMOL', onTap: _close),
+                      _DrawerSubItem(
+                        label: 'Prenotazione navette',
+                        onTap: _close,
+                      ),
+                    ],
                   ),
-                  _DrawerItem(
-                    label: 'Raggiungi UNIMOL',
-                    onTap: () => _close(context),
-                  ),
-                  _DrawerItem(
-                    label: 'Prenotazione navette',
-                    onTap: () => _close(context),
-                  ),
-
-                  const _SectionDivider(),
-
-                  // Portals ================================
-                  _SectionHeader(
-                    icon: Icons.open_in_new_outlined,
+                  _DrawerAccordionSection(
+                    id: 'portals',
+                    icon: LucideIcons.externalLink,
                     label: 'Portali',
+                    isExpanded: _expandedSectionId == 'portals',
+                    onTap: () => _toggleSection('portals'),
+                    children: [
+                      _DrawerSubItem(label: 'Esse3', onTap: _close),
+                      _DrawerSubItem(label: 'Cineca', onTap: _close),
+                    ],
                   ),
-                  _DrawerItem(label: 'Esse3', onTap: () => _close(context)),
-                  _DrawerItem(label: 'Cineca', onTap: () => _close(context)),
-
-                  const _SectionDivider(),
-
-                  // Classrooms ================================
-                  _SectionHeader(
-                    icon: Icons.meeting_room_outlined,
+                  _DrawerAccordionSection(
+                    id: 'rooms',
+                    icon: LucideIcons.doorOpen,
                     label: 'Aule',
+                    isExpanded: _expandedSectionId == 'rooms',
+                    onTap: () => _toggleSection('rooms'),
+                    children: [
+                      _DrawerSubItem(label: 'Biblioteca', onTap: _close),
+                      _DrawerSubItem(label: 'Prenotazioni aule', onTap: _close),
+                    ],
                   ),
-                  _DrawerItem(
-                    label: 'Biblioteca',
-                    onTap: () => _close(context),
+                  _DrawerAccordionSection(
+                    id: 'info',
+                    icon: LucideIcons.info,
+                    label: 'Info',
+                    isExpanded: _expandedSectionId == 'info',
+                    onTap: () => _toggleSection('info'),
+                    children: [
+                      _DrawerSubItem(label: 'Rubrica docenti', onTap: _close),
+                      _DrawerSubItem(label: 'Segreteria', onTap: _close),
+                      _DrawerSubItem(label: 'Impostazioni', onTap: _close),
+                      _DrawerSubItem(label: 'Info app', onTap: _close),
+                    ],
                   ),
-                  _DrawerItem(
-                    label: 'Prenotazioni aule',
-                    onTap: () => _close(context),
-                  ),
-
-                  const _SectionDivider(),
-
-                  // Info ================================
-                  _SectionHeader(icon: Icons.info_outline, label: 'Info'),
-                  _DrawerItem(
-                    label: 'Rubrica docenti',
-                    onTap: () => _close(context),
-                  ),
-                  _DrawerItem(
-                    label: 'Segreteria',
-                    onTap: () => _close(context),
-                  ),
-                  _DrawerItem(
-                    label: 'Impostazioni',
-                    onTap: () => _close(context),
-                  ),
-                  _DrawerItem(label: 'Info app', onTap: () => _close(context)),
                 ],
               ),
             ),
@@ -118,161 +144,205 @@ class AppDrawer extends StatelessWidget {
       ),
     );
   }
-
-  void _close(BuildContext context) => Navigator.of(context).pop();
 }
 
-// Header ================================
-
 class _DrawerHeader extends StatelessWidget {
-  const _DrawerHeader({required this.university});
+  const _DrawerHeader({required this.university, required this.onClose});
 
   final UniversityInfo university;
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 8, 12),
+      padding: const EdgeInsets.fromLTRB(20, 18, 14, 14),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.textPrimary.withValues(alpha: 0.08),
+          ),
+        ),
       ),
       child: Row(
         children: [
-          // University name
           Expanded(
             child: Text(
               university.name,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0,
+              ),
             ),
           ),
-
-          // Website
-          _HeaderIconButton(
-            icon: Icons.language,
-            tooltip: 'Website',
-            onTap: () => _launch(university.websiteUrl),
-          ),
-
-          // Mail
-          _HeaderIconButton(
-            icon: Icons.mail_outline,
-            tooltip: 'Mail',
-            onTap: () => _launch(university.mailUrl),
-          ),
-
-          // Close drawer
-          _HeaderIconButton(
-            icon: Icons.close,
-            tooltip: 'Close',
-            onTap: () => Navigator.of(context).pop(),
-          ),
+          _DrawerHeaderCloseButton(onTap: onClose),
         ],
       ),
     );
   }
-
-  Future<void> _launch(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
-  }
 }
 
-class _HeaderIconButton extends StatelessWidget {
-  const _HeaderIconButton({
-    required this.icon,
-    required this.tooltip,
-    required this.onTap,
-  });
+class _DrawerHeaderCloseButton extends StatelessWidget {
+  const _DrawerHeaderCloseButton({required this.onTap});
 
-  final IconData icon;
-  final String tooltip;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Tooltip(
-      message: tooltip,
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        customBorder: const CircleBorder(),
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Icon(icon, size: 20, color: colorScheme.onSurfaceVariant),
+        child: Container(
+          width: 38,
+          height: 38,
+          alignment: Alignment.center,
+          child: const Icon(
+            LucideIcons.x,
+            size: 20,
+            color: AppColors.textPrimary,
+          ),
         ),
       ),
     );
   }
 }
 
-// Notification ================================
+class _DrawerAccordionSection extends StatelessWidget {
+  const _DrawerAccordionSection({
+    required this.id,
+    required this.icon,
+    required this.label,
+    required this.isExpanded,
+    required this.onTap,
+    required this.children,
+  });
 
-class _NotificationTile extends StatelessWidget {
-  const _NotificationTile({required this.count});
+  final String id;
+  final IconData icon;
+  final String label;
+  final bool isExpanded;
+  final VoidCallback onTap;
+  final List<Widget> children;
 
-  final int count;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Column(
+        children: [
+          _DrawerLabelTile(
+            icon: icon,
+            label: label,
+            isSelected: isExpanded,
+            trailing: AnimatedRotation(
+              turns: isExpanded ? 0.5 : 0,
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              child: const Icon(
+                LucideIcons.chevronDown,
+                size: 18,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            onTap: onTap,
+          ),
+          AnimatedCrossFade(
+            firstChild: const SizedBox(width: double.infinity),
+            secondChild: Padding(
+              padding: const EdgeInsets.fromLTRB(42, 4, 4, 8),
+              child: Column(children: children),
+            ),
+            crossFadeState: isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 180),
+            sizeCurve: Curves.easeOutCubic,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DrawerLabelTile extends StatefulWidget {
+  const _DrawerLabelTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isSelected = false,
+    this.trailing,
+    this.badgeCount = 0,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isSelected;
+  final Widget? trailing;
+  final int badgeCount;
+
+  @override
+  State<_DrawerLabelTile> createState() => _DrawerLabelTileState();
+}
+
+class _DrawerLabelTileState extends State<_DrawerLabelTile> {
+  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final isHighlighted = widget.isSelected || _isHovered;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(13),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          Navigator.of(context).pop();
-          context.pushNamed(AppRoutes.notificheName);
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        borderRadius: BorderRadius.circular(13),
+        onTap: widget.onTap,
+        onHover: (value) => setState(() => _isHovered = value),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeOutCubic,
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(12),
+            color: isHighlighted ? const Color(0xFFE7F4FA) : Colors.transparent,
+            borderRadius: BorderRadius.circular(13),
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.notifications_outlined,
-                size: 22,
-                color: colorScheme.onSurface,
-              ),
+              Icon(widget.icon, size: 19, color: AppColors.textPrimary),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Notifiche',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w500,
+                  widget.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: isHighlighted
+                        ? FontWeight.w900
+                        : FontWeight.w700,
+                    height: 1,
+                    letterSpacing: 0,
                   ),
                 ),
               ),
-              if (count > 0)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colorScheme.error,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    count > 99 ? '99+' : '$count',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onError,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              if (widget.badgeCount > 0) ...[
+                const SizedBox(width: 8),
+                _DrawerBadge(count: widget.badgeCount),
+              ],
+              if (widget.trailing != null) ...[
+                const SizedBox(width: 8),
+                widget.trailing!,
+              ],
             ],
           ),
         ),
@@ -281,90 +351,101 @@ class _NotificationTile extends StatelessWidget {
   }
 }
 
-// Header ================================
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: colorScheme.onSurfaceVariant),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Drawer item ================================
-
-class _DrawerItem extends StatelessWidget {
-  const _DrawerItem({required this.label, required this.onTap});
+class _DrawerSubItem extends StatefulWidget {
+  const _DrawerSubItem({required this.label, required this.onTap});
 
   final String label;
   final VoidCallback onTap;
 
   @override
+  State<_DrawerSubItem> createState() => _DrawerSubItemState();
+}
+
+class _DrawerSubItemState extends State<_DrawerSubItem> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(44, 10, 16, 10),
-        child: Row(
-          children: [
-            Container(
-              width: 4,
-              height: 4,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.colorScheme.onSurfaceVariant,
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(11),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(11),
+        onTap: widget.onTap,
+        onHover: (value) => setState(() => _isHovered = value),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutCubic,
+          width: double.infinity,
+          constraints: const BoxConstraints(minHeight: 42),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: _isHovered ? const Color(0xFFE7F4FA) : Colors.transparent,
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textPrimary.withValues(alpha: 0.76),
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                    letterSpacing: 0,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface,
+              Icon(
+                LucideIcons.chevronRight,
+                size: 16,
+                color: AppColors.textPrimary.withValues(alpha: 0.36),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// Dividers ================================
+class _DrawerBadge extends StatelessWidget {
+  const _DrawerBadge({required this.count});
 
-class _SectionDivider extends StatelessWidget {
-  const _SectionDivider();
+  final int count;
 
   @override
   Widget build(BuildContext context) {
-    return Divider(
-      height: 16,
-      indent: 16,
-      endIndent: 16,
-      color: Theme.of(context).colorScheme.outlineVariant,
+    final theme = Theme.of(context);
+
+    return Container(
+      constraints: const BoxConstraints(minWidth: 22),
+      height: 22,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 7),
+      decoration: BoxDecoration(
+        color: AppColors.cta,
+        borderRadius: BorderRadius.circular(999),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.cta.withValues(alpha: 0.24),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Text(
+        count > 99 ? '99+' : '$count',
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w900,
+          height: 1,
+        ),
+      ),
     );
   }
 }

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../config/routes/app_routes.dart';
 import '../../config/theme/app_colors.dart';
 import 'profile_switcher.dart';
+import '../../features/auth/presentation/providers/auth_provider.dart';
 
-class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
+class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
   const AppTopBar({super.key, required this.scaffoldKey});
 
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -34,7 +36,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Material(
       color: AppColors.secondary.withValues(alpha: 0.38),
       child: SafeArea(
@@ -63,7 +65,10 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
                       context,
                       profiles: _mockProfiles,
                       onAddAccount: () {},
-                      onLogout: () {},
+                        onLogout: () {
+                          ref.read(isAuthenticatedProvider.notifier).setAuthenticated(false);
+                          context.goNamed(AppRoutes.loginName);
+                        },
                     ),
                   ),
                   const SizedBox(width: 14),
