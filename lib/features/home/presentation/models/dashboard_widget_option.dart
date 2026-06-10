@@ -33,8 +33,8 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.square,
     accentColor: Color(0xFF357266),
     accentBackgroundColor: Color(0xFFEAF4F2),
-    columnSpan: 2,
-    rowSpan: 1,
+    columnSpan: 5,
+    rowSpan: 3,
     size: Size(204, 98),
   );
 
@@ -45,8 +45,8 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.badgeCheck,
     accentColor: Color(0xFF357266),
     accentBackgroundColor: Color(0xFFEAF4F2),
-    columnSpan: 2,
-    rowSpan: 3,
+    columnSpan: 4,
+    rowSpan: 6,
     size: Size(126, 208),
   );
 
@@ -57,8 +57,8 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.calculator,
     accentColor: Color(0xFF4285F4),
     accentBackgroundColor: Color(0xFFE8F0FE),
-    columnSpan: 1,
-    rowSpan: 1,
+    columnSpan: 3,
+    rowSpan: 3,
     size: Size(96, 98),
   );
 
@@ -69,20 +69,32 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.sigma,
     accentColor: Color(0xFFC58444),
     accentBackgroundColor: Color(0xFFF8F2DF),
-    columnSpan: 1,
-    rowSpan: 1,
+    columnSpan: 3,
+    rowSpan: 3,
     size: Size(96, 98),
   );
 
   static const acquiredCredits = DashboardWidgetOption(
     key: 'acquired_credits',
     title: 'CFU acquisiti',
-    subtitle: 'Progresso carriera',
+    subtitle: 'Formato largo home',
     icon: LucideIcons.graduationCap,
     accentColor: Color(0xFF34A853),
     accentBackgroundColor: Color(0xFFE7F6EC),
-    columnSpan: 4,
-    rowSpan: 1,
+    columnSpan: 10,
+    rowSpan: 3,
+    size: Size(304, 98),
+  );
+
+  static const acquiredCreditsCompact = DashboardWidgetOption(
+    key: 'acquired_credits_compact',
+    title: 'CFU acquisiti compatto',
+    subtitle: 'Formato card didattica',
+    icon: LucideIcons.graduationCap,
+    accentColor: Color(0xFF34A853),
+    accentBackgroundColor: Color(0xFFE7F6EC),
+    columnSpan: 6,
+    rowSpan: 3,
     size: Size(204, 98),
   );
 
@@ -93,8 +105,8 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.trendingUp,
     accentColor: Color(0xFF95F2A5),
     accentBackgroundColor: Color(0xFFE7F6EC),
-    columnSpan: 4,
-    rowSpan: 2,
+    columnSpan: 10,
+    rowSpan: 4,
     size: Size(304, 132),
   );
 
@@ -105,8 +117,8 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.lineChart,
     accentColor: Color(0xFFC58444),
     accentBackgroundColor: Color(0xFFF8F2DF),
-    columnSpan: 4,
-    rowSpan: 3,
+    columnSpan: 10,
+    rowSpan: 6,
     size: Size(304, 184),
   );
 
@@ -117,8 +129,8 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.bookOpenCheck,
     accentColor: Color(0xFF5B93AE),
     accentBackgroundColor: Color(0xFFEAF1F5),
-    columnSpan: 4,
-    rowSpan: 5,
+    columnSpan: 10,
+    rowSpan: 10,
     size: Size(304, 322),
   );
 
@@ -129,8 +141,8 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.calendarDays,
     accentColor: Color(0xFF62A77D),
     accentBackgroundColor: Color(0xFFEAF5EE),
-    columnSpan: 4,
-    rowSpan: 4,
+    columnSpan: 10,
+    rowSpan: 10,
     size: Size(304, 314),
   );
 
@@ -141,8 +153,8 @@ abstract final class DashboardWidgetOptions {
     icon: LucideIcons.creditCard,
     accentColor: Color(0xFFE1A72F),
     accentBackgroundColor: Color(0xFFF8F2DF),
-    columnSpan: 4,
-    rowSpan: 4,
+    columnSpan: 10,
+    rowSpan: 9,
     size: Size(304, 296),
   );
 
@@ -151,6 +163,7 @@ abstract final class DashboardWidgetOptions {
     arithmeticAverage,
     weightedAverage,
     acquiredCredits,
+    acquiredCreditsCompact,
     graduationProjection,
     averageTrend,
     exams,

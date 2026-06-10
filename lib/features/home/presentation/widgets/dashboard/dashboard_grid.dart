@@ -18,8 +18,8 @@ class DashboardGrid extends StatefulWidget {
 }
 
 class _DashboardGridState extends State<DashboardGrid> {
-  static const _columns = 4;
-  static const _maxRows = 20;
+  static const _columns = 10;
+  static const _maxRows = 48;
 
   Timer? _longPressTimer;
   bool _isEditing = false;

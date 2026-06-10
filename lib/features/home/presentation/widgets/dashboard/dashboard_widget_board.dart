@@ -19,7 +19,7 @@ class DashboardWidgetBoard extends StatelessWidget {
   final void Function(String id, int columnDelta, int rowDelta) onWidgetMoved;
   final ValueChanged<String> onWidgetRemoved;
 
-  static const _columns = 4;
+  static const _columns = 10;
   static const _tileGap = 10.0;
 
   @override
