@@ -21,18 +21,18 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # Navigation ================================
-  go_router: ^17.2.3
+  go_router: ^17.3.0
 
   # State Management + DI ================================
-  flutter_riverpod: ^3.1.0
-  riverpod_annotation: ^4.0.0
+  flutter_riverpod: ^3.3.2
+  riverpod_annotation: ^4.0.3
 
   # Network ================================
   dio: ^5.8.0+1
 
   # Auth SSO ================================
-  flutter_appauth: ^12.0.0
-  flutter_secure_storage: ^10.1.0
+  flutter_appauth: ^12.0.1
+  flutter_secure_storage: ^10.3.1
 
   # Models ================================
   freezed_annotation: ^3.1.0
@@ -42,10 +42,10 @@ dependencies:
   url_launcher: ^6.3.1
 
   # Environment ================================
-  envied: ^1.3.4
+  envied: ^1.3.5
 
   # UI - Calendar ================================
-  kalender: ^0.18.5
+  kalender: ^0.18.6
 
   # UI - Graphs ================================
   fl_chart: ^1.2.0
@@ -64,10 +64,10 @@ dependencies:
 
   # UI - Animations ================================
   animations: ^2.0.11
-  lucide_icons: ^0.257.0
   google_fonts: ^8.1.0
   lottie: ^3.3.1
   flutter_svg:
+  lucide_icons_flutter: ^3.1.14+2
 
 
 # ================================
@@ -82,11 +82,11 @@ dev_dependencies:
   # Codegen ================================
   build_runner: ^2.4.15
   riverpod_generator: ^4.0.0+1
-  riverpod_lint: ^3.1.0
-  freezed: ^3.2.3
+  riverpod_lint: ^3.1.3
+  freezed: ^3.2.5
   json_serializable: ^6.9.5
-  envied_generator: ^1.3.4
-  custom_lint: ^0.8.1
+  envied_generator: ^1.3.5
+  # custom_lint: ^0.8.1
 
   # Test ================================
   mockito: ^5.4.5
