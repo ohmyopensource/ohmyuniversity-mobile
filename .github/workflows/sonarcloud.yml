@@ -1,4 +1,4 @@
-name: Flutter CI
+name: SonarCloud
 
 on:
   pull_request:
@@ -6,16 +6,19 @@ on:
       - dev
   push:
     branches:
+      - dev
       - staging
       - main
 
 jobs:
-  quality:
+  sonar:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -23,17 +26,16 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Verify Flutter version
-        run: flutter --version
-
       - name: Install dependencies
         run: flutter pub get
 
       - name: Generate code
         run: flutter pub run build_runner build --delete-conflicting-outputs
 
-      - name: Analyze code
-        run: flutter analyze
+      - name: Run tests with coverage
+        run: flutter test --coverage
 
-      - name: Run tests
-        run: flutter test
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
