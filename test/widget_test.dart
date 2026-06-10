@@ -13,7 +13,9 @@ void main() {
         ),
       );
 
-      // App boots and at least one widget is in the tree
+      // @TODO: quick test workaround to change
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+
       expect(find.byType(MaterialApp), findsOneWidget);
     });
   });
