@@ -35,6 +35,13 @@ class _DashboardWidgetPickerState extends State<DashboardWidgetPicker> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final regularOptions = DashboardWidgetOptions.all
+        .where(
+          (option) =>
+              option.key != DashboardWidgetOptions.acquiredCredits.key &&
+              option.key != DashboardWidgetOptions.acquiredCreditsCompact.key,
+        )
+        .toList();
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -96,11 +103,20 @@ class _DashboardWidgetPickerState extends State<DashboardWidgetPicker> {
                     Flexible(
                       child: ListView.separated(
                         shrinkWrap: true,
-                        itemCount: DashboardWidgetOptions.all.length,
+                        itemCount: regularOptions.length + 1,
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 24),
                         itemBuilder: (context, index) {
-                          final option = DashboardWidgetOptions.all[index];
+                          if (index == 3) {
+                            return _DashboardCfuVariantCarousel(
+                              selectedOptionKey: _selectedOptionKey,
+                              onSelect: _selectOption,
+                              onConfirm: _confirmOption,
+                            );
+                          }
+
+                          final optionIndex = index > 3 ? index - 1 : index;
+                          final option = regularOptions[optionIndex];
 
                           return _DashboardWidgetPreviewTile(
                             option: option,
@@ -118,6 +134,106 @@ class _DashboardWidgetPickerState extends State<DashboardWidgetPicker> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _DashboardCfuVariantCarousel extends StatefulWidget {
+  const _DashboardCfuVariantCarousel({
+    required this.selectedOptionKey,
+    required this.onSelect,
+    required this.onConfirm,
+  });
+
+  final String? selectedOptionKey;
+  final ValueChanged<DashboardWidgetOption> onSelect;
+  final ValueChanged<DashboardWidgetOption> onConfirm;
+
+  @override
+  State<_DashboardCfuVariantCarousel> createState() =>
+      _DashboardCfuVariantCarouselState();
+}
+
+class _DashboardCfuVariantCarouselState
+    extends State<_DashboardCfuVariantCarousel> {
+  static const _options = [
+    DashboardWidgetOptions.acquiredCredits,
+    DashboardWidgetOptions.acquiredCreditsCompact,
+  ];
+
+  final PageController _controller = PageController(viewportFraction: 0.84);
+  int _page = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'CFU acquisiti',
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w900,
+            height: 1,
+            shadows: _titleShadows,
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 158,
+          child: PageView.builder(
+            controller: _controller,
+            itemCount: _options.length,
+            onPageChanged: (page) => setState(() => _page = page),
+            itemBuilder: (context, index) {
+              final option = _options[index];
+
+              return Padding(
+                padding: EdgeInsets.only(
+                  right: index == _options.length - 1 ? 0 : 10,
+                ),
+                child: _DashboardWidgetPreviewTile(
+                  option: option,
+                  isSelected: widget.selectedOptionKey == option.key,
+                  onTap: () => widget.onSelect(option),
+                  onLongPress: () => widget.onConfirm(option),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+        Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(_options.length, (index) {
+              final isActive = _page == index;
+
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOutCubic,
+                width: isActive ? 18 : 7,
+                height: 7,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? AppColors.labelBlue
+                      : AppColors.textPrimary.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              );
+            }),
+          ),
+        ),
+      ],
     );
   }
 }

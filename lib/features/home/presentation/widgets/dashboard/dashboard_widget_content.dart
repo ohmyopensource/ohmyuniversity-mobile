@@ -37,6 +37,12 @@ class DashboardWidgetContent extends StatelessWidget {
         progressValue: 0.5,
         progressCaption: '90 CFU completati su 180',
       ),
+      'acquired_credits_compact' => const CareerMetricTile(
+        label: 'Cfu acquisiti',
+        value: '90/180',
+        showProgress: true,
+        isWide: true,
+      ),
       'graduation_projection' => const GraduationProjectionTile(
         value: 90,
         maxValue: 110,
