@@ -8,6 +8,8 @@ import '../../../../shared/widgets/custom_modal/custom_modal_widget.dart';
 import '../../../../shared/widgets/custom_pagination/custom_pagination_widget.dart';
 import '../../../../shared/widgets/custom_tab/custom_tab_widget.dart';
 import '../../../../shared/widgets/custom_text/custom_text_widget.dart';
+import '../custom_card/card_variants_widget.dart';
+import '../custom_card/custom_card_widget.dart';
 
 // ─── Data models ──────────────────────────────────────────────────────────────
 
@@ -870,13 +872,13 @@ class _EmptyAppealsTile extends StatelessWidget {
         color: AppColors.background.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(13),
       ),
-      child: CustomTextWidget(
-        text: 'Nessun appello disponibile',
-        variant: TextVariant.bodySm,
-        weight: TextWeight.bold,
-        color: TextColor.muted,
-        align: TextAlign.center,
-      ),
+      child: CardStatusWidget(
+        statusVariant: StatusVariant.neutral,
+        icon: LucideIcons.calendarOff,
+        title: 'Nessun appello disponibile',
+        shadow: CardShadow.none,
+        bordered: false,
+      )
     );
   }
 }
