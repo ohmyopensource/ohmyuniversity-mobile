@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../config/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_pagination/custom_pagination_widget.dart';
+import '../../../../shared/widgets/custom_tab/custom_tab_widget.dart';
 
 // ─── Data models ──────────────────────────────────────────────────────────────
 
@@ -91,6 +92,15 @@ class AcademicExamsPanel extends StatelessWidget {
     )
         .toList();
 
+    final yearTabs = years
+        .map((y) => TabItem(id: '$y', label: 'Anno $y'))
+        .toList();
+
+    const semesterTabs = [
+      TabItem(id: '0', label: 'Primo semestre'),
+      TabItem(id: '1', label: 'Secondo semestre'),
+    ];
+
     return AnimatedSize(
       duration: const Duration(milliseconds: 260),
       curve: Curves.easeOutCubic,
@@ -104,19 +114,30 @@ class AcademicExamsPanel extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AcademicYearTabs(
-              years: years,
-              selectedYear: selectedYear,
-              onChanged: onYearChanged,
+            // Year tabs — pill, full-width when ≤3 years
+            CustomTabWidget(
+              tabs: yearTabs,
+              activeTab: '$selectedYear',
+              tabStyle: TabStyle.pill,
+              variant: TabVariant.primary,
+              size: TabSize.sm,
+              fullWidth: years.length <= 3,
+              onTabChange: (id) => onYearChanged(int.parse(id)),
             ),
             const SizedBox(height: 10),
-            AcademicSegmentedControl(
-              selectedIndex: selectedSemester,
-              labels: const ['Primo semestre', 'Secondo semestre'],
-              height: 46,
-              onChanged: onSemesterChanged,
+
+            // Semester segmented control — pill, always full-width
+            CustomTabWidget(
+              tabs: semesterTabs,
+              activeTab: '$selectedSemester',
+              tabStyle: TabStyle.pill,
+              variant: TabVariant.primary,
+              size: TabSize.sm,
+              fullWidth: true,
+              onTabChange: (id) => onSemesterChanged(int.parse(id)),
             ),
             const SizedBox(height: 10),
+
             for (var i = 0; i < visibleCourses.length; i++) ...[
               AcademicExamCourseTile(
                 course: visibleCourses[i],
@@ -146,7 +167,6 @@ class AcademicExamAppealsPanel extends StatefulWidget {
   });
 
   static const blueSurface = Color(0xFFEEFDFF);
-  static const blueActive = Color(0xFFBFDCEB);
 
   final List<AcademicExamAppealMonthData> months;
   final AcademicExamAppealMonthData? selectedMonth;
@@ -163,9 +183,6 @@ class AcademicExamAppealsPanel extends StatefulWidget {
 class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
   static const _pageSize = 3;
   int _currentPage = 1;
-
-  // +1 = forward (swipe left), -1 = backward (swipe right).
-  // Drives the enter/exit direction of AnimatedSwitcher.
   int _slideDirection = 1;
 
   @override
@@ -202,6 +219,16 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
     });
   }
 
+  String _monthLabel(int month) => switch (month) {
+    1 => 'Gennaio',
+    2 => 'Febbraio',
+    6 => 'Giugno',
+    7 => 'Luglio',
+    9 => 'Settembre',
+    10 => 'Ottobre',
+    _ => 'Mese $month',
+  };
+
   @override
   Widget build(BuildContext context) {
     final effectiveSelectedMonth =
@@ -222,6 +249,17 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
         : allAppeals.sublist(startIndex, endIndex);
 
     final showPagination = totalItems > _pageSize;
+
+    // Month tabs
+    final monthTabs = widget.months
+        .map((m) => TabItem(id: m.id, label: _monthLabel(m.month)))
+        .toList();
+
+    // Status tabs
+    const statusTabs = [
+      TabItem(id: '0', label: 'Appelli prenotati'),
+      TabItem(id: '1', label: 'Appelli in apertura'),
+    ];
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -249,22 +287,33 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Month tabs
-              AcademicAppealsMonthTabs(
-                months: widget.months,
-                selectedMonth: effectiveSelectedMonth,
-                activeColor: AcademicExamAppealsPanel.blueActive,
-                inactiveColor: AppColors.background.withValues(alpha: 0.58),
-                onChanged: widget.onMonthChanged,
-              ),
+              // Month tabs — pill, full-width when ≤3 months
+              if (monthTabs.isNotEmpty)
+                CustomTabWidget(
+                  tabs: monthTabs,
+                  activeTab: effectiveSelectedMonth?.id ?? '',
+                  tabStyle: TabStyle.pill,
+                  variant: TabVariant.primary,
+                  size: TabSize.sm,
+                  fullWidth: widget.months.length <= 3,
+                  onTabChange: (id) {
+                    final month =
+                    widget.months.firstWhere((m) => m.id == id);
+                    widget.onMonthChanged(month);
+                  },
+                ),
               const SizedBox(height: 10),
 
-              // Status segmented control
-              AcademicSegmentedControl(
-                selectedIndex: widget.selectedStatus,
-                labels: const ['Appelli prenotati', 'Appelli in apertura'],
-                height: 48,
-                onChanged: widget.onStatusChanged,
+              // Status segmented control — pill, always full-width
+              CustomTabWidget(
+                tabs: statusTabs,
+                activeTab: '${widget.selectedStatus}',
+                tabStyle: TabStyle.pill,
+                variant: TabVariant.primary,
+                size: TabSize.sm,
+                fullWidth: true,
+                onTabChange: (id) =>
+                    widget.onStatusChanged(int.parse(id)),
               ),
               const SizedBox(height: 10),
 
@@ -327,7 +376,6 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
 }
 
 /// Stateless content of a single appeals page.
-/// Keyed externally so [AnimatedSwitcher] can diff between pages.
 class _AppealPageContent extends StatelessWidget {
   const _AppealPageContent({super.key, required this.pageAppeals});
 
@@ -351,7 +399,7 @@ class _AppealPageContent extends StatelessWidget {
 
 // ─── Shared tab/control widgets ───────────────────────────────────────────────
 
-class AcademicYearTabs extends StatelessWidget {
+/*class AcademicYearTabs extends StatelessWidget {
   const AcademicYearTabs({
     super.key,
     required this.years,
@@ -531,7 +579,7 @@ class AcademicSegmentedControl extends StatelessWidget {
       ),
     );
   }
-}
+}*/
 
 // ─── Tile widgets ─────────────────────────────────────────────────────────────
 
@@ -746,107 +794,6 @@ class AcademicExamAppealTile extends StatelessWidget {
 
 // ─── Private widgets ──────────────────────────────────────────────────────────
 
-class _LargeTab extends StatelessWidget {
-  const _LargeTab({
-    required this.label,
-    required this.isSelected,
-    required this.activeColor,
-    required this.inactiveColor,
-    required this.shadowColor,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final Color activeColor;
-  final Color inactiveColor;
-  final Color shadowColor;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-      height: 52,
-      decoration: BoxDecoration(
-        color: isSelected ? activeColor : inactiveColor,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: isSelected
-            ? [
-          BoxShadow(
-            color: shadowColor.withValues(alpha: 0.22),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ]
-            : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(15),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(15),
-          child: Center(
-            child: Text(
-              label,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: isSelected
-                    ? AppColors.textPrimary
-                    : AppColors.textPrimary.withValues(alpha: 0.58),
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SegmentedTab extends StatelessWidget {
-  const _SegmentedTab({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
-        child: Center(
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic,
-            style: theme.textTheme.labelMedium!.copyWith(
-              color: isSelected
-                  ? AppColors.textPrimary
-                  : AppColors.textPrimary.withValues(alpha: 0.62),
-              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-              letterSpacing: 0,
-            ),
-            child: Text(label),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _CreditsBadge extends StatelessWidget {
   const _CreditsBadge({required this.credits});
 
@@ -894,8 +841,7 @@ class _ExamGradeBox extends StatelessWidget {
   final int? provisionalGrade;
   final ValueChanged<int> onChanged;
 
-  static final _availableGrades =
-  List<int>.generate(31, (i) => 30 - i);
+  static final _availableGrades = List<int>.generate(31, (i) => 30 - i);
 
   @override
   Widget build(BuildContext context) {
