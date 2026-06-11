@@ -115,7 +115,8 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
 
   // ── Derived state ───────────────────────────────────────────────────────
 
-  bool get _showImage => widget.src != null && widget.src!.isNotEmpty && !_imgError;
+  bool get _showImage =>
+      widget.src != null && widget.src!.isNotEmpty && !_imgError;
   bool get _showInitials => !_showImage && (widget.name?.isNotEmpty ?? false);
   bool get _showIcon => !_showImage && !_showInitials;
 
@@ -169,51 +170,51 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
   ({Color light, Color dark, Color text}) get _variantColors {
     if (widget.darkTheme && widget.variant == AvatarVariant.neutral) {
       return (
-      light: AppColors.colorNeutral600,
-      dark: AppColors.colorNeutral500,
-      text: AppColors.colorNeutral200,
+        light: AppColors.colorNeutral600,
+        dark: AppColors.colorNeutral500,
+        text: AppColors.colorNeutral200,
       );
     }
     return switch (widget.variant) {
       AvatarVariant.primary => (
-      light: AppColors.colorPrimaryLight,
-      dark: AppColors.colorPrimaryDark,
-      text: AppColors.colorPrimaryText,
+        light: AppColors.colorPrimaryLight,
+        dark: AppColors.colorPrimaryDark,
+        text: AppColors.colorPrimaryText,
       ),
       AvatarVariant.secondary => (
-      light: AppColors.colorSecondaryLight,
-      dark: AppColors.colorSecondaryDark,
-      text: AppColors.colorSecondaryText,
+        light: AppColors.colorSecondaryLight,
+        dark: AppColors.colorSecondaryDark,
+        text: AppColors.colorSecondaryText,
       ),
       AvatarVariant.tertiary => (
-      light: AppColors.colorTertiaryLight,
-      dark: AppColors.colorTertiaryDark,
-      text: AppColors.colorTertiaryText,
+        light: AppColors.colorTertiaryLight,
+        dark: AppColors.colorTertiaryDark,
+        text: AppColors.colorTertiaryText,
       ),
       AvatarVariant.success => (
-      light: AppColors.colorSuccessLight,
-      dark: AppColors.colorSuccessDark,
-      text: AppColors.colorSuccessText,
+        light: AppColors.colorSuccessLight,
+        dark: AppColors.colorSuccessDark,
+        text: AppColors.colorSuccessText,
       ),
       AvatarVariant.warning => (
-      light: AppColors.colorWarningLight,
-      dark: AppColors.colorWarningDark,
-      text: AppColors.colorWarningText,
+        light: AppColors.colorWarningLight,
+        dark: AppColors.colorWarningDark,
+        text: AppColors.colorWarningText,
       ),
       AvatarVariant.error => (
-      light: AppColors.colorErrorLight,
-      dark: AppColors.colorErrorDark,
-      text: AppColors.colorErrorText,
+        light: AppColors.colorErrorLight,
+        dark: AppColors.colorErrorDark,
+        text: AppColors.colorErrorText,
       ),
       AvatarVariant.info => (
-      light: AppColors.colorInfoLight,
-      dark: AppColors.colorInfoDark,
-      text: AppColors.colorInfoText,
+        light: AppColors.colorInfoLight,
+        dark: AppColors.colorInfoDark,
+        text: AppColors.colorInfoText,
       ),
       AvatarVariant.neutral => (
-      light: AppColors.colorNeutral200,
-      dark: AppColors.colorNeutral300,
-      text: AppColors.colorNeutral500,
+        light: AppColors.colorNeutral200,
+        dark: AppColors.colorNeutral300,
+        text: AppColors.colorNeutral500,
       ),
     };
   }
@@ -296,10 +297,10 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
               gradient: _showImage
                   ? null
                   : LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [colors.light, colors.dark],
-              ),
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [colors.light, colors.dark],
+                    ),
               borderRadius: _borderRadius,
             ),
             clipBehavior: Clip.antiAlias,
@@ -339,8 +340,8 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
           child: InkWell(
             onTap: widget.onTap,
             borderRadius: _borderRadius,
-            hoverColor: Colors.black.withOpacity(0.08),
-            splashColor: Colors.black.withOpacity(0.12),
+            hoverColor: Colors.black.withValues(alpha: 0.08),
+            splashColor: Colors.black.withValues(alpha: 0.12),
             child: content,
           ),
         ),
@@ -360,7 +361,7 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
         width: _dimension,
         height: _dimension,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) setState(() => _imgError = true);
           });
@@ -389,7 +390,7 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
       child: Icon(
         LucideIcons.userRound,
         size: _iconSize,
-        color: textColor.withOpacity(0.7),
+        color: textColor.withValues(alpha: 0.7),
       ),
     );
   }
@@ -397,9 +398,7 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
   Widget _buildRingWrap(Widget avatar) {
     final rs = _ringSizes;
     final ringColor = widget.ringColor ?? _ringDefaultColor;
-    final bgColor = widget.darkTheme
-        ? const Color(0xFF1A2030)
-        : Colors.white;
+    final bgColor = widget.darkTheme ? const Color(0xFF1A2030) : Colors.white;
 
     return Container(
       padding: EdgeInsets.all(widget.ringGap ? rs.padding : 0),

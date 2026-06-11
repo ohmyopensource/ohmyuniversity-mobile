@@ -24,14 +24,7 @@ enum InputType {
 enum InputSize { sm, md, lg }
 
 /// Semantic colour accent — maps to Angular `InputVariant`.
-enum InputVariant {
-  primary,
-  secondary,
-  success,
-  warning,
-  error,
-  info,
-}
+enum InputVariant { primary, secondary, success, warning, error, info }
 
 /// Option model for select-type inputs — maps to Angular `SelectOption`.
 class SelectOption {
@@ -218,19 +211,19 @@ class _CustomInputWidgetState extends State<CustomInputWidget> {
 
   bool get _showClearBtn =>
       widget.clearable &&
-          _controller.text.isNotEmpty &&
-          !widget.disabled &&
-          !widget.readonly &&
-          widget.type != InputType.select;
+      _controller.text.isNotEmpty &&
+      !widget.disabled &&
+      !widget.readonly &&
+      widget.type != InputType.select;
 
   bool get _showPasswordToggle => widget.type == InputType.password;
 
   bool get _hasRightSlot =>
       _showPasswordToggle ||
-          _showClearBtn ||
-          widget.iconRight != null ||
-          widget.suffix.isNotEmpty ||
-          _status != _InputStatus.defaultState;
+      _showClearBtn ||
+      widget.iconRight != null ||
+      widget.suffix.isNotEmpty ||
+      _status != _InputStatus.defaultState;
 
   // ── Size tokens ────────────────────────────────────────────────────────────
 
@@ -318,11 +311,7 @@ class _CustomInputWidgetState extends State<CustomInputWidget> {
   List<BoxShadow> _resolveShadow() {
     if (!_isFocused) return const [];
     return [
-      BoxShadow(
-        color: _focusShadowColor,
-        blurRadius: 0,
-        spreadRadius: 3,
-      ),
+      BoxShadow(color: _focusShadowColor, blurRadius: 0, spreadRadius: 3),
     ];
   }
 
@@ -365,7 +354,9 @@ class _CustomInputWidgetState extends State<CustomInputWidget> {
           const SizedBox(height: 4),
           _buildHint(
             widget.hint,
-            color: isDark ? AppColors.colorNeutral500 : AppColors.colorNeutral400,
+            color: isDark
+                ? AppColors.colorNeutral500
+                : AppColors.colorNeutral400,
           ),
         ],
       ],
@@ -431,12 +422,16 @@ class _CustomInputWidgetState extends State<CustomInputWidget> {
   // ── Input core ─────────────────────────────────────────────────────────────
 
   Widget _buildInputCore(bool isDark) {
-    final textColor = isDark ? AppColors.colorNeutral100 : AppColors.colorNeutral900;
-    final hintColor = isDark ? AppColors.colorNeutral500 : AppColors.colorNeutral400;
+    final textColor = isDark
+        ? AppColors.colorNeutral100
+        : AppColors.colorNeutral900;
+    final hintColor = isDark
+        ? AppColors.colorNeutral500
+        : AppColors.colorNeutral400;
 
     final style = TextStyle(
       fontSize: _fontSize,
-      color: widget.disabled ? textColor.withOpacity(0.65) : textColor,
+      color: widget.disabled ? textColor.withValues(alpha: 0.65) : textColor,
       height: 1.5,
     );
 
@@ -528,9 +523,15 @@ class _CustomInputWidgetState extends State<CustomInputWidget> {
   // ── Select field ───────────────────────────────────────────────────────────
 
   Widget _buildSelectField(BoxDecoration decoration, bool isDark) {
-    final textColor = isDark ? AppColors.colorNeutral100 : AppColors.colorNeutral900;
-    final hintColor = isDark ? AppColors.colorNeutral500 : AppColors.colorNeutral400;
-    final iconColor = isDark ? AppColors.colorNeutral500 : AppColors.colorNeutral400;
+    final textColor = isDark
+        ? AppColors.colorNeutral100
+        : AppColors.colorNeutral900;
+    final hintColor = isDark
+        ? AppColors.colorNeutral500
+        : AppColors.colorNeutral400;
+    final iconColor = isDark
+        ? AppColors.colorNeutral500
+        : AppColors.colorNeutral400;
 
     final hasValue = _selectedValue.isNotEmpty;
 
@@ -566,40 +567,37 @@ class _CustomInputWidgetState extends State<CustomInputWidget> {
                     ),
                     child: Text(
                       widget.selectPlaceholder,
-                      style: TextStyle(
-                        fontSize: _fontSize,
-                        color: hintColor,
-                      ),
+                      style: TextStyle(fontSize: _fontSize, color: hintColor),
                     ),
                   ),
                   onChanged: widget.disabled
                       ? null
                       : (v) {
-                    if (v == null) return;
-                    setState(() => _selectedValue = v);
-                    widget.onChanged?.call(v);
-                  },
+                          if (v == null) return;
+                          setState(() => _selectedValue = v);
+                          widget.onChanged?.call(v);
+                        },
                   items: widget.options
                       .map(
                         (opt) => DropdownMenuItem<String>(
-                      value: opt.value,
-                      enabled: !opt.disabled,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: _horizontalPadding,
-                        ),
-                        child: Text(
-                          opt.label,
-                          style: TextStyle(
-                            fontSize: _fontSize,
-                            color: opt.disabled
-                                ? textColor.withOpacity(0.4)
-                                : textColor,
+                          value: opt.value,
+                          enabled: !opt.disabled,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: _horizontalPadding,
+                            ),
+                            child: Text(
+                              opt.label,
+                              style: TextStyle(
+                                fontSize: _fontSize,
+                                color: opt.disabled
+                                    ? textColor.withValues(alpha: 0.4)
+                                    : textColor,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  )
+                      )
                       .toList(),
                 ),
               ),
@@ -632,7 +630,9 @@ class _CustomInputWidgetState extends State<CustomInputWidget> {
         icon: _showPassword ? LucideIcons.eyeOff : LucideIcons.eye,
         size: _iconSize,
         color: isDark ? AppColors.colorNeutral500 : AppColors.colorNeutral400,
-        hoverColor: isDark ? AppColors.colorNeutral600 : AppColors.colorNeutral100,
+        hoverColor: isDark
+            ? AppColors.colorNeutral600
+            : AppColors.colorNeutral100,
         onTap: () => setState(() => _showPassword = !_showPassword),
         semanticLabel: _showPassword ? 'Nascondi password' : 'Mostra password',
       );
@@ -644,7 +644,9 @@ class _CustomInputWidgetState extends State<CustomInputWidget> {
         icon: LucideIcons.x,
         size: _iconSize,
         color: isDark ? AppColors.colorNeutral500 : AppColors.colorNeutral400,
-        hoverColor: isDark ? AppColors.colorNeutral600 : AppColors.colorNeutral100,
+        hoverColor: isDark
+            ? AppColors.colorNeutral600
+            : AppColors.colorNeutral100,
         onTap: () {
           _controller.clear();
           setState(() {});
@@ -656,8 +658,7 @@ class _CustomInputWidgetState extends State<CustomInputWidget> {
     }
 
     // Status icon (no iconRight, no password, no clear)
-    if (_status != _InputStatus.defaultState &&
-        widget.iconRight == null) {
+    if (_status != _InputStatus.defaultState && widget.iconRight == null) {
       final statusColor = _status == _InputStatus.error
           ? AppColors.colorErrorDark
           : AppColors.colorSuccessDark;
@@ -765,11 +766,7 @@ class _IconButtonState extends State<_IconButton> {
               color: _hovered ? widget.hoverColor : Colors.transparent,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Icon(
-              widget.icon,
-              size: widget.size,
-              color: widget.color,
-            ),
+            child: Icon(widget.icon, size: widget.size, color: widget.color),
           ),
         ),
       ),
@@ -792,12 +789,15 @@ class _FixedDecoration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor =
-    isDark ? AppColors.colorNeutral600 : AppColors.colorNeutral100;
-    final textColor =
-    isDark ? AppColors.colorNeutral400 : AppColors.colorNeutral500;
-    final borderColor =
-    isDark ? AppColors.colorNeutral500 : AppColors.colorNeutral200;
+    final bgColor = isDark
+        ? AppColors.colorNeutral600
+        : AppColors.colorNeutral100;
+    final textColor = isDark
+        ? AppColors.colorNeutral400
+        : AppColors.colorNeutral500;
+    final borderColor = isDark
+        ? AppColors.colorNeutral500
+        : AppColors.colorNeutral200;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),

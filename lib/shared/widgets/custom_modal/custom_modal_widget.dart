@@ -222,18 +222,21 @@ class _CustomModalWidgetState extends State<CustomModalWidget>
   // ── animations ─────────────────────────────
 
   void _buildAnimations() {
-    _backdropOpacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _animCtrl, curve: Curves.easeInOut),
-    );
-    _containerOpacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut),
-    );
+    _backdropOpacity = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeInOut));
+    _containerOpacity = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
 
     switch (widget.type) {
       case ModalType.center:
-        _containerScale = Tween<double>(begin: 0.95, end: 1.0).animate(
-          CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut),
-        );
+        _containerScale = Tween<double>(
+          begin: 0.95,
+          end: 1.0,
+        ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
         _containerSlide = Tween<Offset>(
           begin: Offset.zero,
           end: Offset.zero,
@@ -242,38 +245,31 @@ class _CustomModalWidgetState extends State<CustomModalWidget>
         _containerSlide = Tween<Offset>(
           begin: const Offset(1, 0),
           end: Offset.zero,
-        ).animate(
-          CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut),
-        );
+        ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
         _containerScale = Tween<double>(begin: 1, end: 1).animate(_animCtrl);
       case ModalType.drawerLeft:
         _containerSlide = Tween<Offset>(
           begin: const Offset(-1, 0),
           end: Offset.zero,
-        ).animate(
-          CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut),
-        );
+        ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
         _containerScale = Tween<double>(begin: 1, end: 1).animate(_animCtrl);
       case ModalType.drawerBottom:
         _containerSlide = Tween<Offset>(
           begin: const Offset(0, 1),
           end: Offset.zero,
-        ).animate(
-          CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut),
-        );
+        ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
         _containerScale = Tween<double>(begin: 1, end: 1).animate(_animCtrl);
       case ModalType.drawerTop:
         _containerSlide = Tween<Offset>(
           begin: const Offset(0, -1),
           end: Offset.zero,
-        ).animate(
-          CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut),
-        );
+        ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
         _containerScale = Tween<double>(begin: 1, end: 1).animate(_animCtrl);
       case ModalType.fullscreen:
-        _containerScale = Tween<double>(begin: 0.98, end: 1.0).animate(
-          CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut),
-        );
+        _containerScale = Tween<double>(
+          begin: 0.98,
+          end: 1.0,
+        ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
         _containerSlide = Tween<Offset>(
           begin: Offset.zero,
           end: Offset.zero,
@@ -449,7 +445,7 @@ class _Backdrop extends StatelessWidget {
 
     return AnimatedBuilder(
       animation: opacity,
-      builder: (_, __) => GestureDetector(
+      builder: (_, _) => GestureDetector(
         onTap: onTap,
         child: Container(
           color: bgColor.withValues(alpha: bgColor.a * opacity.value),
@@ -499,11 +495,7 @@ class _ModalContainer extends StatelessWidget {
         blurRadius: 60,
         offset: Offset(0, 20),
       ),
-      BoxShadow(
-        color: Color(0x14000000),
-        blurRadius: 16,
-        offset: Offset(0, 4),
-      ),
+      BoxShadow(color: Color(0x14000000), blurRadius: 16, offset: Offset(0, 4)),
     ];
 
     Widget container = AnimatedBuilder(
@@ -542,8 +534,7 @@ class _ModalContainer extends StatelessWidget {
   BorderRadius _borderRadius(bool isMobile) {
     const r = Radius.circular(16);
     return switch (type) {
-      ModalType.center when isMobile =>
-      const BorderRadius.vertical(top: r),
+      ModalType.center when isMobile => const BorderRadius.vertical(top: r),
       ModalType.center => const BorderRadius.all(r),
       ModalType.drawerRight => const BorderRadius.horizontal(left: r),
       ModalType.drawerLeft => const BorderRadius.horizontal(right: r),
@@ -593,10 +584,12 @@ class _ModalContainer extends StatelessWidget {
         right: 0,
         child: container,
       ),
-      ModalType.center => Center(child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: container,
-      )),
+      ModalType.center => Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: container,
+        ),
+      ),
       ModalType.drawerRight => Positioned(
         top: 0,
         right: 0,
@@ -647,18 +640,18 @@ class _ModalHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleColor =
-    dark ? AppColors.colorNeutral100 : AppColors.colorNeutral900;
+    final titleColor = dark
+        ? AppColors.colorNeutral100
+        : AppColors.colorNeutral900;
     final subtitleColor = AppColors.colorNeutral500;
-    final dividerColor =
-    dark ? AppColors.colorNeutral600 : AppColors.colorNeutral200;
+    final dividerColor = dark
+        ? AppColors.colorNeutral600
+        : AppColors.colorNeutral200;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 16, 16),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: dividerColor, width: 1.5),
-        ),
+        border: Border(bottom: BorderSide(color: dividerColor, width: 1.5)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -751,18 +744,16 @@ class _ModalFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dividerColor =
-    dark ? AppColors.colorNeutral600 : AppColors.colorNeutral200;
+    final dividerColor = dark
+        ? AppColors.colorNeutral600
+        : AppColors.colorNeutral200;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: dividerColor, width: 1.5)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [child],
-      ),
+      child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [child]),
     );
   }
 }
@@ -798,10 +789,7 @@ class _ShakeWidgetState extends State<_ShakeWidget>
       TweenSequenceItem(tween: Tween(begin: -5, end: 5), weight: 15),
       TweenSequenceItem(tween: Tween(begin: 5, end: -3), weight: 15),
       TweenSequenceItem(tween: Tween(begin: -3, end: 0), weight: 25),
-    ]).animate(CurvedAnimation(
-      parent: _ctrl,
-      curve: Curves.linear,
-    ));
+    ]).animate(CurvedAnimation(parent: _ctrl, curve: Curves.linear));
     _ctrl.forward();
   }
 
@@ -815,10 +803,8 @@ class _ShakeWidgetState extends State<_ShakeWidget>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _shake,
-      builder: (_, child) => Transform.translate(
-        offset: Offset(_shake.value, 0),
-        child: child,
-      ),
+      builder: (_, child) =>
+          Transform.translate(offset: Offset(_shake.value, 0), child: child),
       child: widget.child,
     );
   }

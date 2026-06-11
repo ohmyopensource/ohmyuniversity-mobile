@@ -35,15 +35,7 @@ class TabItem {
 enum TabStyle { line, pill, card, underline }
 
 /// Color variant applied to active states and highlights.
-enum TabVariant {
-  primary,
-  secondary,
-  tertiary,
-  success,
-  warning,
-  error,
-  info,
-}
+enum TabVariant { primary, secondary, tertiary, success, warning, error, info }
 
 /// Tab size.
 enum TabSize { sm, md, lg }
@@ -118,52 +110,51 @@ class CustomTabWidget extends StatelessWidget {
   ({Color light, Color dark, Color text, Color shadow}) get _vc =>
       switch (variant) {
         TabVariant.primary => (
-        light: AppColors.colorPrimaryLight,
-        dark: AppColors.colorPrimaryDark,
-        text: AppColors.colorPrimaryText,
-        shadow: AppColors.colorPrimaryShadow,
+          light: AppColors.colorPrimaryLight,
+          dark: AppColors.colorPrimaryDark,
+          text: AppColors.colorPrimaryText,
+          shadow: AppColors.colorPrimaryShadow,
         ),
         TabVariant.secondary => (
-        light: AppColors.colorSecondaryLight,
-        dark: AppColors.colorSecondaryDark,
-        text: AppColors.colorSecondaryText,
-        shadow: AppColors.colorSecondaryShadow,
+          light: AppColors.colorSecondaryLight,
+          dark: AppColors.colorSecondaryDark,
+          text: AppColors.colorSecondaryText,
+          shadow: AppColors.colorSecondaryShadow,
         ),
         TabVariant.tertiary => (
-        light: AppColors.colorTertiaryLight,
-        dark: AppColors.colorTertiaryDark,
-        text: AppColors.colorTertiaryText,
-        shadow: AppColors.colorTertiaryShadow,
+          light: AppColors.colorTertiaryLight,
+          dark: AppColors.colorTertiaryDark,
+          text: AppColors.colorTertiaryText,
+          shadow: AppColors.colorTertiaryShadow,
         ),
         TabVariant.success => (
-        light: AppColors.colorSuccessLight,
-        dark: AppColors.colorSuccessDark,
-        text: AppColors.colorSuccessText,
-        shadow: AppColors.colorSuccessShadow,
+          light: AppColors.colorSuccessLight,
+          dark: AppColors.colorSuccessDark,
+          text: AppColors.colorSuccessText,
+          shadow: AppColors.colorSuccessShadow,
         ),
         TabVariant.warning => (
-        light: AppColors.colorWarningLight,
-        dark: AppColors.colorWarningDark,
-        text: AppColors.colorWarningText,
-        shadow: AppColors.colorWarningShadow,
+          light: AppColors.colorWarningLight,
+          dark: AppColors.colorWarningDark,
+          text: AppColors.colorWarningText,
+          shadow: AppColors.colorWarningShadow,
         ),
         TabVariant.error => (
-        light: AppColors.colorErrorLight,
-        dark: AppColors.colorErrorDark,
-        text: AppColors.colorErrorText,
-        shadow: AppColors.colorErrorShadow,
+          light: AppColors.colorErrorLight,
+          dark: AppColors.colorErrorDark,
+          text: AppColors.colorErrorText,
+          shadow: AppColors.colorErrorShadow,
         ),
         TabVariant.info => (
-        light: AppColors.colorInfoLight,
-        dark: AppColors.colorInfoDark,
-        text: AppColors.colorInfoText,
-        shadow: AppColors.colorInfoShadow,
+          light: AppColors.colorInfoLight,
+          dark: AppColors.colorInfoDark,
+          text: AppColors.colorInfoText,
+          shadow: AppColors.colorInfoShadow,
         ),
       };
 
   // The accent colour used for text / indicator on active tab.
-  Color get _accentColor =>
-      darkTheme ? _vc.light : _vc.dark;
+  Color get _accentColor => darkTheme ? _vc.light : _vc.dark;
 
   // ── Theme helpers ──────────────────────────────────────────────────────
 
@@ -225,10 +216,10 @@ class CustomTabWidget extends StatelessWidget {
       child: fullWidth
           ? _buildPillInner()
           : SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        child: _buildPillInner(),
-      ),
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: _buildPillInner(),
+            ),
     );
   }
 
@@ -237,8 +228,7 @@ class CustomTabWidget extends StatelessWidget {
       builder: (context, constraints) {
         // In full-width mode constraints are bounded; otherwise use intrinsic.
         final useIntrinsic = !fullWidth || !constraints.hasBoundedWidth;
-        final totalWidth =
-        useIntrinsic ? null : constraints.maxWidth;
+        final totalWidth = useIntrinsic ? null : constraints.maxWidth;
 
         return SizedBox(
           width: totalWidth,
@@ -252,11 +242,12 @@ class CustomTabWidget extends StatelessWidget {
 
               // Tab buttons row
               Row(
-                mainAxisSize:
-                fullWidth ? MainAxisSize.max : MainAxisSize.min,
+                mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
                 children: tabs.map((tab) {
                   return fullWidth
-                      ? Expanded(child: _PillTab(tab: tab, widget: this))
+                      ? Expanded(
+                          child: _PillTab(tab: tab, widget: this),
+                        )
                       : _PillTab(tab: tab, widget: this);
                 }).toList(),
               ),
@@ -269,7 +260,9 @@ class CustomTabWidget extends StatelessWidget {
 
   /// Sliding pill indicator for bounded (full-width) layout.
   Widget _buildPillSlider(double totalWidth) {
-    final idx = tabs.indexWhere((t) => t.id == activeTab).clamp(0, tabs.length - 1);
+    final idx = tabs
+        .indexWhere((t) => t.id == activeTab)
+        .clamp(0, tabs.length - 1);
     final slotWidth = totalWidth / tabs.length;
     final vc = _vc;
 
@@ -310,9 +303,7 @@ class CustomTabWidget extends StatelessWidget {
   Widget _buildLine() {
     return Container(
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: _dividerColor, width: 2),
-        ),
+        border: Border(bottom: BorderSide(color: _dividerColor, width: 2)),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -334,9 +325,7 @@ class CustomTabWidget extends StatelessWidget {
   Widget _buildUnderline() {
     return Container(
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: _dividerColor, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: _dividerColor, width: 1)),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -358,9 +347,7 @@ class CustomTabWidget extends StatelessWidget {
   Widget _buildCard() {
     return Container(
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: _dividerColor, width: 1.5),
-        ),
+        border: Border(bottom: BorderSide(color: _dividerColor, width: 1.5)),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -507,7 +494,7 @@ class _PillTabState extends State<_PillTab> {
     Color badgeBg;
     Color badgeText;
     if (isActive) {
-      badgeBg = Colors.white.withOpacity(0.3);
+      badgeBg = Colors.white.withValues(alpha: 0.3);
       badgeText = vc.text;
     } else {
       badgeBg = w._badgeIdleBg;
@@ -600,8 +587,7 @@ class _LineTabState extends State<_LineTab> {
         ? accentColor
         : (_hovered && !isDisabled ? w._hoverTextColor : w._idleTextColor);
 
-    final badgeBg =
-    isActive ? accentColor : w._badgeIdleBg;
+    final badgeBg = isActive ? accentColor : w._badgeIdleBg;
     final badgeText = isActive ? Colors.white : w._badgeIdleText;
 
     return MouseRegion(
