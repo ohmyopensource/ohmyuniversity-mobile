@@ -9,8 +9,8 @@ import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/auth_mode_selector.dart';
-import '../widgets/identity_provider_button.dart';
 import '../../../../shared/widgets/custom_input/custom_input_widget.dart';
+import '../../../../shared/widgets/custom_button/custom_button_widget.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -247,20 +247,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ],
 
                               const SizedBox(height: 8),
-                              FilledButton(
-                                onPressed: _isLoading ? null : _submit,
-                                child: _isLoading
-                                    ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                                    : Text(
-                                    isLogin ? 'Accedi' : 'Registrati'),
+
+                              // ── Submit button ──────────────────────
+                              CustomButtonWidget(
+                                label: isLogin ? 'Accedi' : 'Registrati',
+                                variant: ButtonVariant.primary,
+                                size: ButtonSize.md,
+                                fullWidth: true,
+                                loading: _isLoading,
+                                onPressed: _submit,
                               ),
+
                               const SizedBox(height: 24),
                               Text(
                                 'O continua con',
@@ -270,11 +267,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 ),
                               ),
                               const SizedBox(height: 10),
+
+                              // ── Identity providers ─────────────────
                               Row(
                                 children: [
                                   Expanded(
-                                    child: IdentityProviderButton(
+                                    child: CustomButtonWidget(
                                       label: 'SPID',
+                                      variant: ButtonVariant.outline,
+                                      size: ButtonSize.md,
+                                      fullWidth: true,
                                       onPressed: () =>
                                           _showIdentityProviderMessage(
                                               'SPID'),
@@ -282,8 +284,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
-                                    child: IdentityProviderButton(
+                                    child: CustomButtonWidget(
                                       label: 'CIE',
+                                      variant: ButtonVariant.outline,
+                                      size: ButtonSize.md,
+                                      fullWidth: true,
                                       onPressed: () =>
                                           _showIdentityProviderMessage(
                                               'CIE'),
@@ -291,6 +296,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   ),
                                 ],
                               ),
+
                               const Spacer(),
                               const SizedBox(height: 28),
                               GestureDetector(
