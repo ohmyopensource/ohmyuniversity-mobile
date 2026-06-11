@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../config/theme/app_colors.dart';
+import '../../../../shared/widgets/custom_pagination/custom_pagination_widget.dart';
+
+// ─── Data models ──────────────────────────────────────────────────────────────
 
 class AcademicExamCourseData {
   const AcademicExamCourseData({
@@ -56,6 +59,8 @@ class AcademicExamAppealData {
   final String? room;
 }
 
+// ─── AcademicExamsPanel ───────────────────────────────────────────────────────
+
 class AcademicExamsPanel extends StatelessWidget {
   const AcademicExamsPanel({
     super.key,
@@ -82,10 +87,8 @@ class AcademicExamsPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final visibleCourses = courses
         .where(
-          (course) =>
-              course.year == selectedYear &&
-              course.semester == selectedSemester + 1,
-        )
+          (c) => c.year == selectedYear && c.semester == selectedSemester + 1,
+    )
         .toList();
 
     return AnimatedSize(
@@ -114,14 +117,13 @@ class AcademicExamsPanel extends StatelessWidget {
               onChanged: onSemesterChanged,
             ),
             const SizedBox(height: 10),
-            for (var index = 0; index < visibleCourses.length; index++) ...[
+            for (var i = 0; i < visibleCourses.length; i++) ...[
               AcademicExamCourseTile(
-                course: visibleCourses[index],
-                provisionalGrade: provisionalGrades[visibleCourses[index].id],
+                course: visibleCourses[i],
+                provisionalGrade: provisionalGrades[visibleCourses[i].id],
                 onProvisionalGradeChanged: onProvisionalGradeChanged,
               ),
-              if (index != visibleCourses.length - 1)
-                const SizedBox(height: 10),
+              if (i != visibleCourses.length - 1) const SizedBox(height: 10),
             ],
           ],
         ),
@@ -130,7 +132,9 @@ class AcademicExamsPanel extends StatelessWidget {
   }
 }
 
-class AcademicExamAppealsPanel extends StatelessWidget {
+// ─── AcademicExamAppealsPanel ─────────────────────────────────────────────────
+
+class AcademicExamAppealsPanel extends StatefulWidget {
   const AcademicExamAppealsPanel({
     super.key,
     required this.months,
@@ -152,72 +156,200 @@ class AcademicExamAppealsPanel extends StatelessWidget {
   final ValueChanged<int> onStatusChanged;
 
   @override
+  State<AcademicExamAppealsPanel> createState() =>
+      _AcademicExamAppealsPanelState();
+}
+
+class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
+  static const _pageSize = 3;
+  int _currentPage = 1;
+
+  // +1 = forward (swipe left), -1 = backward (swipe right).
+  // Drives the enter/exit direction of AnimatedSwitcher.
+  int _slideDirection = 1;
+
+  @override
+  void didUpdateWidget(AcademicExamAppealsPanel old) {
+    super.didUpdateWidget(old);
+    if (old.selectedMonth?.id != widget.selectedMonth?.id ||
+        old.selectedStatus != widget.selectedStatus) {
+      setState(() {
+        _currentPage = 1;
+        _slideDirection = 1;
+      });
+    }
+  }
+
+  List<AcademicExamAppealData> _filteredAppeals(
+      AcademicExamAppealMonthData selectedMonth,
+      ) {
+    final showBooked = widget.selectedStatus == 0;
+    return widget.appeals
+        .where(
+          (a) =>
+      a.month == selectedMonth.month &&
+          a.date.year == selectedMonth.year &&
+          a.isBooked == showBooked,
+    )
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  void _goToPage(int page, {required int direction}) {
+    setState(() {
+      _slideDirection = direction;
+      _currentPage = page;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final effectiveSelectedMonth =
-        selectedMonth ?? (months.isNotEmpty ? months.first : null);
-    final visibleAppeals = effectiveSelectedMonth == null
-        ? <AcademicExamAppealData>[]
-        : _visibleAppeals(appeals, effectiveSelectedMonth);
+        widget.selectedMonth ??
+            (widget.months.isNotEmpty ? widget.months.first : null);
 
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 260),
-      curve: Curves.easeOutCubic,
-      alignment: Alignment.topCenter,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 14),
-        decoration: BoxDecoration(
-          color: blueSurface,
-          borderRadius: BorderRadius.circular(19),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AcademicAppealsMonthTabs(
-              months: months,
-              selectedMonth: effectiveSelectedMonth,
-              activeColor: blueActive,
-              inactiveColor: AppColors.background.withValues(alpha: 0.58),
-              onChanged: onMonthChanged,
-            ),
-            const SizedBox(height: 10),
-            AcademicSegmentedControl(
-              selectedIndex: selectedStatus,
-              labels: const ['Appelli prenotati', 'Appelli in apertura'],
-              height: 48,
-              onChanged: onStatusChanged,
-            ),
-            const SizedBox(height: 10),
-            if (visibleAppeals.isEmpty)
-              const _EmptyAppealsTile()
-            else
-              for (var index = 0; index < visibleAppeals.length; index++) ...[
-                AcademicExamAppealTile(appeal: visibleAppeals[index]),
-                if (index != visibleAppeals.length - 1)
-                  const SizedBox(height: 10),
+    final allAppeals = effectiveSelectedMonth == null
+        ? <AcademicExamAppealData>[]
+        : _filteredAppeals(effectiveSelectedMonth);
+
+    final totalItems = allAppeals.length;
+    final totalPages = (totalItems / _pageSize).ceil().clamp(1, 999);
+
+    final startIndex = (_currentPage - 1) * _pageSize;
+    final endIndex = (startIndex + _pageSize).clamp(0, totalItems);
+    final pageAppeals = totalItems == 0
+        ? <AcademicExamAppealData>[]
+        : allAppeals.sublist(startIndex, endIndex);
+
+    final showPagination = totalItems > _pageSize;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onHorizontalDragEnd: showPagination
+          ? (details) {
+        const threshold = 80.0;
+        final vx = details.primaryVelocity ?? 0;
+        if (vx < -threshold && _currentPage < totalPages) {
+          _goToPage(_currentPage + 1, direction: 1);
+        } else if (vx > threshold && _currentPage > 1) {
+          _goToPage(_currentPage - 1, direction: -1);
+        }
+      }
+          : null,
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+        alignment: Alignment.topCenter,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 14),
+          decoration: BoxDecoration(
+            color: AcademicExamAppealsPanel.blueSurface,
+            borderRadius: BorderRadius.circular(19),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Month tabs
+              AcademicAppealsMonthTabs(
+                months: widget.months,
+                selectedMonth: effectiveSelectedMonth,
+                activeColor: AcademicExamAppealsPanel.blueActive,
+                inactiveColor: AppColors.background.withValues(alpha: 0.58),
+                onChanged: widget.onMonthChanged,
+              ),
+              const SizedBox(height: 10),
+
+              // Status segmented control
+              AcademicSegmentedControl(
+                selectedIndex: widget.selectedStatus,
+                labels: const ['Appelli prenotati', 'Appelli in apertura'],
+                height: 48,
+                onChanged: widget.onStatusChanged,
+              ),
+              const SizedBox(height: 10),
+
+              // Appeals list with directional slide transition
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 320),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  final isIncoming = child.key == ValueKey(_currentPage);
+                  final beginOffset = isIncoming
+                      ? Offset(_slideDirection.toDouble(), 0)
+                      : Offset(-_slideDirection.toDouble(), 0);
+
+                  return ClipRect(
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: beginOffset,
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      ),
+                    ),
+                  );
+                },
+                child: _AppealPageContent(
+                  key: ValueKey(_currentPage),
+                  pageAppeals: pageAppeals,
+                ),
+              ),
+
+              // Dot pagination
+              if (showPagination) ...[
+                const SizedBox(height: 14),
+                CustomPaginationWidget(
+                  totalItems: totalItems,
+                  pageSize: _pageSize,
+                  currentPage: _currentPage,
+                  style: PaginationStyle.dots,
+                  variant: PaginationVariant.primary,
+                  size: PaginationSize.sm,
+                  showPageSizeSelector: false,
+                  showInfo: false,
+                  showFirstLast: false,
+                  showJumpToPage: false,
+                  onPageChange: (page) => _goToPage(
+                    page,
+                    direction: page > _currentPage ? 1 : -1,
+                  ),
+                ),
               ],
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  List<AcademicExamAppealData> _visibleAppeals(
-    List<AcademicExamAppealData> appeals,
-    AcademicExamAppealMonthData selectedMonth,
-  ) {
-    final showBooked = selectedStatus == 0;
+/// Stateless content of a single appeals page.
+/// Keyed externally so [AnimatedSwitcher] can diff between pages.
+class _AppealPageContent extends StatelessWidget {
+  const _AppealPageContent({super.key, required this.pageAppeals});
 
-    return appeals
-        .where(
-          (appeal) =>
-              appeal.month == selectedMonth.month &&
-              appeal.date.year == selectedMonth.year &&
-              appeal.isBooked == showBooked,
-        )
-        .toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
+  final List<AcademicExamAppealData> pageAppeals;
+
+  @override
+  Widget build(BuildContext context) {
+    if (pageAppeals.isEmpty) return const _EmptyAppealsTile();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < pageAppeals.length; i++) ...[
+          AcademicExamAppealTile(appeal: pageAppeals[i]),
+          if (i != pageAppeals.length - 1) const SizedBox(height: 10),
+        ],
+      ],
+    );
   }
 }
+
+// ─── Shared tab/control widgets ───────────────────────────────────────────────
 
 class AcademicYearTabs extends StatelessWidget {
   const AcademicYearTabs({
@@ -247,21 +379,21 @@ class AcademicYearTabs extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           child: Row(
             children: [
-              for (var index = 0; index < years.length; index++) ...[
+              for (var i = 0; i < years.length; i++) ...[
                 SizedBox(
                   width: itemWidth,
                   child: _LargeTab(
-                    label: 'Anno ${years[index]}',
-                    isSelected: selectedYear == years[index],
-                    activeColor: const Color(
-                      0xFFBFDCEB,
-                    ).withValues(alpha: 0.92),
-                    inactiveColor: AppColors.background.withValues(alpha: 0.58),
+                    label: 'Anno ${years[i]}',
+                    isSelected: selectedYear == years[i],
+                    activeColor:
+                    const Color(0xFFBFDCEB).withValues(alpha: 0.92),
+                    inactiveColor:
+                    AppColors.background.withValues(alpha: 0.58),
                     shadowColor: const Color(0xFF5B93AE),
-                    onTap: () => onChanged(years[index]),
+                    onTap: () => onChanged(years[i]),
                   ),
                 ),
-                if (index != years.length - 1) const SizedBox(width: gap),
+                if (i != years.length - 1) const SizedBox(width: gap),
               ],
             ],
           ),
@@ -296,36 +428,34 @@ class AcademicAppealsMonthTabs extends StatelessWidget {
       physics: const BouncingScrollPhysics(),
       child: Row(
         children: [
-          for (var index = 0; index < months.length; index++) ...[
+          for (var i = 0; i < months.length; i++) ...[
             SizedBox(
               width: 96,
               child: _LargeTab(
-                label: _monthLabel(months[index].month),
-                isSelected: selectedMonth?.id == months[index].id,
+                label: _monthLabel(months[i].month),
+                isSelected: selectedMonth?.id == months[i].id,
                 activeColor: activeColor,
                 inactiveColor: inactiveColor,
                 shadowColor: activeColor,
-                onTap: () => onChanged(months[index]),
+                onTap: () => onChanged(months[i]),
               ),
             ),
-            if (index != months.length - 1) const SizedBox(width: 8),
+            if (i != months.length - 1) const SizedBox(width: 8),
           ],
         ],
       ),
     );
   }
 
-  String _monthLabel(int month) {
-    return switch (month) {
-      1 => 'Gennaio',
-      2 => 'Febbraio',
-      6 => 'Giugno',
-      7 => 'Luglio',
-      9 => 'Settembre',
-      10 => 'Ottobre',
-      _ => 'Mese $month',
-    };
-  }
+  String _monthLabel(int month) => switch (month) {
+    1 => 'Gennaio',
+    2 => 'Febbraio',
+    6 => 'Giugno',
+    7 => 'Luglio',
+    9 => 'Settembre',
+    10 => 'Ottobre',
+    _ => 'Mese $month',
+  };
 }
 
 class AcademicSegmentedControl extends StatelessWidget {
@@ -355,7 +485,6 @@ class AcademicSegmentedControl extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final indicatorWidth = constraints.maxWidth / labels.length;
-
           return Stack(
             children: [
               AnimatedPositioned(
@@ -386,12 +515,12 @@ class AcademicSegmentedControl extends StatelessWidget {
               ),
               Row(
                 children: [
-                  for (var index = 0; index < labels.length; index++)
+                  for (var i = 0; i < labels.length; i++)
                     Expanded(
                       child: _SegmentedTab(
-                        label: labels[index],
-                        isSelected: selectedIndex == index,
-                        onTap: () => onChanged(index),
+                        label: labels[i],
+                        isSelected: selectedIndex == i,
+                        onTap: () => onChanged(i),
                       ),
                     ),
                 ],
@@ -403,6 +532,8 @@ class AcademicSegmentedControl extends StatelessWidget {
     );
   }
 }
+
+// ─── Tile widgets ─────────────────────────────────────────────────────────────
 
 class AcademicExamCourseTile extends StatelessWidget {
   const AcademicExamCourseTile({
@@ -515,7 +646,7 @@ class AcademicExamAppealTile extends StatelessWidget {
         final iconSize = isCompact ? 38.0 : 42.0;
         final gap = isCompact ? 7.0 : 9.0;
         const trailingWidth = 46.0;
-        final isDisabledAppeal = !appeal.isBooked && !appeal.isBookable;
+        final isDisabled = !appeal.isBooked && !appeal.isBookable;
 
         return Container(
           constraints: const BoxConstraints(minHeight: 76),
@@ -524,12 +655,12 @@ class AcademicExamAppealTile extends StatelessWidget {
             vertical: 9,
           ),
           decoration: BoxDecoration(
-            color: isDisabledAppeal
+            color: isDisabled
                 ? const Color(0xFFE8EAED)
                 : AppColors.background.withValues(alpha: 0.82),
             borderRadius: BorderRadius.circular(13),
             border: Border.all(
-              color: isDisabledAppeal
+              color: isDisabled
                   ? AppColors.textPrimary.withValues(alpha: 0.12)
                   : AppColors.textPrimary.withValues(alpha: 0.18),
             ),
@@ -540,14 +671,14 @@ class AcademicExamAppealTile extends StatelessWidget {
                 width: iconSize,
                 height: iconSize,
                 decoration: BoxDecoration(
-                  color: isDisabledAppeal
+                  color: isDisabled
                       ? AppColors.textPrimary.withValues(alpha: 0.10)
                       : const Color(0xFFBFDCEB),
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: Icon(
                   LucideIcons.calendarDays,
-                  color: isDisabledAppeal
+                  color: isDisabled
                       ? AppColors.textPrimary.withValues(alpha: 0.46)
                       : const Color(0xFF5B93AE),
                   size: 20,
@@ -609,10 +740,11 @@ class AcademicExamAppealTile extends StatelessWidget {
     final day = appeal.date.day.toString().padLeft(2, '0');
     final month = appeal.date.month.toString().padLeft(2, '0');
     final room = appeal.room == null ? '' : ' - ${appeal.room}';
-
     return '$day/$month$room';
   }
 }
+
+// ─── Private widgets ──────────────────────────────────────────────────────────
 
 class _LargeTab extends StatelessWidget {
   const _LargeTab({
@@ -644,12 +776,12 @@ class _LargeTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         boxShadow: isSelected
             ? [
-                BoxShadow(
-                  color: shadowColor.withValues(alpha: 0.22),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ]
+          BoxShadow(
+            color: shadowColor.withValues(alpha: 0.22),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ]
             : null,
       ),
       child: Material(
@@ -762,7 +894,8 @@ class _ExamGradeBox extends StatelessWidget {
   final int? provisionalGrade;
   final ValueChanged<int> onChanged;
 
-  static final _availableGrades = List<int>.generate(31, (index) => 30 - index);
+  static final _availableGrades =
+  List<int>.generate(31, (i) => 30 - i);
 
   @override
   Widget build(BuildContext context) {
@@ -788,7 +921,7 @@ class _ExamGradeBox extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
       constraints: const BoxConstraints(maxHeight: 260, minWidth: 54),
       onSelected: onChanged,
-      itemBuilder: (context) => [
+      itemBuilder: (_) => [
         for (final grade in _availableGrades)
           PopupMenuItem<int>(
             value: grade,
@@ -913,22 +1046,20 @@ class _AppealBookingStateButton extends StatefulWidget {
       _AppealBookingStateButtonState();
 }
 
-class _AppealBookingStateButtonState extends State<_AppealBookingStateButton> {
+class _AppealBookingStateButtonState
+    extends State<_AppealBookingStateButton> {
   bool _isPressed = false;
 
   void _setPressed(bool value) {
     if (!widget.isBookable || _isPressed == value) return;
-
     setState(() => _isPressed = value);
   }
 
   @override
   Widget build(BuildContext context) {
     final isEnabled = widget.isBookable;
-    final backgroundColor = isEnabled
-        ? _isPressed
-              ? const Color(0xFF2F7FD6)
-              : AppColors.labelBlue
+    final bgColor = isEnabled
+        ? (_isPressed ? const Color(0xFF2F7FD6) : AppColors.labelBlue)
         : AppColors.textPrimary.withValues(alpha: 0.12);
 
     return AnimatedScale(
@@ -951,18 +1082,18 @@ class _AppealBookingStateButtonState extends State<_AppealBookingStateButton> {
             height: 25,
             padding: const EdgeInsets.symmetric(horizontal: 9),
             decoration: BoxDecoration(
-              color: backgroundColor,
+              color: bgColor,
               borderRadius: BorderRadius.circular(999),
               boxShadow: isEnabled
                   ? [
-                      BoxShadow(
-                        color: Colors.black.withValues(
-                          alpha: _isPressed ? 0.10 : 0.20,
-                        ),
-                        blurRadius: _isPressed ? 3 : 6,
-                        offset: Offset(0, _isPressed ? 1 : 2),
-                      ),
-                    ]
+                BoxShadow(
+                  color: Colors.black.withValues(
+                    alpha: _isPressed ? 0.10 : 0.20,
+                  ),
+                  blurRadius: _isPressed ? 3 : 6,
+                  offset: Offset(0, _isPressed ? 1 : 2),
+                ),
+              ]
                   : null,
             ),
             child: Center(
