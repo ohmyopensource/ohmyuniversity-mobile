@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../config/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_badge/custom_badge_widget.dart';
 import '../../../../shared/widgets/custom_button/custom_button_widget.dart';
-import '../../../../shared/widgets/custom_modal/custom_modal_widget.dart';
 import '../../../../shared/widgets/custom_pagination/custom_pagination_widget.dart';
 import '../../../../shared/widgets/custom_tab/custom_tab_widget.dart';
 import '../../../../shared/widgets/custom_text/custom_text_widget.dart';
-import '../custom_card/card_variants_widget.dart';
+import '../../../../shared/widgets/custom_toast/custom_toast_service.dart';
+import '../custom_card/custom_card_variants_widget.dart';
 import '../custom_card/custom_card_widget.dart';
+import '../custom_toast/custom_toast_model.dart';
 
 // ─── Data models ──────────────────────────────────────────────────────────────
 
@@ -376,14 +378,17 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
       context: context,
       barrierColor: Colors.black54,
       barrierDismissible: true,
-      builder: (dialogContext) => _BookingConfirmModal(
-        appeal: appeal,
-        onConfirm: () {
-          Navigator.of(dialogContext, rootNavigator: true).pop();
-          widget.onBookingConfirmed?.call(appeal);
-        },
-        onDismiss: () =>
-            Navigator.of(dialogContext, rootNavigator: true).pop(),
+      builder: (dialogContext) => UncontrolledProviderScope(
+        container: ProviderScope.containerOf(context),
+        child: _BookingConfirmModal(
+          appeal: appeal,
+          onConfirm: () {
+            Navigator.of(dialogContext, rootNavigator: true).pop();
+            widget.onBookingConfirmed?.call(appeal);
+          },
+          onDismiss: () =>
+              Navigator.of(dialogContext, rootNavigator: true).pop(),
+        ),
       ),
     );
   }
@@ -391,7 +396,7 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
 
 // ─── Booking confirm modal ────────────────────────────────────────────────────
 
-class _BookingConfirmModal extends StatelessWidget {
+class _BookingConfirmModal extends ConsumerWidget {
   const _BookingConfirmModal({
     required this.appeal,
     required this.onConfirm,
@@ -403,7 +408,7 @@ class _BookingConfirmModal extends StatelessWidget {
   final VoidCallback onDismiss;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
@@ -435,13 +440,31 @@ class _BookingConfirmModal extends StatelessWidget {
                 CustomButtonWidget(
                   label: 'Annulla',
                   variant: ButtonVariant.ghost,
-                  onPressed: onDismiss,
+                  onPressed: () {
+                    onDismiss();
+                    ref.read(toastServiceProvider.notifier).warning(
+                      'Prenotazione annullata',
+                      options: const ToastOptions(
+                        title: 'Nessuna prenotazione',
+                        position: ToastPosition.topCenter,
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(width: 8),
                 CustomButtonWidget(
                   label: 'Prenota',
                   variant: ButtonVariant.primary,
-                  onPressed: onConfirm,
+                  onPressed: () {
+                    onConfirm();
+                    ref.read(toastServiceProvider.notifier).success(
+                      '${appeal.examName} prenotato con successo',
+                      options: const ToastOptions(
+                        title: 'Prenotazione confermata',
+                        position: ToastPosition.topCenter,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
