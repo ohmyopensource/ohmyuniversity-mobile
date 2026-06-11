@@ -11,6 +11,7 @@ import '../providers/auth_provider.dart';
 import '../widgets/auth_mode_selector.dart';
 import '../../../../shared/widgets/custom_input/custom_input_widget.dart';
 import '../../../../shared/widgets/custom_button/custom_button_widget.dart';
+import '../../../../shared/widgets/custom_text/custom_text_widget.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -93,7 +94,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isLogin = _mode == AuthFormMode.login;
 
     return Scaffold(
@@ -110,16 +110,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 child: IntrinsicHeight(
                   child: Column(
                     children: [
+                      // ── Headline ─────────────────────────────────
                       Padding(
                         padding: const EdgeInsets.fromLTRB(28, 42, 28, 28),
-                        child: Text(
+                        child: CustomTextWidget(
+                          text:
                           'La tua carriera universitaria,\ntutta in un posto',
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w900,
-                            height: 1.08,
-                          ),
+                          variant: TextVariant.h3,
+                          color: TextColor.defaultColor,
+                          weight: TextWeight.extraBold,
+                          align: TextAlign.center,
                         ),
                       ),
                       Expanded(
@@ -181,21 +181,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                             () => _rememberMe = value ?? false,
                                       ),
                                     ),
-                                    Text(
-                                      'Ricordami',
-                                      style: theme.textTheme.bodySmall
-                                          ?.copyWith(
-                                        color: AppColors.textPrimary,
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                                    // ── Ricordami ──────────────────
+                                    const CustomTextWidget(
+                                      text: 'Ricordami',
+                                      variant: TextVariant.bodySm,
+                                      color: TextColor.defaultColor,
+                                      weight: TextWeight.bold,
                                     ),
                                     const Spacer(),
                                     TextButton(
                                       onPressed: () =>
                                           _showIdentityProviderMessage(
                                               'recupero password'),
-                                      child: const Text(
-                                          'Password dimenticata?'),
+                                      child: const CustomTextWidget(
+                                        text: 'Password dimenticata?',
+                                        variant: TextVariant.bodySm,
+                                        color: TextColor.primary,
+                                        weight: TextWeight.semibold,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -259,12 +262,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
 
                               const SizedBox(height: 24),
-                              Text(
-                                'O continua con',
-                                style: theme.textTheme.labelLarge?.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w900,
-                                ),
+
+                              // ── O continua con ─────────────────────
+                              const CustomTextWidget(
+                                text: 'O continua con',
+                                variant: TextVariant.label,
+                                color: TextColor.primary,
+                                weight: TextWeight.extraBold,
                               ),
                               const SizedBox(height: 10),
 
@@ -299,29 +303,26 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                               const Spacer(),
                               const SizedBox(height: 28),
+
+                              // ── Sei un futuro studente? ────────────
                               GestureDetector(
                                 onTap: () => context
                                     .goNamed(AppRoutes.orientamentoName),
-                                child: RichText(
-                                  textAlign: TextAlign.center,
-                                  text: TextSpan(
-                                    style: theme.textTheme.bodyMedium
-                                        ?.copyWith(
-                                      color: AppColors.textPrimary
-                                          .withValues(alpha: 0.72),
+                                child: Wrap(
+                                  alignment: WrapAlignment.center,
+                                  children: [
+                                    CustomTextWidget(
+                                      text: 'Sei un futuro studente? ',
+                                      variant: TextVariant.bodySm,
+                                      color: TextColor.muted,
                                     ),
-                                    children: const [
-                                      TextSpan(
-                                          text: 'Sei un futuro studente? '),
-                                      TextSpan(
-                                        text: 'Clicca qui!',
-                                        style: TextStyle(
-                                          color: AppColors.primary,
-                                          fontWeight: FontWeight.w900,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    CustomTextWidget(
+                                      text: 'Clicca qui!',
+                                      variant: TextVariant.bodySm,
+                                      color: TextColor.primary,
+                                      weight: TextWeight.extraBold,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
