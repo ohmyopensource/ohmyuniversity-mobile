@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../config/routes/app_routes.dart';
 import '../../config/theme/app_colors.dart';
-import 'profile_switcher.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../widgets/avatar_profile_panel/avatar_profile_panel_widget.dart';
 
 class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
   const AppTopBar({super.key, required this.scaffoldKey});
@@ -16,22 +16,35 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(78);
 
-  static const _mockProfiles = [
-    StudentProfile(
+  // Mock accounts — sostituire con dati reali dal provider utente
+  static const _mockAccounts = [
+    AccountEntry(
+      id: '1',
       name: 'Mario Rossi',
       email: 'mario.rossi@studenti.unimi.it',
-      degreeType: DegreeType.triennale,
-      isActive: true,
+      courseLabel: 'Ingegneria Informatica',
+      universityLabel: 'Università degli Studi di Milano',
+      courseAcronym: 'LM',
+      status: AccountStatus.active,
+      isCurrent: true,
     ),
-    StudentProfile(
+    AccountEntry(
+      id: '2',
       name: 'Mario Rossi',
       email: 'mario.rossi@studenti.unimi.it',
-      degreeType: DegreeType.magistrale,
+      courseLabel: 'Informatica',
+      universityLabel: 'Università degli Studi di Milano',
+      courseAcronym: 'L',
+      status: AccountStatus.graduated,
     ),
-    StudentProfile(
+    AccountEntry(
+      id: '3',
       name: 'Mario Rossi',
       email: 'mario.rossi@studenti.unimi.it',
-      degreeType: DegreeType.rinuncia,
+      courseLabel: 'Fisica Teorica',
+      universityLabel: 'Università degli Studi di Milano',
+      courseAcronym: 'LM',
+      status: AccountStatus.withdrawn,
     ),
   ];
 
@@ -56,20 +69,25 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
           ),
           child: Row(
             children: [
+              // ── Left group ──────────────────────────────────────────
               _TopBarGroup(
                 children: [
-                  _TopBarAction(
-                    icon: LucideIcons.userCircle,
-                    tooltip: 'Profile',
-                    onTap: () => showProfileSwitcher(
-                      context,
-                      profiles: _mockProfiles,
-                      onAddAccount: () {},
-                        onLogout: () {
-                          ref.read(isAuthenticatedProvider.notifier).setAuthenticated(false);
-                          context.goNamed(AppRoutes.loginName);
-                        },
-                    ),
+                  // Avatar + panel dropdown — rimpiazza userCircle + showProfileSwitcher
+                  AvatarProfilePanelWidget(
+                    accounts: _mockAccounts,
+                    position: PanelPosition.right,
+                    animation: PanelAnimation.ios,
+                    showSettings: true,
+                    showLogout: true,
+                    showAddAccount: false,
+                    onAccountSwitch: (_) {},
+                    onSettingsClick: () {},
+                    onLogoutClick: () {
+                      ref
+                          .read(isAuthenticatedProvider.notifier)
+                          .setAuthenticated(false);
+                      context.goNamed(AppRoutes.loginName);
+                    },
                   ),
                   const SizedBox(width: 14),
                   _TopBarAction(
@@ -80,7 +98,10 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ],
               ),
+
               const Spacer(),
+
+              // ── Right group ─────────────────────────────────────────
               _TopBarGroup(
                 children: [
                   _TopBarAction(
@@ -103,6 +124,8 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 }
+
+// ─── Internal widgets ─────────────────────────────────────────────────────────
 
 class _TopBarGroup extends StatelessWidget {
   const _TopBarGroup({required this.children});
