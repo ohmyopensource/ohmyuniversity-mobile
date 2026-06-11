@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../config/routes/app_routes.dart';
 import '../../../../config/theme/app_colors.dart';
+import '../../../../shared/widgets/custom_button/custom_button_widget.dart';
 import '../content/onboarding_slides.dart';
 import '../widgets/onboarding_dots.dart';
 import '../widgets/onboarding_slide.dart';
@@ -72,6 +73,29 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 child: OnboardingDots(
                   count: onboardingSlides.length,
                   currentIndex: _currentIndex,
+                ),
+              ),
+            ),
+            Positioned(
+              right: 20,
+              bottom: 24,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.12),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: CustomButtonWidget(
+                  label: 'Skip',
+                  variant: ButtonVariant.flat,
+                  size: ButtonSize.sm,
+                  onPressed: _finish,
                 ),
               ),
             ),
