@@ -21,7 +21,7 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      textTheme: AppTypography.textTheme(Brightness.light),
+      textTheme: AppTypography.textTheme,
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
@@ -75,7 +75,7 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      textTheme: AppTypography.textTheme(Brightness.dark),
+      textTheme: AppTypography.textTheme,
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,

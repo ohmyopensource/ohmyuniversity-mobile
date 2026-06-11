@@ -1,27 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 abstract final class AppTypography {
-  static TextTheme textTheme(Brightness brightness) {
-    final color = brightness == Brightness.dark ? Colors.white : Colors.black;
+  static const String _heading = 'Outfit';
+  static const String _body = 'Quicksand';
 
-    final quicksand = GoogleFonts.quicksandTextTheme().apply(
-      bodyColor: color,
-      displayColor: color,
-    );
-
-    return quicksand.copyWith(
-      displayLarge: GoogleFonts.outfit(textStyle: quicksand.displayLarge),
-      displayMedium: GoogleFonts.outfit(textStyle: quicksand.displayMedium),
-      displaySmall: GoogleFonts.outfit(textStyle: quicksand.displaySmall),
-
-      headlineLarge: GoogleFonts.outfit(textStyle: quicksand.headlineLarge),
-      headlineMedium: GoogleFonts.outfit(textStyle: quicksand.headlineMedium),
-      headlineSmall: GoogleFonts.outfit(textStyle: quicksand.headlineSmall),
-
-      titleLarge: GoogleFonts.outfit(textStyle: quicksand.titleLarge),
-      titleMedium: GoogleFonts.outfit(textStyle: quicksand.titleMedium),
-      titleSmall: GoogleFonts.outfit(textStyle: quicksand.titleSmall),
-    );
-  }
+  static TextTheme get textTheme => const TextTheme(
+    displayLarge:  TextStyle(fontFamily: _heading),
+    displayMedium: TextStyle(fontFamily: _heading),
+    displaySmall:  TextStyle(fontFamily: _heading),
+    headlineLarge: TextStyle(fontFamily: _heading),
+    headlineMedium: TextStyle(fontFamily: _heading),
+    headlineSmall: TextStyle(fontFamily: _heading),
+    titleLarge:    TextStyle(fontFamily: _heading),
+    titleMedium:   TextStyle(fontFamily: _body),
+    titleSmall:    TextStyle(fontFamily: _body),
+    bodyLarge:     TextStyle(fontFamily: _body),
+    bodyMedium:    TextStyle(fontFamily: _body),
+    bodySmall:     TextStyle(fontFamily: _body),
+    labelLarge:    TextStyle(fontFamily: _body),
+    labelMedium:   TextStyle(fontFamily: _body),
+    labelSmall:    TextStyle(fontFamily: _body),
+  );
 }
