@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../config/theme/app_colors.dart';
+import '../../../../shared/widgets/custom_badge/custom_badge_widget.dart';
+import '../../../../shared/widgets/custom_button/custom_button_widget.dart';
+import '../../../../shared/widgets/custom_modal/custom_modal_widget.dart';
 import '../../../../shared/widgets/custom_pagination/custom_pagination_widget.dart';
 import '../../../../shared/widgets/custom_tab/custom_tab_widget.dart';
+import '../../../../shared/widgets/custom_text/custom_text_widget.dart';
 
 // ─── Data models ──────────────────────────────────────────────────────────────
 
@@ -114,7 +118,6 @@ class AcademicExamsPanel extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Year tabs — pill, full-width when ≤3 years
             CustomTabWidget(
               tabs: yearTabs,
               activeTab: '$selectedYear',
@@ -125,8 +128,6 @@ class AcademicExamsPanel extends StatelessWidget {
               onTabChange: (id) => onYearChanged(int.parse(id)),
             ),
             const SizedBox(height: 10),
-
-            // Semester segmented control — pill, always full-width
             CustomTabWidget(
               tabs: semesterTabs,
               activeTab: '$selectedSemester',
@@ -137,7 +138,6 @@ class AcademicExamsPanel extends StatelessWidget {
               onTabChange: (id) => onSemesterChanged(int.parse(id)),
             ),
             const SizedBox(height: 10),
-
             for (var i = 0; i < visibleCourses.length; i++) ...[
               AcademicExamCourseTile(
                 course: visibleCourses[i],
@@ -164,6 +164,7 @@ class AcademicExamAppealsPanel extends StatefulWidget {
     required this.appeals,
     required this.onMonthChanged,
     required this.onStatusChanged,
+    this.onBookingConfirmed,
   });
 
   static const blueSurface = Color(0xFFEEFDFF);
@@ -174,6 +175,9 @@ class AcademicExamAppealsPanel extends StatefulWidget {
   final List<AcademicExamAppealData> appeals;
   final ValueChanged<AcademicExamAppealMonthData> onMonthChanged;
   final ValueChanged<int> onStatusChanged;
+
+  /// Called when the user confirms the booking of an appeal.
+  final ValueChanged<AcademicExamAppealData>? onBookingConfirmed;
 
   @override
   State<AcademicExamAppealsPanel> createState() =>
@@ -250,12 +254,10 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
 
     final showPagination = totalItems > _pageSize;
 
-    // Month tabs
     final monthTabs = widget.months
         .map((m) => TabItem(id: m.id, label: _monthLabel(m.month)))
         .toList();
 
-    // Status tabs
     const statusTabs = [
       TabItem(id: '0', label: 'Appelli prenotati'),
       TabItem(id: '1', label: 'Appelli in apertura'),
@@ -287,7 +289,6 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Month tabs — pill, full-width when ≤3 months
               if (monthTabs.isNotEmpty)
                 CustomTabWidget(
                   tabs: monthTabs,
@@ -303,8 +304,6 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
                   },
                 ),
               const SizedBox(height: 10),
-
-              // Status segmented control — pill, always full-width
               CustomTabWidget(
                 tabs: statusTabs,
                 activeTab: '${widget.selectedStatus}',
@@ -312,12 +311,9 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
                 variant: TabVariant.primary,
                 size: TabSize.sm,
                 fullWidth: true,
-                onTabChange: (id) =>
-                    widget.onStatusChanged(int.parse(id)),
+                onTabChange: (id) => widget.onStatusChanged(int.parse(id)),
               ),
               const SizedBox(height: 10),
-
-              // Appeals list with directional slide transition
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 320),
                 switchInCurve: Curves.easeOutCubic,
@@ -327,27 +323,24 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
                   final beginOffset = isIncoming
                       ? Offset(_slideDirection.toDouble(), 0)
                       : Offset(-_slideDirection.toDouble(), 0);
-
                   return ClipRect(
                     child: SlideTransition(
                       position: Tween<Offset>(
                         begin: beginOffset,
                         end: Offset.zero,
                       ).animate(animation),
-                      child: FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      ),
+                      child: FadeTransition(opacity: animation, child: child),
                     ),
                   );
                 },
                 child: _AppealPageContent(
                   key: ValueKey(_currentPage),
                   pageAppeals: pageAppeals,
+                  onBookAppeal: widget.onBookingConfirmed != null
+                      ? (appeal) => _showBookingModal(context, appeal)
+                      : null,
                 ),
               ),
-
-              // Dot pagination
               if (showPagination) ...[
                 const SizedBox(height: 14),
                 CustomPaginationWidget(
@@ -373,13 +366,101 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
       ),
     );
   }
+
+  // ── Booking modal ────────────────────────────────────────────────────────────
+
+  void _showBookingModal(BuildContext context, AcademicExamAppealData appeal) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      barrierDismissible: true,
+      builder: (dialogContext) => _BookingConfirmModal(
+        appeal: appeal,
+        onConfirm: () {
+          Navigator.of(dialogContext, rootNavigator: true).pop();
+          widget.onBookingConfirmed?.call(appeal);
+        },
+        onDismiss: () =>
+            Navigator.of(dialogContext, rootNavigator: true).pop(),
+      ),
+    );
+  }
 }
 
-/// Stateless content of a single appeals page.
+// ─── Booking confirm modal ────────────────────────────────────────────────────
+
+class _BookingConfirmModal extends StatelessWidget {
+  const _BookingConfirmModal({
+    required this.appeal,
+    required this.onConfirm,
+    required this.onDismiss,
+  });
+
+  final AcademicExamAppealData appeal;
+  final VoidCallback onConfirm;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomTextWidget(
+              text: 'Prenota esame',
+              variant: TextVariant.h5,
+            ),
+            const SizedBox(height: 4),
+            CustomTextWidget(
+              text: appeal.examName,
+              variant: TextVariant.bodySm,
+              color: TextColor.muted,
+            ),
+            const SizedBox(height: 20),
+            CustomTextWidget(
+              text: 'Vuoi prenotarti per questo esame?',
+              variant: TextVariant.body,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                CustomButtonWidget(
+                  label: 'Annulla',
+                  variant: ButtonVariant.ghost,
+                  onPressed: onDismiss,
+                ),
+                const SizedBox(width: 8),
+                CustomButtonWidget(
+                  label: 'Prenota',
+                  variant: ButtonVariant.primary,
+                  onPressed: onConfirm,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Appeal page content ──────────────────────────────────────────────────────
+
 class _AppealPageContent extends StatelessWidget {
-  const _AppealPageContent({super.key, required this.pageAppeals});
+  const _AppealPageContent({
+    super.key,
+    required this.pageAppeals,
+    this.onBookAppeal,
+  });
 
   final List<AcademicExamAppealData> pageAppeals;
+  final ValueChanged<AcademicExamAppealData>? onBookAppeal;
 
   @override
   Widget build(BuildContext context) {
@@ -389,197 +470,18 @@ class _AppealPageContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var i = 0; i < pageAppeals.length; i++) ...[
-          AcademicExamAppealTile(appeal: pageAppeals[i]),
+          AcademicExamAppealTile(
+            appeal: pageAppeals[i],
+            onBook: onBookAppeal != null
+                ? () => onBookAppeal!(pageAppeals[i])
+                : null,
+          ),
           if (i != pageAppeals.length - 1) const SizedBox(height: 10),
         ],
       ],
     );
   }
 }
-
-// ─── Shared tab/control widgets ───────────────────────────────────────────────
-
-/*class AcademicYearTabs extends StatelessWidget {
-  const AcademicYearTabs({
-    super.key,
-    required this.years,
-    required this.selectedYear,
-    required this.onChanged,
-  });
-
-  final List<int> years;
-  final int selectedYear;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    if (years.isEmpty) return const SizedBox.shrink();
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const gap = 8.0;
-        final compactWidth =
-            (constraints.maxWidth - (gap * (years.length - 1))) / years.length;
-        final itemWidth = years.length <= 3 ? compactWidth : 92.0;
-
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          child: Row(
-            children: [
-              for (var i = 0; i < years.length; i++) ...[
-                SizedBox(
-                  width: itemWidth,
-                  child: _LargeTab(
-                    label: 'Anno ${years[i]}',
-                    isSelected: selectedYear == years[i],
-                    activeColor:
-                    const Color(0xFFBFDCEB).withValues(alpha: 0.92),
-                    inactiveColor:
-                    AppColors.background.withValues(alpha: 0.58),
-                    shadowColor: const Color(0xFF5B93AE),
-                    onTap: () => onChanged(years[i]),
-                  ),
-                ),
-                if (i != years.length - 1) const SizedBox(width: gap),
-              ],
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class AcademicAppealsMonthTabs extends StatelessWidget {
-  const AcademicAppealsMonthTabs({
-    super.key,
-    required this.months,
-    required this.selectedMonth,
-    required this.activeColor,
-    required this.inactiveColor,
-    required this.onChanged,
-  });
-
-  final List<AcademicExamAppealMonthData> months;
-  final AcademicExamAppealMonthData? selectedMonth;
-  final Color activeColor;
-  final Color inactiveColor;
-  final ValueChanged<AcademicExamAppealMonthData> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    if (months.isEmpty) return const SizedBox.shrink();
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      child: Row(
-        children: [
-          for (var i = 0; i < months.length; i++) ...[
-            SizedBox(
-              width: 96,
-              child: _LargeTab(
-                label: _monthLabel(months[i].month),
-                isSelected: selectedMonth?.id == months[i].id,
-                activeColor: activeColor,
-                inactiveColor: inactiveColor,
-                shadowColor: activeColor,
-                onTap: () => onChanged(months[i]),
-              ),
-            ),
-            if (i != months.length - 1) const SizedBox(width: 8),
-          ],
-        ],
-      ),
-    );
-  }
-
-  String _monthLabel(int month) => switch (month) {
-    1 => 'Gennaio',
-    2 => 'Febbraio',
-    6 => 'Giugno',
-    7 => 'Luglio',
-    9 => 'Settembre',
-    10 => 'Ottobre',
-    _ => 'Mese $month',
-  };
-}
-
-class AcademicSegmentedControl extends StatelessWidget {
-  const AcademicSegmentedControl({
-    super.key,
-    required this.selectedIndex,
-    required this.labels,
-    required this.onChanged,
-    this.height = 46,
-  });
-
-  final int selectedIndex;
-  final List<String> labels;
-  final ValueChanged<int> onChanged;
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.background.withValues(alpha: 0.34),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.34)),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final indicatorWidth = constraints.maxWidth / labels.length;
-          return Stack(
-            children: [
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 240),
-                curve: Curves.easeOutCubic,
-                left: selectedIndex * indicatorWidth,
-                top: 0,
-                bottom: 0,
-                width: indicatorWidth,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.background.withValues(alpha: 0.86),
-                    borderRadius: BorderRadius.circular(999),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.32),
-                        blurRadius: 12,
-                        offset: const Offset(-2, -2),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Row(
-                children: [
-                  for (var i = 0; i < labels.length; i++)
-                    Expanded(
-                      child: _SegmentedTab(
-                        label: labels[i],
-                        isSelected: selectedIndex == i,
-                        onTap: () => onChanged(i),
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}*/
 
 // ─── Tile widgets ─────────────────────────────────────────────────────────────
 
@@ -663,7 +565,12 @@ class AcademicExamCourseTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 9),
-          _CreditsBadge(credits: course.credits),
+          // ── CFU badge → CustomBadgeWidget ──
+          CustomBadgeWidget(
+            label: '${course.credits} CFU',
+            variant: BadgeVariant.neutral,
+            size: BadgeSize.sm,
+          ),
           const SizedBox(width: 8),
           _ExamGradeBox(
             course: course,
@@ -677,9 +584,17 @@ class AcademicExamCourseTile extends StatelessWidget {
 }
 
 class AcademicExamAppealTile extends StatelessWidget {
-  const AcademicExamAppealTile({super.key, required this.appeal});
+  const AcademicExamAppealTile({
+    super.key,
+    required this.appeal,
+    this.onBook,
+  });
 
   final AcademicExamAppealData appeal;
+
+  /// Callback triggered when the user taps "Prenotabile".
+  /// Null means no booking action is wired up.
+  final VoidCallback? onBook;
 
   @override
   Widget build(BuildContext context) {
@@ -759,14 +674,22 @@ class AcademicExamAppealTile extends StatelessWidget {
                         height: 1,
                       ),
                     ),
+                    // ── Booking button → CustomButtonWidget ──
                     if (!appeal.isBooked) ...[
                       const SizedBox(height: 6),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: _AppealBookingStateButton(
-                          isBookable: appeal.isBookable,
-                          onTap: () {},
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CustomButtonWidget(
+                            label: appeal.isBookable ? 'Prenotabile' : 'Non prenotabile',
+                            variant: appeal.isBookable
+                                ? ButtonVariant.primary
+                                : ButtonVariant.ghost,
+                            size: ButtonSize.sm,
+                            disabled: !appeal.isBookable,
+                            onPressed: appeal.isBookable ? onBook : null,
+                          ),
+                        ],
                       ),
                     ],
                   ],
@@ -793,42 +716,6 @@ class AcademicExamAppealTile extends StatelessWidget {
 }
 
 // ─── Private widgets ──────────────────────────────────────────────────────────
-
-class _CreditsBadge extends StatelessWidget {
-  const _CreditsBadge({required this.credits});
-
-  final int credits;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return SizedBox(
-      width: 34,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '$credits',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w900,
-              height: 0.95,
-            ),
-          ),
-          Text(
-            'CFU',
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w900,
-              height: 1,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _ExamGradeBox extends StatelessWidget {
   const _ExamGradeBox({
@@ -960,102 +847,12 @@ class _AppealTrailingInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Text(
-          appeal.time,
-          textAlign: TextAlign.right,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w900,
-            height: 1,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AppealBookingStateButton extends StatefulWidget {
-  const _AppealBookingStateButton({required this.isBookable, this.onTap});
-
-  final bool isBookable;
-  final VoidCallback? onTap;
-
-  @override
-  State<_AppealBookingStateButton> createState() =>
-      _AppealBookingStateButtonState();
-}
-
-class _AppealBookingStateButtonState
-    extends State<_AppealBookingStateButton> {
-  bool _isPressed = false;
-
-  void _setPressed(bool value) {
-    if (!widget.isBookable || _isPressed == value) return;
-    setState(() => _isPressed = value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isEnabled = widget.isBookable;
-    final bgColor = isEnabled
-        ? (_isPressed ? const Color(0xFF2F7FD6) : AppColors.labelBlue)
-        : AppColors.textPrimary.withValues(alpha: 0.12);
-
-    return AnimatedScale(
-      scale: isEnabled && _isPressed ? 0.94 : 1,
-      duration: const Duration(milliseconds: 90),
-      curve: Curves.easeOutCubic,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: isEnabled ? widget.onTap : null,
-          onTapDown: isEnabled ? (_) => _setPressed(true) : null,
-          onTapUp: isEnabled ? (_) => _setPressed(false) : null,
-          onTapCancel: isEnabled ? () => _setPressed(false) : null,
-          borderRadius: BorderRadius.circular(999),
-          splashColor: Colors.white.withValues(alpha: 0.22),
-          highlightColor: Colors.white.withValues(alpha: 0.10),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
-            curve: Curves.easeOutCubic,
-            height: 25,
-            padding: const EdgeInsets.symmetric(horizontal: 9),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(999),
-              boxShadow: isEnabled
-                  ? [
-                BoxShadow(
-                  color: Colors.black.withValues(
-                    alpha: _isPressed ? 0.10 : 0.20,
-                  ),
-                  blurRadius: _isPressed ? 3 : 6,
-                  offset: Offset(0, _isPressed ? 1 : 2),
-                ),
-              ]
-                  : null,
-            ),
-            child: Center(
-              child: Text(
-                isEnabled ? 'Prenotabile' : 'Non prenotabile',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: isEnabled
-                      ? Colors.white
-                      : AppColors.textPrimary.withValues(alpha: 0.5),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+    // ── orario appello → CustomTextWidget ──
+    return CustomTextWidget(
+      text: appeal.time,
+      variant: TextVariant.label,
+      weight: TextWeight.extraBold,
+      align: TextAlign.right,
     );
   }
 }
@@ -1065,8 +862,7 @@ class _EmptyAppealsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
+    // ── testo vuoto → CustomTextWidget ──
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -1074,13 +870,12 @@ class _EmptyAppealsTile extends StatelessWidget {
         color: AppColors.background.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(13),
       ),
-      child: Text(
-        'Nessun appello disponibile',
-        textAlign: TextAlign.center,
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: AppColors.textPrimary.withValues(alpha: 0.68),
-          fontWeight: FontWeight.w700,
-        ),
+      child: CustomTextWidget(
+        text: 'Nessun appello disponibile',
+        variant: TextVariant.bodySm,
+        weight: TextWeight.bold,
+        color: TextColor.muted,
+        align: TextAlign.center,
       ),
     );
   }

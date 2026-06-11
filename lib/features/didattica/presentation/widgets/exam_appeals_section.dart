@@ -49,6 +49,10 @@ class _ExamAppealsSectionState extends ConsumerState<ExamAppealsSection>
       appeals: appeals.map(_mapAppeal).toList(),
       onMonthChanged: _changeMonth,
       onStatusChanged: _changeStatus,
+      onBookingConfirmed: (appeal) {
+        // TODO: create and call a reservation use case
+        debugPrint('Prenotazione confermata: ${appeal.examName}');
+      },
     );
   }
 
