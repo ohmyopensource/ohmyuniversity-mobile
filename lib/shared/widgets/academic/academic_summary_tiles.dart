@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../config/theme/app_colors.dart';
+import '../../../shared/widgets/custom_badge/custom_badge_widget.dart';
 
 abstract final class AcademicSummaryTiles {
   static const tileColor = Color(0xFFFFFEE7);
@@ -105,7 +106,7 @@ class CareerMetricsGrid extends StatelessWidget {
               isWide: true,
               progressValue: progressValue,
               progressCaption:
-                  '$acquiredCredits CFU completati su $totalCredits',
+              '$acquiredCredits CFU completati su $totalCredits',
             ),
           ),
         ],
@@ -144,104 +145,104 @@ class CareerMetricTile extends StatelessWidget {
       decoration: _summaryTileDecoration(alpha: isWide ? 0.06 : 0.06),
       child: isWide
           ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w800,
-                          height: 1,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    FittedBox(
-                      child: Text(
-                        value,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w900,
-                          height: 1,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(999),
-                  child: LinearProgressIndicator(
-                    value: progressValue,
-                    minHeight: 7,
-                    backgroundColor: Colors.white.withValues(alpha: 0.74),
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      AcademicSummaryTiles.successColor,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  progressCaption ?? '',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: AppColors.textPrimary.withValues(alpha: 0.64),
-                    fontWeight: FontWeight.w700,
-                    height: 1,
-                  ),
-                ),
-              ],
-            )
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
                   label,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                    height: 1.05,
-                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    height: 1,
+                    fontSize: 11,
                   ),
                 ),
-                const SizedBox(height: 7),
-                FittedBox(
-                  child: Text(
-                    value,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w900,
-                      height: 1,
-                    ),
+              ),
+              const SizedBox(width: 10),
+              FittedBox(
+                child: Text(
+                  value,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w900,
+                    height: 1,
                   ),
                 ),
-                if (showProgress) ...[
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: LinearProgressIndicator(
-                      value: progressValue,
-                      minHeight: 5,
-                      backgroundColor: Colors.white.withValues(alpha: 0.72),
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AcademicSummaryTiles.successColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: progressValue,
+              minHeight: 7,
+              backgroundColor: Colors.white.withValues(alpha: 0.74),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                AcademicSummaryTiles.successColor,
+              ),
             ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            progressCaption ?? '',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: AppColors.textPrimary.withValues(alpha: 0.64),
+              fontWeight: FontWeight.w700,
+              height: 1,
+            ),
+          ),
+        ],
+      )
+          : Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+              height: 1.05,
+              fontSize: 10,
+            ),
+          ),
+          const SizedBox(height: 7),
+          FittedBox(
+            child: Text(
+              value,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w900,
+                height: 1,
+              ),
+            ),
+          ),
+          if (showProgress) ...[
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                value: progressValue,
+                minHeight: 5,
+                backgroundColor: Colors.white.withValues(alpha: 0.72),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AcademicSummaryTiles.successColor,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -286,10 +287,13 @@ class _StudentIdentityFront extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          const _CompactValuePill(
-            value: '2',
+          // ── LODI badge ──────────────────────────────────────────────
+          const CustomBadgeWidget(
+            label: '2',
             icon: LucideIcons.award,
-            backgroundColor: AcademicSummaryTiles.tileColor,
+            variant: BadgeVariant.primary,
+            size: BadgeSize.xs,
+            shape: BadgeShape.pill,
           ),
           const Spacer(),
           Text(
@@ -301,16 +305,22 @@ class _StudentIdentityFront extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          const _CompactValuePill(
-            value: '21',
+          // ── Esami superati ──────────────────────────────────────────
+          const CustomBadgeWidget(
+            label: '21',
             icon: LucideIcons.checkCircle,
-            backgroundColor: AcademicSummaryTiles.successColor,
+            variant: BadgeVariant.success,
+            size: BadgeSize.xs,
+            shape: BadgeShape.pill,
           ),
           const SizedBox(height: 6),
-          const _CompactValuePill(
-            value: '6',
+          // ── Esami falliti ───────────────────────────────────────────
+          const CustomBadgeWidget(
+            label: '6',
             icon: LucideIcons.xCircle,
-            backgroundColor: AcademicSummaryTiles.tileColor,
+            variant: BadgeVariant.neutral,
+            size: BadgeSize.xs,
+            shape: BadgeShape.pill,
           ),
         ],
       ),
@@ -394,50 +404,6 @@ class _StudentTileSurface extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 10),
       decoration: _summaryTileDecoration(alpha: 0.07),
       child: child,
-    );
-  }
-}
-
-class _CompactValuePill extends StatelessWidget {
-  const _CompactValuePill({
-    required this.value,
-    required this.icon,
-    required this.backgroundColor,
-  });
-
-  final String value;
-  final IconData icon;
-  final Color backgroundColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      height: 25,
-      padding: const EdgeInsets.symmetric(horizontal: 9),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: AppColors.textPrimary.withValues(alpha: 0.16),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            value,
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w900,
-              height: 1,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Icon(icon, size: 15, color: AppColors.textPrimary),
-        ],
-      ),
     );
   }
 }
