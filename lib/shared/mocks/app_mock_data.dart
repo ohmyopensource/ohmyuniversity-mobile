@@ -60,6 +60,18 @@ class MockAccountData {
   final bool isCurrent;
 }
 
+class MockUniversityData {
+  const MockUniversityData({
+    required this.name,
+    required this.websiteUrl,
+    required this.mailUrl,
+  });
+
+  final String name;
+  final String websiteUrl;
+  final String mailUrl;
+}
+
 class MockExamCourseData {
   const MockExamCourseData({
     required this.id,
@@ -207,6 +219,13 @@ abstract final class AppMockData {
       status: MockAccountStatus.withdrawn,
     ),
   ];
+
+  // Mock data used by the app drawer until university service links are provided.
+  static const university = MockUniversityData(
+    name: 'UNIMOL',
+    websiteUrl: 'https://www.unimol.it',
+    mailUrl: 'https://mail.unimol.it',
+  );
 
   // Mock data used by Didattica exam lists until real study plan data is available.
   static final List<MockExamCourseData> didatticaExamCourses = [
