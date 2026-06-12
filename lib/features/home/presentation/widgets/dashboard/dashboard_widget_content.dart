@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../config/theme/app_colors.dart';
+import '../../../../../shared/mocks/app_mock_data.dart';
 import '../../../../../shared/widgets/academic/academic_exam_widgets.dart';
 import '../../../../../shared/widgets/academic/academic_statistics_tiles.dart';
 import '../../../../../shared/widgets/academic/academic_summary_tiles.dart';
@@ -23,37 +24,34 @@ class DashboardWidgetContent extends StatelessWidget {
       'student' => const StudentIdentityTile(),
       'arithmetic_average' => const CareerMetricTile(
         label: 'Media aritmetica',
-        value: '25.5',
+        value: AppMockData.dashboardArithmeticAverage,
       ),
       'weighted_average' => const CareerMetricTile(
         label: 'Media Ponderata',
-        value: '25.5',
+        value: AppMockData.dashboardWeightedAverage,
       ),
       'acquired_credits' => const CareerMetricTile(
         label: 'Cfu acquisiti',
-        value: '90/180',
+        value: AppMockData.dashboardCreditsValue,
         showProgress: true,
         isWide: true,
-        progressValue: 0.5,
-        progressCaption: '90 CFU completati su 180',
+        progressValue: AppMockData.dashboardCreditsProgress,
+        progressCaption: AppMockData.dashboardCreditsCaption,
       ),
       'acquired_credits_compact' => const CareerMetricTile(
         label: 'Cfu acquisiti',
-        value: '90/180',
+        value: AppMockData.dashboardCreditsValue,
         showProgress: true,
         isWide: true,
       ),
       'graduation_projection' => const GraduationProjectionTile(
-        value: 90,
-        maxValue: 110,
+        value: AppMockData.graduationProjection,
+        maxValue: AppMockData.graduationProjectionMax,
       ),
       'average_trend' => AverageTrendTile(
-        points: [
-          AcademicAverageTrendPoint(date: DateTime(2026, 5, 23), value: 30),
-          AcademicAverageTrendPoint(date: DateTime(2026, 6, 20), value: 28.8),
-          AcademicAverageTrendPoint(date: DateTime(2026, 7, 18), value: 27.2),
-          AcademicAverageTrendPoint(date: DateTime(2026, 8, 28), value: 25.5),
-        ],
+        points: AppMockData.averageTrend
+            .map(_toAcademicAverageTrendPoint)
+            .toList(growable: false),
       ),
       'exams' => const _DashboardExamsWidget(),
       'appeals' => const _DashboardAppealsWidget(),
@@ -65,6 +63,12 @@ class DashboardWidgetContent extends StatelessWidget {
       ),
     };
   }
+}
+
+AcademicAverageTrendPoint _toAcademicAverageTrendPoint(
+  MockAverageTrendPointData point,
+) {
+  return AcademicAverageTrendPoint(date: point.date, value: point.value);
 }
 
 class _DashboardExamsWidget extends StatefulWidget {
@@ -79,74 +83,24 @@ class _DashboardExamsWidgetState extends State<_DashboardExamsWidget> {
   int _selectedSemester = 0;
   final Map<String, int> _provisionalGrades = {};
 
-  static const _courses = [
-    AcademicExamCourseData(
-      id: 'fondamenti-informatica',
-      year: 1,
-      semester: 1,
-      name: 'Fondamenti di Informatica',
-      code: 'INF/01',
-      credits: 9,
-      passed: true,
-      grade: '30',
-    ),
-    AcademicExamCourseData(
-      id: 'algebra-lineare',
-      year: 1,
-      semester: 1,
-      name: 'Algebra Lineare',
-      code: 'MAT/03',
-      credits: 6,
-      passed: false,
-    ),
-    AcademicExamCourseData(
-      id: 'architettura-elaboratori',
-      year: 1,
-      semester: 2,
-      name: 'Architettura degli Elaboratori',
-      code: 'INF/01',
-      credits: 9,
-      passed: true,
-      grade: '27',
-    ),
-    AcademicExamCourseData(
-      id: 'matematica-discreta',
-      year: 1,
-      semester: 2,
-      name: 'Matematica Discreta',
-      code: 'MAT/02',
-      credits: 6,
-      passed: false,
-    ),
-    AcademicExamCourseData(
-      id: 'basi-dati',
-      year: 2,
-      semester: 1,
-      name: 'Basi di Dati',
-      code: 'INF/01',
-      credits: 9,
-      passed: true,
-      grade: '30L',
-    ),
-    AcademicExamCourseData(
-      id: 'sistemi-operativi',
-      year: 2,
-      semester: 1,
-      name: 'Sistemi Operativi',
-      code: 'INF/01',
-      credits: 9,
-      passed: false,
-    ),
-    AcademicExamCourseData(
-      id: 'reti-calcolatori',
-      year: 3,
-      semester: 1,
-      name: 'Reti di Calcolatori',
-      code: 'INF/01',
-      credits: 6,
-      passed: false,
-    ),
-  ];
+  static final _courses = AppMockData.dashboardExamCourses
+      .map(_toAcademicExamCourseData)
+      .toList(growable: false);
+
+  static AcademicExamCourseData _toAcademicExamCourseData(
+    MockExamCourseData course,
+  ) {
+    return AcademicExamCourseData(
+      id: course.id,
+      year: course.year,
+      semester: course.semester,
+      name: course.name,
+      code: course.code,
+      credits: course.credits,
+      passed: course.passed,
+      grade: course.grade,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,52 +138,34 @@ class _DashboardAppealsWidgetState extends State<_DashboardAppealsWidget> {
   String? _selectedMonthId;
   int _selectedStatus = 0;
 
-  static const _months = [
-    AcademicExamAppealMonthData(month: 6, year: 2026),
-    AcademicExamAppealMonthData(month: 7, year: 2026),
-    AcademicExamAppealMonthData(month: 9, year: 2026),
-  ];
+  static final _months = AppMockData.dashboardAppealMonths
+      .map(_toAcademicExamAppealMonthData)
+      .toList(growable: false);
 
-  static final _appeals = [
-    AcademicExamAppealData(
-      id: 'programmazione-booked',
-      examName: 'Programmazione I',
-      month: 6,
-      date: DateTime(2026, 6, 18),
-      time: '09:30',
-      isBooked: true,
-      room: 'Aula 2',
-    ),
-    AcademicExamAppealData(
-      id: 'analisi-booked',
-      examName: 'Analisi Matematica',
-      month: 6,
-      date: DateTime(2026, 6, 26),
-      time: '11:00',
-      isBooked: true,
-      room: 'Aula Magna',
-    ),
-    AcademicExamAppealData(
-      id: 'basi-dati-open',
-      examName: 'Basi di Dati',
-      month: 6,
-      date: DateTime(2026, 6, 30),
-      time: '10:00',
-      isBooked: false,
-      isBookable: true,
-      room: 'Lab 1',
-    ),
-    AcademicExamAppealData(
-      id: 'reti-disabled',
-      examName: 'Reti di Calcolatori',
-      month: 6,
-      date: DateTime(2026, 6, 28),
-      time: '15:00',
-      isBooked: false,
-      isBookable: false,
-      room: 'Aula 5',
-    ),
-  ];
+  static final _appeals = AppMockData.dashboardExamAppeals
+      .map(_toAcademicExamAppealData)
+      .toList(growable: false);
+
+  static AcademicExamAppealMonthData _toAcademicExamAppealMonthData(
+    MockExamAppealMonthData month,
+  ) {
+    return AcademicExamAppealMonthData(month: month.month, year: month.year);
+  }
+
+  static AcademicExamAppealData _toAcademicExamAppealData(
+    MockExamAppealData appeal,
+  ) {
+    return AcademicExamAppealData(
+      id: appeal.id,
+      examName: appeal.examName,
+      month: appeal.month,
+      date: appeal.date,
+      time: appeal.time,
+      isBooked: appeal.isBooked,
+      isBookable: appeal.isBookable,
+      room: appeal.room,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -266,14 +202,20 @@ class _DashboardTuitionWidget extends StatefulWidget {
 class _DashboardTuitionWidgetState extends State<_DashboardTuitionWidget> {
   int _selectedStatus = 0;
 
-  static const _fees = [
-    AcademicTuitionFeeData(
-      id: 'regional-tax',
-      title: 'Tassa Regionale',
-      amount: 150,
-      isPaid: false,
-    ),
-  ];
+  static final _fees = AppMockData.tuitionFees
+      .map(_toAcademicTuitionFeeData)
+      .toList(growable: false);
+
+  static AcademicTuitionFeeData _toAcademicTuitionFeeData(
+    MockTuitionFeeData fee,
+  ) {
+    return AcademicTuitionFeeData(
+      id: fee.id,
+      title: fee.title,
+      amount: fee.amount,
+      isPaid: fee.isPaid,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
