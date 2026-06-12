@@ -107,7 +107,7 @@ class _DashboardWidgetPickerState extends State<DashboardWidgetPicker> {
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 24),
                         itemBuilder: (context, index) {
-                          if (index == 3) {
+                          if (index == 4) {
                             return _DashboardCfuVariantCarousel(
                               selectedOptionKey: _selectedOptionKey,
                               onSelect: _selectOption,
@@ -115,7 +115,7 @@ class _DashboardWidgetPickerState extends State<DashboardWidgetPicker> {
                             );
                           }
 
-                          final optionIndex = index > 3 ? index - 1 : index;
+                          final optionIndex = index > 4 ? index - 1 : index;
                           final option = regularOptions[optionIndex];
 
                           return _DashboardWidgetPreviewTile(

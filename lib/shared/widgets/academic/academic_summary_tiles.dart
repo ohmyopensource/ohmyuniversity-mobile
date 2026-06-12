@@ -13,6 +13,8 @@ abstract final class AcademicSummaryTiles {
   static const summaryHeight = 208.0;
 }
 
+enum CareerMetricTrend { up, down }
+
 class StudentIdentityTile extends StatefulWidget {
   const StudentIdentityTile({super.key});
 
@@ -86,6 +88,8 @@ class CareerMetricsGrid extends StatelessWidget {
                   child: CareerMetricTile(
                     label: 'Media aritmetica',
                     value: arithmeticAverage,
+                    showTrendBadge: true,
+                    trend: CareerMetricTrend.up,
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -93,6 +97,8 @@ class CareerMetricsGrid extends StatelessWidget {
                   child: CareerMetricTile(
                     label: 'Media Ponderata',
                     value: weightedAverage,
+                    showTrendBadge: true,
+                    trend: CareerMetricTrend.down,
                   ),
                 ),
               ],
@@ -125,6 +131,8 @@ class CareerMetricTile extends StatelessWidget {
     this.isWide = false,
     this.progressValue = 0.5,
     this.progressCaption,
+    this.showTrendBadge = false,
+    this.trend = CareerMetricTrend.up,
   });
 
   final String label;
@@ -133,6 +141,8 @@ class CareerMetricTile extends StatelessWidget {
   final bool isWide;
   final double progressValue;
   final String? progressCaption;
+  final bool showTrendBadge;
+  final CareerMetricTrend trend;
 
   @override
   Widget build(BuildContext context) {
@@ -219,14 +229,16 @@ class CareerMetricTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 7),
                 FittedBox(
-                  child: Text(
-                    value,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w900,
-                      height: 1,
-                    ),
-                  ),
+                  child: showTrendBadge
+                      ? _MetricValue(value: value, trend: trend)
+                      : Text(
+                          value,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w900,
+                            height: 1,
+                          ),
+                        ),
                 ),
                 if (showProgress) ...[
                   const SizedBox(height: 8),
@@ -244,6 +256,142 @@ class CareerMetricTile extends StatelessWidget {
                 ],
               ],
             ),
+    );
+  }
+}
+
+class CareerAveragePairTile extends StatelessWidget {
+  const CareerAveragePairTile({
+    super.key,
+    required this.arithmeticAverage,
+    required this.weightedAverage,
+    this.arithmeticTrend = CareerMetricTrend.up,
+    this.weightedTrend = CareerMetricTrend.down,
+  });
+
+  final String arithmeticAverage;
+  final String weightedAverage;
+  final CareerMetricTrend arithmeticTrend;
+  final CareerMetricTrend weightedTrend;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: _summaryTileDecoration(alpha: 0.06),
+      child: Row(
+        children: [
+          Expanded(
+            child: _AveragePairColumn(
+              label: 'Media aritmetica',
+              value: arithmeticAverage,
+              trend: arithmeticTrend,
+              theme: theme,
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 50,
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            color: AppColors.textPrimary.withValues(alpha: 0.08),
+          ),
+          Expanded(
+            child: _AveragePairColumn(
+              label: 'Media ponderata',
+              value: weightedAverage,
+              trend: weightedTrend,
+              theme: theme,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AveragePairColumn extends StatelessWidget {
+  const _AveragePairColumn({
+    required this.label,
+    required this.value,
+    required this.trend,
+    required this.theme,
+  });
+
+  final String label;
+  final String value;
+  final CareerMetricTrend trend;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w700,
+            height: 1.05,
+            fontSize: 9.5,
+          ),
+        ),
+        const SizedBox(height: 7),
+        FittedBox(
+          child: _MetricValue(value: value, trend: trend),
+        ),
+      ],
+    );
+  }
+}
+
+class _MetricValue extends StatelessWidget {
+  const _MetricValue({required this.value, required this.trend});
+
+  final String value;
+  final CareerMetricTrend trend;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isPositive = trend == CareerMetricTrend.up;
+    final trendColor = isPositive ? AppColors.examPassed : AppColors.examFailed;
+
+    return Container(
+      constraints: const BoxConstraints(minWidth: 74),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.58),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: AppColors.colorPrimaryLight.withValues(alpha: 0.86),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            value,
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w900,
+              height: 1,
+            ),
+          ),
+          const SizedBox(width: 5),
+          Icon(
+            isPositive ? LucideIcons.trendingUp : LucideIcons.trendingDown,
+            size: 14,
+            color: trendColor,
+          ),
+        ],
+      ),
     );
   }
 }
