@@ -1,5 +1,5 @@
-/// @file custom_toast_model.dart
-/// Data models for the toast notification system.
+// @file custom_toast_model.dart
+// Data models for the toast notification system.
 
 // ─────────────────────────────────────────────
 // Enums

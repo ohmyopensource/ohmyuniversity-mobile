@@ -78,39 +78,39 @@ Color _ringColorFor(AccountStatus status) => switch (status) {
 ({Color bg, Color text, Color border}) _acronymColors(String acronym) {
   return switch (acronym) {
     'L' => (
-    bg: const Color(0xFFE0F2FE),
-    text: const Color(0xFF075985),
-    border: const Color(0xFF7DD3FC),
+      bg: const Color(0xFFE0F2FE),
+      text: const Color(0xFF075985),
+      border: const Color(0xFF7DD3FC),
     ),
     'LM' => (
-    bg: const Color(0xFFEDE9FE),
-    text: const Color(0xFF5B21B6),
-    border: const Color(0xFFC4B5FD),
+      bg: const Color(0xFFEDE9FE),
+      text: const Color(0xFF5B21B6),
+      border: const Color(0xFFC4B5FD),
     ),
     'LMcu' => (
-    bg: const Color(0xFFF3E8FF),
-    text: const Color(0xFF6B21A8),
-    border: const Color(0xFFD8B4FE),
+      bg: const Color(0xFFF3E8FF),
+      text: const Color(0xFF6B21A8),
+      border: const Color(0xFFD8B4FE),
     ),
     'DOC' => (
-    bg: const Color(0xFFFEF3C7),
-    text: const Color(0xFF92400E),
-    border: const Color(0xFFFCD34D),
+      bg: const Color(0xFFFEF3C7),
+      text: const Color(0xFF92400E),
+      border: const Color(0xFFFCD34D),
     ),
     'DOT' => (
-    bg: const Color(0xFFFFEDD5),
-    text: const Color(0xFF9A3412),
-    border: const Color(0xFFFDBA74),
+      bg: const Color(0xFFFFEDD5),
+      text: const Color(0xFF9A3412),
+      border: const Color(0xFFFDBA74),
     ),
     'MASTER' => (
-    bg: const Color(0xFFD1FAE5),
-    text: const Color(0xFF065F46),
-    border: const Color(0xFF6EE7B7),
+      bg: const Color(0xFFD1FAE5),
+      text: const Color(0xFF065F46),
+      border: const Color(0xFF6EE7B7),
     ),
     _ => (
-    bg: const Color(0xFFF3F4F6),
-    text: const Color(0xFF374151),
-    border: const Color(0xFFD1D5DB),
+      bg: const Color(0xFFF3F4F6),
+      text: const Color(0xFF374151),
+      border: const Color(0xFFD1D5DB),
     ),
   };
 }
@@ -194,9 +194,10 @@ class _AvatarProfilePanelWidgetState extends State<AvatarProfilePanelWidget>
       duration: const Duration(milliseconds: 200),
     );
     _fadeAnim = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _scaleAnim = Tween<double>(begin: _scaleBegin, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scaleAnim = Tween<double>(
+      begin: _scaleBegin,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, -0.08),
       end: Offset.zero,
@@ -220,7 +221,7 @@ class _AvatarProfilePanelWidgetState extends State<AvatarProfilePanelWidget>
 
   AccountEntry? get _currentAccount =>
       widget.accounts.where((a) => a.isCurrent).firstOrNull ??
-          widget.accounts.firstOrNull;
+      widget.accounts.firstOrNull;
 
   List<AccountEntry> get _secondaryAccounts =>
       widget.accounts.where((a) => !a.isCurrent).toList();
@@ -256,8 +257,7 @@ class _AvatarProfilePanelWidgetState extends State<AvatarProfilePanelWidget>
 
   /// Computes panel [left] and [top] in global coordinates from the trigger.
   ({double left, double top}) _panelOffset() {
-    final box =
-    _triggerKey.currentContext?.findRenderObject() as RenderBox?;
+    final box = _triggerKey.currentContext?.findRenderObject() as RenderBox?;
     if (box == null) return (left: 0, top: 0);
     final pos = box.localToGlobal(Offset.zero);
     final triggerW = box.size.width;
@@ -358,10 +358,7 @@ class _AvatarProfilePanelWidgetState extends State<AvatarProfilePanelWidget>
         ),
         child: panel,
       ),
-      PanelAnimation.fade => FadeTransition(
-        opacity: _fadeAnim,
-        child: panel,
-      ),
+      PanelAnimation.fade => FadeTransition(opacity: _fadeAnim, child: panel),
     };
   }
 
@@ -424,8 +421,7 @@ class _PanelContent extends StatelessWidget {
 
   // ── Theme helpers ────────────────────────────────────────────────────
 
-  Color get _bgColor =>
-      darkTheme ? const Color(0xFF111827) : Colors.white;
+  Color get _bgColor => darkTheme ? const Color(0xFF111827) : Colors.white;
 
   Color get _borderColor =>
       darkTheme ? const Color(0xFF374151) : const Color(0xFFE5E7EB);
@@ -492,8 +488,9 @@ class _PanelContent extends StatelessWidget {
 
     final info = Expanded(
       child: Column(
-        crossAxisAlignment:
-        isLeft ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isLeft
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
@@ -519,8 +516,7 @@ class _PanelContent extends StatelessWidget {
           const SizedBox(height: 4),
           Container(
             width: double.infinity,
-            padding:
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
               color: _badgeBg,
               borderRadius: BorderRadius.circular(6),
@@ -608,14 +604,12 @@ class _PanelContent extends StatelessWidget {
                     ),
                     Text(
                       acc.email,
-                      style:
-                      TextStyle(fontSize: 10.5, color: _subtextColor),
+                      style: TextStyle(fontSize: 10.5, color: _subtextColor),
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       acc.courseLabel,
-                      style:
-                      TextStyle(fontSize: 10, color: _subtextColor),
+                      style: TextStyle(fontSize: 10, color: _subtextColor),
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
@@ -661,8 +655,7 @@ class _PanelContent extends StatelessWidget {
         onTap: onTap,
         hoverColor: hoverColor ?? _hoverColor,
         child: Padding(
-          padding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
             children: [
               Icon(icon, size: 14, color: textColor ?? _subtextColor),
@@ -724,9 +717,7 @@ class _PanelContent extends StatelessWidget {
                     ),
                   ),
                 ),
-                ...secondaryAccounts.map(
-                      (a) => _buildAccountItem(context, a),
-                ),
+                ...secondaryAccounts.map((a) => _buildAccountItem(context, a)),
                 _divider,
               ],
 
@@ -756,7 +747,7 @@ class _PanelContent extends StatelessWidget {
                         onTap: onLogout,
                         textColor: const Color(0xFFEF4444),
                         hoverColor: darkTheme
-                            ? const Color(0xFF450A0A).withOpacity(0.3)
+                            ? const Color(0xFF450A0A).withValues(alpha: 0.3)
                             : const Color(0xFFFEF2F2),
                       ),
                   ],

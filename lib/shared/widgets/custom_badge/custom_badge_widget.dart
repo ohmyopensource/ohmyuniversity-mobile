@@ -126,8 +126,7 @@ class CustomBadgeWidget extends StatelessWidget {
 
   bool get _isDotOnly => dot && label.isEmpty && !_isCountMode;
 
-  String get _displayCount =>
-      count > maxCount ? '$maxCount+' : '$count';
+  String get _displayCount => count > maxCount ? '$maxCount+' : '$count';
 
   // ── Size tokens ────────────────────────────────────────────────────────────
 
@@ -139,14 +138,10 @@ class CustomBadgeWidget extends StatelessWidget {
   };
 
   EdgeInsets get _padding => switch (size) {
-    BadgeSize.xs => const EdgeInsets.symmetric(
-        horizontal: 5.5, vertical: 2.5),
-    BadgeSize.sm => const EdgeInsets.symmetric(
-        horizontal: 7, vertical: 3),
-    BadgeSize.md => const EdgeInsets.symmetric(
-        horizontal: 9, vertical: 4),
-    BadgeSize.lg => const EdgeInsets.symmetric(
-        horizontal: 12, vertical: 5.5),
+    BadgeSize.xs => const EdgeInsets.symmetric(horizontal: 5.5, vertical: 2.5),
+    BadgeSize.sm => const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+    BadgeSize.md => const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+    BadgeSize.lg => const EdgeInsets.symmetric(horizontal: 12, vertical: 5.5),
   };
 
   double get _minHeight => switch (size) {
@@ -202,10 +197,11 @@ class CustomBadgeWidget extends StatelessWidget {
     switch (variant) {
       case BadgeVariant.primary:
         return _BadgeColors(
-          gradient: LinearGradient(colors: [
-            AppColors.colorPrimaryLight,
-            AppColors.colorPrimaryDark,
-          ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: LinearGradient(
+            colors: [AppColors.colorPrimaryLight, AppColors.colorPrimaryDark],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           text: AppColors.colorPrimaryText,
           border: AppColors.colorPrimaryDark,
           shadow: AppColors.colorPrimaryShadow,
@@ -213,10 +209,14 @@ class CustomBadgeWidget extends StatelessWidget {
         );
       case BadgeVariant.secondary:
         return _BadgeColors(
-          gradient: LinearGradient(colors: [
-            AppColors.colorSecondaryLight,
-            AppColors.colorSecondaryDark,
-          ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: LinearGradient(
+            colors: [
+              AppColors.colorSecondaryLight,
+              AppColors.colorSecondaryDark,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           text: AppColors.colorSecondaryText,
           border: AppColors.colorSecondaryDark,
           shadow: AppColors.colorSecondaryShadow,
@@ -224,10 +224,11 @@ class CustomBadgeWidget extends StatelessWidget {
         );
       case BadgeVariant.tertiary:
         return _BadgeColors(
-          gradient: LinearGradient(colors: [
-            AppColors.colorTertiaryLight,
-            AppColors.colorTertiaryDark,
-          ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: LinearGradient(
+            colors: [AppColors.colorTertiaryLight, AppColors.colorTertiaryDark],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           text: AppColors.colorTertiaryText,
           border: AppColors.colorTertiaryDark,
           shadow: AppColors.colorTertiaryShadow,
@@ -235,10 +236,11 @@ class CustomBadgeWidget extends StatelessWidget {
         );
       case BadgeVariant.success:
         return _BadgeColors(
-          gradient: LinearGradient(colors: [
-            AppColors.colorSuccessLight,
-            AppColors.colorSuccessDark,
-          ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: LinearGradient(
+            colors: [AppColors.colorSuccessLight, AppColors.colorSuccessDark],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           text: AppColors.colorSuccessText,
           border: AppColors.colorSuccessDark,
           shadow: AppColors.colorSuccessShadow,
@@ -246,10 +248,11 @@ class CustomBadgeWidget extends StatelessWidget {
         );
       case BadgeVariant.warning:
         return _BadgeColors(
-          gradient: LinearGradient(colors: [
-            AppColors.colorWarningLight,
-            AppColors.colorWarningDark,
-          ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: LinearGradient(
+            colors: [AppColors.colorWarningLight, AppColors.colorWarningDark],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           text: AppColors.colorWarningText,
           border: AppColors.colorWarningDark,
           shadow: AppColors.colorWarningShadow,
@@ -257,10 +260,11 @@ class CustomBadgeWidget extends StatelessWidget {
         );
       case BadgeVariant.error:
         return _BadgeColors(
-          gradient: LinearGradient(colors: [
-            AppColors.colorErrorLight,
-            AppColors.colorErrorDark,
-          ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: LinearGradient(
+            colors: [AppColors.colorErrorLight, AppColors.colorErrorDark],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           text: AppColors.colorErrorText,
           border: AppColors.colorErrorDark,
           shadow: AppColors.colorErrorShadow,
@@ -268,10 +272,11 @@ class CustomBadgeWidget extends StatelessWidget {
         );
       case BadgeVariant.info:
         return _BadgeColors(
-          gradient: LinearGradient(colors: [
-            AppColors.colorInfoLight,
-            AppColors.colorInfoDark,
-          ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: LinearGradient(
+            colors: [AppColors.colorInfoLight, AppColors.colorInfoDark],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           text: AppColors.colorInfoText,
           border: AppColors.colorInfoDark,
           shadow: AppColors.colorInfoShadow,
@@ -279,10 +284,11 @@ class CustomBadgeWidget extends StatelessWidget {
         );
       case BadgeVariant.neutral:
         return _BadgeColors(
-          gradient: LinearGradient(colors: [
-            AppColors.colorNeutral200,
-            AppColors.colorNeutral300,
-          ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: LinearGradient(
+            colors: [AppColors.colorNeutral200, AppColors.colorNeutral300],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           text: AppColors.colorNeutral500,
           border: AppColors.colorNeutral300,
           shadow: const Color(0x26646E82), // rgba(100,110,130,.15)
@@ -291,9 +297,7 @@ class CustomBadgeWidget extends StatelessWidget {
       case BadgeVariant.ghost:
         return _BadgeColors(
           background: Colors.transparent,
-          text: isDark
-              ? AppColors.colorNeutral400
-              : AppColors.colorNeutral500,
+          text: isDark ? AppColors.colorNeutral400 : AppColors.colorNeutral500,
           border: isDark
               ? AppColors.colorNeutral600
               : AppColors.colorNeutral300,
@@ -377,18 +381,15 @@ class CustomBadgeWidget extends StatelessWidget {
       borderRadius: _isCountMode && shape == BadgeShape.pill
           ? BorderRadius.circular(9999)
           : _borderRadius,
-      border: Border.all(
-        color: colors.border,
-        width: 1.5,
-      ),
+      border: Border.all(color: colors.border, width: 1.5),
       boxShadow: colors.shadow != Colors.transparent
           ? [
-        BoxShadow(
-          color: colors.shadow,
-          blurRadius: 8,
-          offset: const Offset(0, 2),
-        ),
-      ]
+              BoxShadow(
+                color: colors.shadow,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ]
           : null,
     );
 
@@ -411,9 +412,7 @@ class CustomBadgeWidget extends StatelessWidget {
 
     // Inline dot
     if (dot && !_isDotOnly) {
-      children.add(
-        _InlineDot(size: _dotSize, color: colors.dot),
-      );
+      children.add(_InlineDot(size: _dotSize, color: colors.dot));
       children.add(SizedBox(width: _dotSize * 0.6));
     }
 
@@ -472,10 +471,7 @@ class _DotOnlyBadge extends StatelessWidget {
       child: Container(
         width: size,
         height: size,
-        decoration: BoxDecoration(
-          color: colors.dot,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: colors.dot, shape: BoxShape.circle),
       ),
     );
   }
@@ -518,7 +514,7 @@ class _RemoveButton extends StatelessWidget {
         child: Icon(
           LucideIcons.x,
           size: size,
-          color: color.withOpacity(0.6),
+          color: color.withValues(alpha: 0.6),
         ),
       ),
     );

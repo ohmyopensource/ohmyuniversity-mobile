@@ -149,9 +149,7 @@ class _CustomFilterWidgetState extends State<CustomFilterWidget> {
 
     _chipValues = {
       for (final c in widget.chips)
-        c.key: List<Object>.from(
-          widget.initialState?.chips[c.key] ?? const [],
-        ),
+        c.key: List<Object>.from(widget.initialState?.chips[c.key] ?? const []),
     };
   }
 
@@ -181,8 +179,7 @@ class _CustomFilterWidgetState extends State<CustomFilterWidget> {
     search: _searchCtrl.text.trim(),
     selects: Map.unmodifiable(_selectValues),
     chips: Map.unmodifiable({
-      for (final e in _chipValues.entries)
-        e.key: List.unmodifiable(e.value),
+      for (final e in _chipValues.entries) e.key: List.unmodifiable(e.value),
     }),
   );
 
@@ -223,46 +220,47 @@ class _CustomFilterWidgetState extends State<CustomFilterWidget> {
   // ── Theme tokens ───────────────────────────────────────────────────────
 
   ({
-  Color accentLight,
-  Color accentDark,
-  Color accentText,
-  Color accentShadow,
-  Color focusColor,
-  }) get _variantColors => switch (widget.variant) {
+    Color accentLight,
+    Color accentDark,
+    Color accentText,
+    Color accentShadow,
+    Color focusColor,
+  })
+  get _variantColors => switch (widget.variant) {
     FilterVariant.primary => (
-    accentLight: AppColors.colorPrimaryLight,
-    accentDark: AppColors.colorPrimaryDark,
-    accentText: AppColors.colorPrimaryText,
-    accentShadow: AppColors.colorPrimaryShadow,
-    focusColor: AppColors.colorPrimaryFocus,
+      accentLight: AppColors.colorPrimaryLight,
+      accentDark: AppColors.colorPrimaryDark,
+      accentText: AppColors.colorPrimaryText,
+      accentShadow: AppColors.colorPrimaryShadow,
+      focusColor: AppColors.colorPrimaryFocus,
     ),
     FilterVariant.secondary => (
-    accentLight: AppColors.colorSecondaryLight,
-    accentDark: AppColors.colorSecondaryDark,
-    accentText: AppColors.colorSecondaryText,
-    accentShadow: AppColors.colorSecondaryShadow,
-    focusColor: AppColors.colorSecondaryFocus,
+      accentLight: AppColors.colorSecondaryLight,
+      accentDark: AppColors.colorSecondaryDark,
+      accentText: AppColors.colorSecondaryText,
+      accentShadow: AppColors.colorSecondaryShadow,
+      focusColor: AppColors.colorSecondaryFocus,
     ),
     FilterVariant.tertiary => (
-    accentLight: AppColors.colorTertiaryLight,
-    accentDark: AppColors.colorTertiaryDark,
-    accentText: AppColors.colorTertiaryText,
-    accentShadow: AppColors.colorTertiaryShadow,
-    focusColor: AppColors.colorTertiaryFocus,
+      accentLight: AppColors.colorTertiaryLight,
+      accentDark: AppColors.colorTertiaryDark,
+      accentText: AppColors.colorTertiaryText,
+      accentShadow: AppColors.colorTertiaryShadow,
+      focusColor: AppColors.colorTertiaryFocus,
     ),
     FilterVariant.success => (
-    accentLight: AppColors.colorSuccessLight,
-    accentDark: AppColors.colorSuccessDark,
-    accentText: AppColors.colorSuccessText,
-    accentShadow: AppColors.colorSuccessShadow,
-    focusColor: AppColors.colorSuccessFocus,
+      accentLight: AppColors.colorSuccessLight,
+      accentDark: AppColors.colorSuccessDark,
+      accentText: AppColors.colorSuccessText,
+      accentShadow: AppColors.colorSuccessShadow,
+      focusColor: AppColors.colorSuccessFocus,
     ),
     FilterVariant.info => (
-    accentLight: AppColors.colorInfoLight,
-    accentDark: AppColors.colorInfoDark,
-    accentText: AppColors.colorInfoText,
-    accentShadow: AppColors.colorInfoShadow,
-    focusColor: AppColors.colorInfoFocus,
+      accentLight: AppColors.colorInfoLight,
+      accentDark: AppColors.colorInfoDark,
+      accentText: AppColors.colorInfoText,
+      accentShadow: AppColors.colorInfoShadow,
+      focusColor: AppColors.colorInfoFocus,
     ),
   };
 
@@ -425,7 +423,11 @@ class _CustomFilterWidgetState extends State<CustomFilterWidget> {
         colors: [vc.accentLight, vc.accentDark],
       ),
       borderColor: vc.accentDark,
-      shadow: BoxShadow(color: vc.accentShadow, blurRadius: 8, offset: const Offset(0, 2)),
+      shadow: BoxShadow(
+        color: vc.accentShadow,
+        blurRadius: 8,
+        offset: const Offset(0, 2),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -555,7 +557,7 @@ class _CustomFilterWidgetState extends State<CustomFilterWidget> {
                     dropdownColor: widget.darkTheme
                         ? AppColors.colorNeutral600
                         : Colors.white,
-                    focusColor: vc.focusColor.withOpacity(0.12),
+                    focusColor: vc.focusColor.withValues(alpha: 0.12),
                     items: [
                       DropdownMenuItem<Object?>(
                         value: null,
@@ -565,7 +567,7 @@ class _CustomFilterWidgetState extends State<CustomFilterWidget> {
                         ),
                       ),
                       ...sel.options.map(
-                            (opt) => DropdownMenuItem<Object?>(
+                        (opt) => DropdownMenuItem<Object?>(
                           value: opt.value,
                           child: Text(opt.label),
                         ),
@@ -613,8 +615,9 @@ class _CustomFilterWidgetState extends State<CustomFilterWidget> {
                 spacing: 6,
                 runSpacing: 6,
                 children: group.options.map((opt) {
-                  final active =
-                  (_chipValues[group.key] ?? []).contains(opt.value);
+                  final active = (_chipValues[group.key] ?? []).contains(
+                    opt.value,
+                  );
                   return _FilterChip(
                     label: opt.label,
                     active: active,
@@ -734,13 +737,15 @@ class _GradientButtonState extends State<_GradientButton> {
             boxShadow: [
               BoxShadow(
                 color: widget.shadow.color,
-                blurRadius: _hovered ? widget.shadow.blurRadius * 1.75 : widget.shadow.blurRadius,
+                blurRadius: _hovered
+                    ? widget.shadow.blurRadius * 1.75
+                    : widget.shadow.blurRadius,
                 offset: _hovered ? const Offset(0, 4) : widget.shadow.offset,
               ),
             ],
           ),
           transform: _hovered
-              ? (Matrix4.identity()..translate(0.0, -1.0))
+              ? (Matrix4.identity()..translateByDouble(0.0, -1.0, 0.0, 1.0))
               : Matrix4.identity(),
           child: widget.child,
         ),
@@ -852,22 +857,22 @@ class _FilterChipState extends State<_FilterChip> {
               color: widget.active
                   ? widget.activeBorderColor
                   : (_hovered
-                  ? widget.idleBorderColor.withOpacity(0.8)
-                  : widget.idleBorderColor),
+                        ? widget.idleBorderColor.withValues(alpha: 0.8)
+                        : widget.idleBorderColor),
               width: 1.5,
             ),
             boxShadow: widget.active
                 ? [
-              BoxShadow(
-                color: widget.activeShadow.color,
-                blurRadius: widget.activeShadow.blurRadius,
-                offset: widget.activeShadow.offset,
-              ),
-            ]
+                    BoxShadow(
+                      color: widget.activeShadow.color,
+                      blurRadius: widget.activeShadow.blurRadius,
+                      offset: widget.activeShadow.offset,
+                    ),
+                  ]
                 : null,
           ),
           transform: _hovered
-              ? (Matrix4.identity()..translate(0.0, -1.0))
+              ? (Matrix4.identity()..translateByDouble(0.0, -1.0, 0.0, 1.0))
               : Matrix4.identity(),
           child: Text(
             widget.label,

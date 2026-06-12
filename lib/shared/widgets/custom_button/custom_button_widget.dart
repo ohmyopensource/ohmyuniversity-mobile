@@ -144,9 +144,10 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
       duration: const Duration(milliseconds: 550),
     );
 
-    _rippleScale = Tween<double>(begin: 0, end: 3.5).animate(
-      CurvedAnimation(parent: _rippleController, curve: Curves.linear),
-    );
+    _rippleScale = Tween<double>(
+      begin: 0,
+      end: 3.5,
+    ).animate(CurvedAnimation(parent: _rippleController, curve: Curves.linear));
     _rippleOpacity = Tween<double>(begin: 1, end: 0).animate(
       CurvedAnimation(
         parent: _rippleController,
@@ -163,13 +164,12 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
 
   // ── Derived state ──────────────────────────────────────────────────────────
 
-  bool get _isInert =>
-      widget.disabled || widget.loading || widget.succeeded;
+  bool get _isInert => widget.disabled || widget.loading || widget.succeeded;
 
   String get _displayLabel =>
       widget.succeeded && widget.succeededLabel.isNotEmpty
-          ? widget.succeededLabel
-          : widget.label;
+      ? widget.succeededLabel
+      : widget.label;
 
   // ── Size tokens ────────────────────────────────────────────────────────────
 
@@ -206,11 +206,11 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
 
   double? get _fixedSize => widget.iconOnly
       ? switch (widget.size) {
-    ButtonSize.xs => 28,
-    ButtonSize.sm => 34,
-    ButtonSize.md => 42,
-    ButtonSize.lg => 52,
-  }
+          ButtonSize.xs => 28,
+          ButtonSize.sm => 34,
+          ButtonSize.md => 42,
+          ButtonSize.lg => 52,
+        }
       : null;
 
   // ── Colour resolution ──────────────────────────────────────────────────────
@@ -240,7 +240,7 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
           border: AppColors.colorSuccessDark,
           shadow: Colors.transparent,
           focusColor: AppColors.colorSuccessFocus,
-          rippleColor: AppColors.colorSuccessDark.withOpacity(0.15),
+          rippleColor: AppColors.colorSuccessDark.withValues(alpha: 0.15),
         );
       }
       return _ButtonColors(
@@ -272,7 +272,10 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
       case ButtonVariant.secondary:
         return _ButtonColors(
           gradient: LinearGradient(
-            colors: [AppColors.colorSecondaryLight, AppColors.colorSecondaryDark],
+            colors: [
+              AppColors.colorSecondaryLight,
+              AppColors.colorSecondaryDark,
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -345,7 +348,9 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
         return _ButtonColors(
           background: Colors.transparent,
           text: isDark ? AppColors.colorNeutral400 : AppColors.colorNeutral500,
-          border: isDark ? AppColors.colorNeutral600 : AppColors.colorNeutral300,
+          border: isDark
+              ? AppColors.colorNeutral600
+              : AppColors.colorNeutral300,
           shadow: const Color(0x14646E82),
           focusColor: AppColors.colorPrimaryFocus,
           rippleColor: const Color(0x2E50648E),
@@ -353,16 +358,22 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
       case ButtonVariant.outline:
         return _ButtonColors(
           background: Colors.transparent,
-          text: isDark ? AppColors.colorPrimaryLight : AppColors.colorPrimaryDark,
-          border: isDark ? AppColors.colorPrimaryLight : AppColors.colorPrimaryDark,
-          shadow: AppColors.colorPrimaryShadow.withOpacity(0.12),
+          text: isDark
+              ? AppColors.colorPrimaryLight
+              : AppColors.colorPrimaryDark,
+          border: isDark
+              ? AppColors.colorPrimaryLight
+              : AppColors.colorPrimaryDark,
+          shadow: AppColors.colorPrimaryShadow.withValues(alpha: 0.12),
           focusColor: AppColors.colorPrimaryFocus,
           rippleColor: const Color(0x2E50648E),
         );
       case ButtonVariant.flat:
         return _ButtonColors(
           background: Colors.transparent,
-          text: isDark ? AppColors.colorPrimaryLight : AppColors.colorPrimaryDark,
+          text: isDark
+              ? AppColors.colorPrimaryLight
+              : AppColors.colorPrimaryDark,
           shadow: Colors.transparent,
           focusColor: AppColors.colorPrimaryFocus,
           rippleColor: const Color(0x2E50648E),
@@ -377,8 +388,10 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
     setState(() {
       _isPressed = true;
       _rippleOffset = box.globalToLocal(details.globalPosition);
-      _rippleRadius =
-          (box.size.longestSide / 2).clamp(20, box.size.longestSide);
+      _rippleRadius = (box.size.longestSide / 2).clamp(
+        20,
+        box.size.longestSide,
+      );
     });
     _rippleController.forward(from: 0);
   }
@@ -403,29 +416,22 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
       gradient: hasGradient ? colors.gradient : null,
       color: hasGradient ? null : colors.background,
       borderRadius: BorderRadius.circular(10),
-      border: hasBorder
-          ? Border.all(color: colors.border!, width: 1.5)
-          : null,
-      boxShadow: colors.shadow != Colors.transparent &&
-          !_isInert
+      border: hasBorder ? Border.all(color: colors.border!, width: 1.5) : null,
+      boxShadow: colors.shadow != Colors.transparent && !_isInert
           ? [
-        BoxShadow(
-          color: _isPressed
-              ? Colors.transparent
-              : colors.shadow,
-          blurRadius: _isPressed ? 0 : 14,
-          offset: const Offset(0, 4),
-        ),
-      ]
+              BoxShadow(
+                color: _isPressed ? Colors.transparent : colors.shadow,
+                blurRadius: _isPressed ? 0 : 14,
+                offset: const Offset(0, 4),
+              ),
+            ]
           : null,
     );
 
     Widget button = Semantics(
       button: true,
       enabled: !_isInert,
-      label: widget.ariaLabel.isNotEmpty
-          ? widget.ariaLabel
-          : _displayLabel,
+      label: widget.ariaLabel.isNotEmpty ? widget.ariaLabel : _displayLabel,
       child: AnimatedScale(
         scale: _isPressed ? 0.97 : 1.0,
         duration: const Duration(milliseconds: 80),
@@ -451,33 +457,30 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
               // ── Ripple ───────────────────────────────────────
               AnimatedBuilder(
                 animation: _rippleController,
-                builder: (_, __) => _rippleController.value > 0
+                builder: (_, _) => _rippleController.value > 0
                     ? Positioned(
-                  left: _rippleOffset.dx - _rippleRadius,
-                  top: _rippleOffset.dy - _rippleRadius,
-                  child: Opacity(
-                    opacity: _rippleOpacity.value,
-                    child: Transform.scale(
-                      scale: _rippleScale.value,
-                      child: Container(
-                        width: _rippleRadius * 2,
-                        height: _rippleRadius * 2,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: colors.rippleColor,
+                        left: _rippleOffset.dx - _rippleRadius,
+                        top: _rippleOffset.dy - _rippleRadius,
+                        child: Opacity(
+                          opacity: _rippleOpacity.value,
+                          child: Transform.scale(
+                            scale: _rippleScale.value,
+                            child: Container(
+                              width: _rippleRadius * 2,
+                              height: _rippleRadius * 2,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: colors.rippleColor,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                )
+                      )
                     : const SizedBox.shrink(),
               ),
 
               // ── Content ──────────────────────────────────────
-              Padding(
-                padding: _padding,
-                child: _buildContent(colors),
-              ),
+              Padding(padding: _padding, child: _buildContent(colors)),
             ],
           ),
         ),
@@ -540,8 +543,7 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
     // Standard: icon left + label + icon right
     final children = <Widget>[];
 
-    if (widget.icon != null &&
-        widget.iconPosition == ButtonIconPosition.left) {
+    if (widget.icon != null && widget.iconPosition == ButtonIconPosition.left) {
       children.add(Icon(widget.icon, size: _iconSize, color: colors.text));
       if (_displayLabel.isNotEmpty) children.add(const SizedBox(width: 8));
     }
@@ -613,7 +615,11 @@ class _SpinnerIconState extends State<_SpinnerIcon>
   Widget build(BuildContext context) {
     return RotationTransition(
       turns: _ctrl,
-      child: Icon(LucideIcons.loaderCircle, size: widget.size, color: widget.color),
+      child: Icon(
+        LucideIcons.loaderCircle,
+        size: widget.size,
+        color: widget.color,
+      ),
     );
   }
 }

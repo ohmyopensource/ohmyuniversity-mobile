@@ -1,5 +1,5 @@
-/// @file custom_toast_service.dart
-/// Riverpod-based service managing the lifecycle of toast notifications.
+// @file custom_toast_service.dart
+// Riverpod-based service managing the lifecycle of toast notifications.
 
 import 'dart:async';
 import 'dart:math';
@@ -15,8 +15,9 @@ import 'custom_toast_model.dart';
 /// Global provider for [ToastService].
 /// Access via `ref.read(toastServiceProvider.notifier)` to call methods,
 /// or `ref.watch(toastServiceProvider)` to react to the toast list.
-final toastServiceProvider =
-NotifierProvider<ToastService, List<ToastModel>>(ToastService.new);
+final toastServiceProvider = NotifierProvider<ToastService, List<ToastModel>>(
+  ToastService.new,
+);
 
 // ─────────────────────────────────────────────
 // Service
@@ -56,10 +57,10 @@ class ToastService extends Notifier<List<ToastModel>> {
   /// Shows a toast with a given [variant] and optional [options].
   /// Returns the generated toast id.
   String show(
-      String message, {
-        ToastVariant variant = ToastVariant.neutral,
-        ToastOptions options = const ToastOptions(),
-      }) {
+    String message, {
+    ToastVariant variant = ToastVariant.neutral,
+    ToastOptions options = const ToastOptions(),
+  }) {
     final id = _generateId();
     final duration = options.duration ?? _defaultDuration;
     final position = options.position ?? _defaultPosition;
@@ -76,10 +77,7 @@ class ToastService extends Notifier<List<ToastModel>> {
       createdAt: DateTime.now(),
     );
 
-    state = [
-      ..._evictOldestIfNeeded(position),
-      toast,
-    ];
+    state = [..._evictOldestIfNeeded(position), toast];
 
     if (duration > Duration.zero) {
       _scheduleAutoDismiss(id, duration);
@@ -89,8 +87,10 @@ class ToastService extends Notifier<List<ToastModel>> {
   }
 
   /// Shows a success toast.
-  String success(String message, {ToastOptions options = const ToastOptions()}) =>
-      show(message, variant: ToastVariant.success, options: options);
+  String success(
+    String message, {
+    ToastOptions options = const ToastOptions(),
+  }) => show(message, variant: ToastVariant.success, options: options);
 
   /// Shows an error toast (default duration: 6s).
   String error(String message, {ToastOptions options = const ToastOptions()}) =>
@@ -107,16 +107,20 @@ class ToastService extends Notifier<List<ToastModel>> {
       );
 
   /// Shows a warning toast.
-  String warning(String message, {ToastOptions options = const ToastOptions()}) =>
-      show(message, variant: ToastVariant.warning, options: options);
+  String warning(
+    String message, {
+    ToastOptions options = const ToastOptions(),
+  }) => show(message, variant: ToastVariant.warning, options: options);
 
   /// Shows an info toast.
   String info(String message, {ToastOptions options = const ToastOptions()}) =>
       show(message, variant: ToastVariant.info, options: options);
 
   /// Shows a neutral toast.
-  String neutral(String message, {ToastOptions options = const ToastOptions()}) =>
-      show(message, variant: ToastVariant.neutral, options: options);
+  String neutral(
+    String message, {
+    ToastOptions options = const ToastOptions(),
+  }) => show(message, variant: ToastVariant.neutral, options: options);
 
   /// Removes a toast by [id].
   void dismiss(String id) {
@@ -159,9 +163,11 @@ class ToastService extends Notifier<List<ToastModel>> {
   /// Resumes the auto-dismiss timer with remaining time.
   void resume(String id, {required Duration remaining}) {
     state = state
-        .map((t) => t.id == id
-        ? t.copyWith(paused: false, createdAt: DateTime.now())
-        : t)
+        .map(
+          (t) => t.id == id
+              ? t.copyWith(paused: false, createdAt: DateTime.now())
+              : t,
+        )
         .toList();
     if (remaining > Duration.zero) {
       _scheduleAutoDismiss(id, remaining);
@@ -197,5 +203,5 @@ class ToastService extends Notifier<List<ToastModel>> {
 
   String _generateId() =>
       'toast-${DateTime.now().millisecondsSinceEpoch}-'
-          '${Random().nextInt(99999).toRadixString(36)}';
+      '${Random().nextInt(99999).toRadixString(36)}';
 }

@@ -1,18 +1,18 @@
-/// @file custom_toast_widget.dart
-/// Toast container (global overlay) and individual toast item.
-///
-/// ### Setup in app.dart
-/// ```dart
-/// MaterialApp.router(
-///   builder: (context, child) => Stack(
-///     children: [
-///       child ?? const SizedBox.shrink(),
-///       const ToastContainerWidget(),
-///     ],
-///   ),
-///   ...
-/// )
-/// ```
+// @file custom_toast_widget.dart
+// Toast container (global overlay) and individual toast item.
+//
+// ### Setup in app.dart
+// ```dart
+// MaterialApp.router(
+//   builder: (context, child) => Stack(
+//     children: [
+//       child ?? const SizedBox.shrink(),
+//       const ToastContainerWidget(),
+//     ],
+//   ),
+//   ...
+// )
+// ```
 
 import 'dart:async';
 
@@ -66,7 +66,8 @@ class _ToastStack extends StatelessWidget {
     final safeTop = mq.padding.top;
     final safeBottom = mq.padding.bottom;
 
-    final isBottom = position == ToastPosition.bottomRight ||
+    final isBottom =
+        position == ToastPosition.bottomRight ||
         position == ToastPosition.bottomLeft ||
         position == ToastPosition.bottomCenter;
     final isTop = !isBottom;
@@ -80,13 +81,16 @@ class _ToastStack extends StatelessWidget {
         right: 8,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          verticalDirection:
-          isBottom ? VerticalDirection.up : VerticalDirection.down,
+          verticalDirection: isBottom
+              ? VerticalDirection.up
+              : VerticalDirection.down,
           children: toasts
-              .map((t) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: _ToastItemWidget(toast: t),
-          ))
+              .map(
+                (t) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _ToastItemWidget(toast: t),
+                ),
+              )
               .toList(),
         ),
       );
@@ -95,59 +99,62 @@ class _ToastStack extends StatelessWidget {
     // Desktop: positioned per spec
     final (left, right, top, bottom, crossAxis) = switch (position) {
       ToastPosition.topRight => (
-      null,
-      16.0,
-      safeTop + 16.0,
-      null,
-      CrossAxisAlignment.end,
+        null,
+        16.0,
+        safeTop + 16.0,
+        null,
+        CrossAxisAlignment.end,
       ),
       ToastPosition.topLeft => (
-      16.0,
-      null,
-      safeTop + 16.0,
-      null,
-      CrossAxisAlignment.start,
+        16.0,
+        null,
+        safeTop + 16.0,
+        null,
+        CrossAxisAlignment.start,
       ),
       ToastPosition.topCenter => (
-      null,
-      null,
-      safeTop + 16.0,
-      null,
-      CrossAxisAlignment.center,
+        null,
+        null,
+        safeTop + 16.0,
+        null,
+        CrossAxisAlignment.center,
       ),
       ToastPosition.bottomRight => (
-      null,
-      16.0,
-      null,
-      safeBottom + 16.0,
-      CrossAxisAlignment.end,
+        null,
+        16.0,
+        null,
+        safeBottom + 16.0,
+        CrossAxisAlignment.end,
       ),
       ToastPosition.bottomLeft => (
-      16.0,
-      null,
-      null,
-      safeBottom + 16.0,
-      CrossAxisAlignment.start,
+        16.0,
+        null,
+        null,
+        safeBottom + 16.0,
+        CrossAxisAlignment.start,
       ),
       ToastPosition.bottomCenter => (
-      null,
-      null,
-      null,
-      safeBottom + 16.0,
-      CrossAxisAlignment.center,
+        null,
+        null,
+        null,
+        safeBottom + 16.0,
+        CrossAxisAlignment.center,
       ),
     };
 
     Widget stack = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: crossAxis,
-      verticalDirection:
-      isBottom ? VerticalDirection.up : VerticalDirection.down,
+      verticalDirection: isBottom
+          ? VerticalDirection.up
+          : VerticalDirection.down,
       children: toasts
-          .map((t) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: _ToastItemWidget(toast: t),
-      ))
+          .map(
+            (t) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _ToastItemWidget(toast: t),
+            ),
+          )
           .toList(),
     );
 
@@ -213,9 +220,10 @@ class _ToastItemWidgetState extends ConsumerState<_ToastItemWidget>
       vsync: this,
       duration: const Duration(milliseconds: 250),
     );
-    _opacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut),
-    );
+    _opacity = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut));
     _slide = Tween<Offset>(
       begin: const Offset(0.06, 0),
       end: Offset.zero,
@@ -245,7 +253,8 @@ class _ToastItemWidgetState extends ConsumerState<_ToastItemWidget>
     _progressTimer = Timer.periodic(const Duration(milliseconds: 30), (_) {
       if (!mounted || widget.toast.paused) return;
       final elapsed = DateTime.now().difference(_startTime!);
-      final newProgress = 1.0 - elapsed.inMilliseconds / _remaining.inMilliseconds;
+      final newProgress =
+          1.0 - elapsed.inMilliseconds / _remaining.inMilliseconds;
       setState(() => _progress = newProgress.clamp(0.0, 1.0));
     });
   }
@@ -261,10 +270,9 @@ class _ToastItemWidgetState extends ConsumerState<_ToastItemWidget>
   }
 
   void _resumeProgress() {
-    ref.read(toastServiceProvider.notifier).resume(
-      widget.toast.id,
-      remaining: _remaining,
-    );
+    ref
+        .read(toastServiceProvider.notifier)
+        .resume(widget.toast.id, remaining: _remaining);
     _startTime = DateTime.now();
     _startProgress();
   }
@@ -391,11 +399,7 @@ class _ToastItemWidgetState extends ConsumerState<_ToastItemWidget>
 
     Widget content = AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-      transform: Matrix4.translationValues(
-        _dragOffset,
-        _hovered ? -1 : 0,
-        0,
-      ),
+      transform: Matrix4.translationValues(_dragOffset, _hovered ? -1 : 0, 0),
       child: Opacity(
         opacity: _dragOpacity,
         child: Container(
@@ -406,29 +410,29 @@ class _ToastItemWidgetState extends ConsumerState<_ToastItemWidget>
             border: Border.all(color: c.border, width: 1.5),
             boxShadow: _hovered
                 ? const [
-              BoxShadow(
-                color: Color(0x29000000),
-                blurRadius: 30,
-                offset: Offset(0, 8),
-              ),
-              BoxShadow(
-                color: Color(0x14000000),
-                blurRadius: 8,
-                offset: Offset(0, 2),
-              ),
-            ]
+                    BoxShadow(
+                      color: Color(0x29000000),
+                      blurRadius: 30,
+                      offset: Offset(0, 8),
+                    ),
+                    BoxShadow(
+                      color: Color(0x14000000),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ]
                 : const [
-              BoxShadow(
-                color: Color(0x1F000000),
-                blurRadius: 20,
-                offset: Offset(0, 4),
-              ),
-              BoxShadow(
-                color: Color(0x0F000000),
-                blurRadius: 6,
-                offset: Offset(0, 1),
-              ),
-            ],
+                    BoxShadow(
+                      color: Color(0x1F000000),
+                      blurRadius: 20,
+                      offset: Offset(0, 4),
+                    ),
+                    BoxShadow(
+                      color: Color(0x0F000000),
+                      blurRadius: 6,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
@@ -437,7 +441,12 @@ class _ToastItemWidgetState extends ConsumerState<_ToastItemWidget>
               children: [
                 // ── Main row ──
                 Padding(
-                  padding: EdgeInsets.fromLTRB(14, 13, 10, hasDuration ? 18 : 13),
+                  padding: EdgeInsets.fromLTRB(
+                    14,
+                    13,
+                    10,
+                    hasDuration ? 18 : 13,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

@@ -145,14 +145,17 @@ class _CustomPaginationWidgetState extends State<CustomPaginationWidget> {
 
   // ── Computed ───────────────────────────────────────────────────────────
 
-  int get _totalPages =>
-      (widget.totalItems / widget.pageSize).ceil().clamp(1, double.maxFinite.toInt());
+  int get _totalPages => (widget.totalItems / widget.pageSize).ceil().clamp(
+    1,
+    double.maxFinite.toInt(),
+  );
 
   bool get _isFirst => widget.currentPage <= 1;
   bool get _isLast => widget.currentPage >= _totalPages;
 
-  int get _rangeStart =>
-      widget.totalItems == 0 ? 0 : (widget.currentPage - 1) * widget.pageSize + 1;
+  int get _rangeStart => widget.totalItems == 0
+      ? 0
+      : (widget.currentPage - 1) * widget.pageSize + 1;
 
   int get _rangeEnd =>
       (widget.currentPage * widget.pageSize).clamp(0, widget.totalItems);
@@ -174,11 +177,15 @@ class _CustomPaginationWidgetState extends State<CustomPaginationWidget> {
     int end = (current + half).clamp(2, total - 1);
 
     if (current - half <= 2) end = (max - 2).clamp(2, total - 1);
-    if (current + half >= total - 1) start = (total - max + 2).clamp(2, total - 1);
+    if (current + half >= total - 1) {
+      start = (total - max + 2).clamp(2, total - 1);
+    }
 
     items.add(PageNumber(1));
     if (start > 2) items.add(const PageEllipsis('left'));
-    for (int v = start; v <= end; v++) items.add(PageNumber(v));
+    for (int v = start; v <= end; v++) {
+      items.add(PageNumber(v));
+    }
     if (end < total - 1) items.add(const PageEllipsis('right'));
     if (total > 1) items.add(PageNumber(total));
 
@@ -239,63 +246,58 @@ class _CustomPaginationWidgetState extends State<CustomPaginationWidget> {
 
   // ── Variant tokens ─────────────────────────────────────────────────────
 
-  ({
-  Color light,
-  Color dark,
-  Color text,
-  Color shadow,
-  Color focus,
-  }) get _vc => switch (widget.variant) {
-    PaginationVariant.primary => (
-    light: AppColors.colorPrimaryLight,
-    dark: AppColors.colorPrimaryDark,
-    text: AppColors.colorPrimaryText,
-    shadow: AppColors.colorPrimaryShadow,
-    focus: AppColors.colorPrimaryFocus,
-    ),
-    PaginationVariant.secondary => (
-    light: AppColors.colorSecondaryLight,
-    dark: AppColors.colorSecondaryDark,
-    text: AppColors.colorSecondaryText,
-    shadow: AppColors.colorSecondaryShadow,
-    focus: AppColors.colorSecondaryFocus,
-    ),
-    PaginationVariant.tertiary => (
-    light: AppColors.colorTertiaryLight,
-    dark: AppColors.colorTertiaryDark,
-    text: AppColors.colorTertiaryText,
-    shadow: AppColors.colorTertiaryShadow,
-    focus: AppColors.colorTertiaryFocus,
-    ),
-    PaginationVariant.success => (
-    light: AppColors.colorSuccessLight,
-    dark: AppColors.colorSuccessDark,
-    text: AppColors.colorSuccessText,
-    shadow: AppColors.colorSuccessShadow,
-    focus: AppColors.colorSuccessFocus,
-    ),
-    PaginationVariant.warning => (
-    light: AppColors.colorWarningLight,
-    dark: AppColors.colorWarningDark,
-    text: AppColors.colorWarningText,
-    shadow: AppColors.colorWarningShadow,
-    focus: AppColors.colorWarningFocus,
-    ),
-    PaginationVariant.error => (
-    light: AppColors.colorErrorLight,
-    dark: AppColors.colorErrorDark,
-    text: AppColors.colorErrorText,
-    shadow: AppColors.colorErrorShadow,
-    focus: AppColors.colorErrorFocus,
-    ),
-    PaginationVariant.info => (
-    light: AppColors.colorInfoLight,
-    dark: AppColors.colorInfoDark,
-    text: AppColors.colorInfoText,
-    shadow: AppColors.colorInfoShadow,
-    focus: AppColors.colorInfoFocus,
-    ),
-  };
+  ({Color light, Color dark, Color text, Color shadow, Color focus}) get _vc =>
+      switch (widget.variant) {
+        PaginationVariant.primary => (
+          light: AppColors.colorPrimaryLight,
+          dark: AppColors.colorPrimaryDark,
+          text: AppColors.colorPrimaryText,
+          shadow: AppColors.colorPrimaryShadow,
+          focus: AppColors.colorPrimaryFocus,
+        ),
+        PaginationVariant.secondary => (
+          light: AppColors.colorSecondaryLight,
+          dark: AppColors.colorSecondaryDark,
+          text: AppColors.colorSecondaryText,
+          shadow: AppColors.colorSecondaryShadow,
+          focus: AppColors.colorSecondaryFocus,
+        ),
+        PaginationVariant.tertiary => (
+          light: AppColors.colorTertiaryLight,
+          dark: AppColors.colorTertiaryDark,
+          text: AppColors.colorTertiaryText,
+          shadow: AppColors.colorTertiaryShadow,
+          focus: AppColors.colorTertiaryFocus,
+        ),
+        PaginationVariant.success => (
+          light: AppColors.colorSuccessLight,
+          dark: AppColors.colorSuccessDark,
+          text: AppColors.colorSuccessText,
+          shadow: AppColors.colorSuccessShadow,
+          focus: AppColors.colorSuccessFocus,
+        ),
+        PaginationVariant.warning => (
+          light: AppColors.colorWarningLight,
+          dark: AppColors.colorWarningDark,
+          text: AppColors.colorWarningText,
+          shadow: AppColors.colorWarningShadow,
+          focus: AppColors.colorWarningFocus,
+        ),
+        PaginationVariant.error => (
+          light: AppColors.colorErrorLight,
+          dark: AppColors.colorErrorDark,
+          text: AppColors.colorErrorText,
+          shadow: AppColors.colorErrorShadow,
+          focus: AppColors.colorErrorFocus,
+        ),
+        PaginationVariant.info => (
+          light: AppColors.colorInfoLight,
+          dark: AppColors.colorInfoDark,
+          text: AppColors.colorInfoText,
+          shadow: AppColors.colorInfoShadow,
+          focus: AppColors.colorInfoFocus,
+        ),
+      };
 
   // ── Theme helpers ──────────────────────────────────────────────────────
 
@@ -518,13 +520,13 @@ class _CustomPaginationWidgetState extends State<CustomPaginationWidget> {
                 fontWeight: FontWeight.w600,
                 color: _inputText,
               ),
-              dropdownColor:
-              widget.darkTheme ? AppColors.colorNeutral600 : Colors.white,
+              dropdownColor: widget.darkTheme
+                  ? AppColors.colorNeutral600
+                  : Colors.white,
               items: widget.pageSizeOptions
-                  .map((opt) => DropdownMenuItem(
-                value: opt,
-                child: Text('$opt'),
-              ))
+                  .map(
+                    (opt) => DropdownMenuItem(value: opt, child: Text('$opt')),
+                  )
                   .toList(),
               onChanged: widget.disabled ? null : _onPageSizeChange,
             ),
@@ -621,24 +623,24 @@ class _CustomPaginationWidgetState extends State<CustomPaginationWidget> {
                 borderRadius: BorderRadius.circular(dotIdle / 2),
                 gradient: isActive
                     ? LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [vc.light, vc.dark],
-                )
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [vc.light, vc.dark],
+                      )
                     : null,
                 color: isActive
                     ? null
                     : (widget.darkTheme
-                    ? AppColors.colorNeutral500
-                    : AppColors.colorNeutral300),
+                          ? AppColors.colorNeutral500
+                          : AppColors.colorNeutral300),
                 boxShadow: isActive
                     ? [
-                  BoxShadow(
-                    color: vc.shadow,
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
+                        BoxShadow(
+                          color: vc.shadow,
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
                     : null,
               ),
             ),
@@ -656,10 +658,7 @@ class _CustomPaginationWidgetState extends State<CustomPaginationWidget> {
   Widget build(BuildContext context) {
     // Dot style — bypasses the full numeric layout
     if (widget.style == PaginationStyle.dots) {
-      return Opacity(
-        opacity: widget.disabled ? 0.5 : 1.0,
-        child: _buildDots(),
-      );
+      return Opacity(opacity: widget.disabled ? 0.5 : 1.0, child: _buildDots());
     }
 
     return LayoutBuilder(
@@ -714,10 +713,14 @@ class _CustomPaginationWidgetState extends State<CustomPaginationWidget> {
                   if (!isNarrow)
                     Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: _pageItems.map((item) => switch (item) {
-                        PageNumber p => _buildPageBtn(p.value),
-                        PageEllipsis _ => _buildEllipsis(),
-                      }).toList(),
+                      children: _pageItems
+                          .map(
+                            (item) => switch (item) {
+                              PageNumber p => _buildPageBtn(p.value),
+                              PageEllipsis _ => _buildEllipsis(),
+                            },
+                          )
+                          .toList(),
                     ),
 
                   // Mobile indicator
@@ -825,9 +828,7 @@ class _PaginationBtnState extends State<_PaginationBtn> {
         onTap: isDisabled ? null : widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          constraints: BoxConstraints(
-            minWidth: widget.minWidth ?? 0,
-          ),
+          constraints: BoxConstraints(minWidth: widget.minWidth ?? 0),
           padding: widget.padding,
           decoration: BoxDecoration(
             color: _hovered ? widget.hoverBg : widget.idleColor,
@@ -838,10 +839,11 @@ class _PaginationBtnState extends State<_PaginationBtn> {
             ),
           ),
           transform: _pressed
-              ? (Matrix4.identity()..scale(0.95))
+              ? (Matrix4.identity()..scaleByDouble(0.95, 0.95, 1.0, 1.0))
               : (_hovered
-              ? (Matrix4.identity()..translate(0.0, -1.0))
-              : Matrix4.identity()),
+                    ? (Matrix4.identity()
+                        ..translateByDouble(0.0, -1.0, 0.0, 1.0))
+                    : Matrix4.identity()),
           child: Opacity(
             opacity: isDisabled ? 0.35 : 1.0,
             child: DefaultTextStyle.merge(
