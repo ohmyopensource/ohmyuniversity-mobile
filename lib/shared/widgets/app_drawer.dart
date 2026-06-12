@@ -5,18 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/routes/app_routes.dart';
 import '../../config/theme/app_colors.dart';
-
-class UniversityInfo {
-  const UniversityInfo({
-    required this.name,
-    required this.websiteUrl,
-    required this.mailUrl,
-  });
-
-  final String name;
-  final String websiteUrl;
-  final String mailUrl;
-}
+import '../mocks/app_mock_data.dart';
 
 class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key, this.notificationCount = 0});
@@ -28,11 +17,7 @@ class AppDrawer extends StatefulWidget {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  static const _mockUniversity = UniversityInfo(
-    name: 'UNIMOL',
-    websiteUrl: 'https://www.unimol.it',
-    mailUrl: 'https://mail.unimol.it',
-  );
+  static const _mockUniversity = AppMockData.university;
 
   String? _expandedSectionId;
 
@@ -94,7 +79,10 @@ class _AppDrawerState extends State<AppDrawer> {
                     isExpanded: _expandedSectionId == 'transport',
                     onTap: () => _toggleSection('transport'),
                     children: [
-                      _DrawerSubItem(label: 'Raggiungi UNIMOL', onTap: _close),
+                      _DrawerSubItem(
+                        label: 'Raggiungi ${_mockUniversity.name}',
+                        onTap: _close,
+                      ),
                       _DrawerSubItem(
                         label: 'Prenotazione navette',
                         onTap: _close,
@@ -149,7 +137,7 @@ class _AppDrawerState extends State<AppDrawer> {
 class _DrawerHeader extends StatelessWidget {
   const _DrawerHeader({required this.university, required this.onClose});
 
-  final UniversityInfo university;
+  final MockUniversityData university;
   final VoidCallback onClose;
 
   @override

@@ -18,7 +18,7 @@ enum DegreeType {
   final bool isWithdrawn;
 }
 
-// Mock Data model ================================
+// Profile data model ================================
 
 class StudentProfile {
   const StudentProfile({
@@ -113,7 +113,6 @@ class _ProfileSwitcherOverlay extends StatelessWidget {
                   (profile) => _ProfileTile(
                     profile: profile,
                     onTap: () {
-                      // TODO: switch active profile
                       Navigator.of(context).pop();
                     },
                   ),
