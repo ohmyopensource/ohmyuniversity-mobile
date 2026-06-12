@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../config/theme/app_colors.dart';
+import '../../../../../shared/mocks/app_mock_data.dart';
 
 class HomeAcademicInfoCard extends StatelessWidget {
   const HomeAcademicInfoCard({super.key});
@@ -8,6 +9,7 @@ class HomeAcademicInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final academicInfo = AppMockData.academicInfo;
 
     return Container(
       width: double.infinity,
@@ -32,7 +34,7 @@ class HomeAcademicInfoCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Università Degli Studi Del Molise',
+            academicInfo.universityName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.labelSmall?.copyWith(
@@ -47,19 +49,19 @@ class HomeAcademicInfoCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _AcademicInfoValue(
-                  text: 'Informatica',
+                  text: academicInfo.courseName,
                   textAlign: TextAlign.left,
                 ),
               ),
               Expanded(
                 child: _AcademicInfoValue(
-                  text: 'Laurea Triennale',
+                  text: academicInfo.degreeName,
                   textAlign: TextAlign.center,
                 ),
               ),
               Expanded(
                 child: _AcademicInfoValue(
-                  text: 'A.A. 2025/2026',
+                  text: academicInfo.academicYear,
                   textAlign: TextAlign.right,
                 ),
               ),

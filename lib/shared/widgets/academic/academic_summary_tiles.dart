@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../config/theme/app_colors.dart';
+import '../../mocks/app_mock_data.dart';
 import '../../../shared/widgets/custom_badge/custom_badge_widget.dart';
 
 abstract final class AcademicSummaryTiles {
@@ -106,7 +107,7 @@ class CareerMetricsGrid extends StatelessWidget {
               isWide: true,
               progressValue: progressValue,
               progressCaption:
-              '$acquiredCredits CFU completati su $totalCredits',
+                  '$acquiredCredits CFU completati su $totalCredits',
             ),
           ),
         ],
@@ -145,104 +146,104 @@ class CareerMetricTile extends StatelessWidget {
       decoration: _summaryTileDecoration(alpha: isWide ? 0.06 : 0.06),
       child: isWide
           ? Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w800,
+                          height: 1,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    FittedBox(
+                      child: Text(
+                        value,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w900,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: LinearProgressIndicator(
+                    value: progressValue,
+                    minHeight: 7,
+                    backgroundColor: Colors.white.withValues(alpha: 0.74),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AcademicSummaryTiles.successColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  progressCaption ?? '',
                   maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: AppColors.textPrimary.withValues(alpha: 0.64),
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                  ),
+                ),
+              ],
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w800,
-                    height: 1,
-                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    height: 1.05,
+                    fontSize: 10,
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              FittedBox(
-                child: Text(
-                  value,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w900,
-                    height: 1,
+                const SizedBox(height: 7),
+                FittedBox(
+                  child: Text(
+                    value,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w900,
+                      height: 1,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(
-              value: progressValue,
-              minHeight: 7,
-              backgroundColor: Colors.white.withValues(alpha: 0.74),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                AcademicSummaryTiles.successColor,
-              ),
+                if (showProgress) ...[
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
+                    child: LinearProgressIndicator(
+                      value: progressValue,
+                      minHeight: 5,
+                      backgroundColor: Colors.white.withValues(alpha: 0.72),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        AcademicSummaryTiles.successColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            progressCaption ?? '',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: AppColors.textPrimary.withValues(alpha: 0.64),
-              fontWeight: FontWeight.w700,
-              height: 1,
-            ),
-          ),
-        ],
-      )
-          : Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w700,
-              height: 1.05,
-              fontSize: 10,
-            ),
-          ),
-          const SizedBox(height: 7),
-          FittedBox(
-            child: Text(
-              value,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w900,
-                height: 1,
-              ),
-            ),
-          ),
-          if (showProgress) ...[
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: LinearProgressIndicator(
-                value: progressValue,
-                minHeight: 5,
-                backgroundColor: Colors.white.withValues(alpha: 0.72),
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  AcademicSummaryTiles.successColor,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
     );
   }
 }
@@ -258,7 +259,7 @@ class _StudentIdentityFront extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'Mario Rossi',
+            AppMockData.student.fullName,
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -270,7 +271,7 @@ class _StudentIdentityFront extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Text(
-            '178034',
+            AppMockData.student.studentId,
             style: theme.textTheme.labelLarge?.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w900,
@@ -287,9 +288,9 @@ class _StudentIdentityFront extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          // ── LODI badge ──────────────────────────────────────────────
-          const CustomBadgeWidget(
-            label: '2',
+          // Honors badge.
+          CustomBadgeWidget(
+            label: '${AppMockData.student.honorsCount}',
             icon: LucideIcons.award,
             variant: BadgeVariant.primary,
             size: BadgeSize.xs,
@@ -305,18 +306,18 @@ class _StudentIdentityFront extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          // ── Esami superati ──────────────────────────────────────────
-          const CustomBadgeWidget(
-            label: '21',
+          // Passed exams badge.
+          CustomBadgeWidget(
+            label: '${AppMockData.student.passedExamCount}',
             icon: LucideIcons.checkCircle,
             variant: BadgeVariant.success,
             size: BadgeSize.xs,
             shape: BadgeShape.pill,
           ),
           const SizedBox(height: 6),
-          // ── Esami falliti ───────────────────────────────────────────
-          const CustomBadgeWidget(
-            label: '6',
+          // Failed exams badge.
+          CustomBadgeWidget(
+            label: '${AppMockData.student.failedExamCount}',
             icon: LucideIcons.xCircle,
             variant: BadgeVariant.neutral,
             size: BadgeSize.xs,
@@ -340,7 +341,7 @@ class _StudentBadgeBack extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Mario Rossi',
+            AppMockData.student.fullName,
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -352,7 +353,7 @@ class _StudentBadgeBack extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Text(
-            'Universita degli Studi del Molise',
+            AppMockData.student.universityName,
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -379,7 +380,7 @@ class _StudentBadgeBack extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'ID 178034',
+            AppMockData.student.badgeIdLabel,
             style: theme.textTheme.labelSmall?.copyWith(
               color: AppColors.textPrimary.withValues(alpha: 0.68),
               fontWeight: FontWeight.w900,
