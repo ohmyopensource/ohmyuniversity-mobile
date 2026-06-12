@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../../config/constants/app_day_greeting.dart';
 import '../../../../../config/theme/app_colors.dart';
+import '../../../../../shared/mocks/app_mock_data.dart';
 
 class HomeWelcomeCard extends StatelessWidget {
   const HomeWelcomeCard({super.key});
@@ -36,9 +37,9 @@ class HomeWelcomeCard extends StatelessWidget {
           TextSpan(
             children: [
               TextSpan(text: '$greeting, '),
-              const TextSpan(
-                text: 'Mario',
-                style: TextStyle(fontWeight: FontWeight.w900),
+              TextSpan(
+                text: AppMockData.student.firstName,
+                style: const TextStyle(fontWeight: FontWeight.w900),
               ),
             ],
           ),

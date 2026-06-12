@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../config/routes/app_routes.dart';
 import '../../config/theme/app_colors.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../mocks/app_mock_data.dart';
 import '../widgets/avatar_profile_panel/avatar_profile_panel_widget.dart';
 
 class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -16,37 +17,28 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(78);
 
-  // Mock accounts — sostituire con dati reali dal provider utente
-  static const _mockAccounts = [
-    AccountEntry(
-      id: '1',
-      name: 'Mario Rossi',
-      email: 'mario.rossi@studenti.unimi.it',
-      courseLabel: 'Ingegneria Informatica',
-      universityLabel: 'Università degli Studi di Milano',
-      courseAcronym: 'LM',
-      status: AccountStatus.active,
-      isCurrent: true,
-    ),
-    AccountEntry(
-      id: '2',
-      name: 'Mario Rossi',
-      email: 'mario.rossi@studenti.unimi.it',
-      courseLabel: 'Informatica',
-      universityLabel: 'Università degli Studi di Milano',
-      courseAcronym: 'L',
-      status: AccountStatus.graduated,
-    ),
-    AccountEntry(
-      id: '3',
-      name: 'Mario Rossi',
-      email: 'mario.rossi@studenti.unimi.it',
-      courseLabel: 'Fisica Teorica',
-      universityLabel: 'Università degli Studi di Milano',
-      courseAcronym: 'LM',
-      status: AccountStatus.withdrawn,
-    ),
-  ];
+  static AccountEntry _toAccountEntry(MockAccountData account) {
+    return AccountEntry(
+      id: account.id,
+      name: account.name,
+      email: account.email,
+      courseLabel: account.courseLabel,
+      universityLabel: account.universityLabel,
+      courseAcronym: account.courseAcronym,
+      status: _toAccountStatus(account.status),
+      isCurrent: account.isCurrent,
+    );
+  }
+
+  static AccountStatus _toAccountStatus(MockAccountStatus status) {
+    return switch (status) {
+      MockAccountStatus.active => AccountStatus.active,
+      MockAccountStatus.warning => AccountStatus.warning,
+      MockAccountStatus.suspended => AccountStatus.suspended,
+      MockAccountStatus.withdrawn => AccountStatus.withdrawn,
+      MockAccountStatus.graduated => AccountStatus.graduated,
+    };
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -69,12 +61,12 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
           ),
           child: Row(
             children: [
-              // ── Left group ──────────────────────────────────────────
               _TopBarGroup(
                 children: [
-                  // Avatar + panel dropdown — rimpiazza userCircle + showProfileSwitcher
                   AvatarProfilePanelWidget(
-                    accounts: _mockAccounts,
+                    accounts: AppMockData.topBarAccounts
+                        .map(_toAccountEntry)
+                        .toList(growable: false),
                     position: PanelPosition.right,
                     animation: PanelAnimation.ios,
                     showSettings: true,
@@ -98,10 +90,7 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ],
               ),
-
               const Spacer(),
-
-              // ── Right group ─────────────────────────────────────────
               _TopBarGroup(
                 children: [
                   _TopBarAction(
@@ -124,8 +113,6 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 }
-
-// ─── Internal widgets ─────────────────────────────────────────────────────────
 
 class _TopBarGroup extends StatelessWidget {
   const _TopBarGroup({required this.children});
