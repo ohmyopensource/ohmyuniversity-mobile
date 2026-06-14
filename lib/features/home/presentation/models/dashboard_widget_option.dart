@@ -74,6 +74,18 @@ abstract final class DashboardWidgetOptions {
     size: Size(96, 98),
   );
 
+  static const averagePair = DashboardWidgetOption(
+    key: 'average_pair',
+    title: 'Medie',
+    subtitle: 'Aritmetica e ponderata',
+    icon: LucideIcons.chartNoAxesCombined,
+    accentColor: Color(0xFF357266),
+    accentBackgroundColor: Color(0xFFEAF4F2),
+    columnSpan: 6,
+    rowSpan: 3,
+    size: Size(204, 98),
+  );
+
   static const acquiredCredits = DashboardWidgetOption(
     key: 'acquired_credits',
     title: 'CFU acquisiti',
@@ -162,6 +174,7 @@ abstract final class DashboardWidgetOptions {
     student,
     arithmeticAverage,
     weightedAverage,
+    averagePair,
     acquiredCredits,
     acquiredCreditsCompact,
     graduationProjection,

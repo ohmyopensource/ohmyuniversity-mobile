@@ -25,10 +25,18 @@ class DashboardWidgetContent extends StatelessWidget {
       'arithmetic_average' => const CareerMetricTile(
         label: 'Media aritmetica',
         value: AppMockData.dashboardArithmeticAverage,
+        showTrendBadge: true,
+        trend: CareerMetricTrend.up,
       ),
       'weighted_average' => const CareerMetricTile(
         label: 'Media Ponderata',
         value: AppMockData.dashboardWeightedAverage,
+        showTrendBadge: true,
+        trend: CareerMetricTrend.down,
+      ),
+      'average_pair' => const CareerAveragePairTile(
+        arithmeticAverage: AppMockData.dashboardArithmeticAverage,
+        weightedAverage: AppMockData.dashboardWeightedAverage,
       ),
       'acquired_credits' => const CareerMetricTile(
         label: 'Cfu acquisiti',
