@@ -164,6 +164,28 @@ class MockAcademicCareerExamData {
   final bool hasHonors;
 }
 
+class MockCalendarEventData {
+  const MockCalendarEventData({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.startDate,
+    required this.endDate,
+    required this.type,
+    required this.location,
+    this.isAllDay = false,
+  });
+
+  final String id;
+  final String title;
+  final String description;
+  final DateTime startDate;
+  final DateTime endDate;
+  final String type;
+  final String location;
+  final bool isAllDay;
+}
+
 abstract final class AppMockData {
   // Mock data used for auth responses until real user profile data is available.
   static const mockUserId = 'mock-user-1';
@@ -786,4 +808,58 @@ abstract final class AppMockData {
 
   // Mock data used by Academic Career until real total credits data is available.
   static const academicCareerTotalCredits = 180;
+
+  // Mock data used by Calendar agenda until backend CRUD is available.
+  static final List<MockCalendarEventData> calendarEvents = [
+    MockCalendarEventData(
+      id: 'calendar-event-1',
+      title: 'Sprint Planning',
+      description: 'Pianificazione settimanale delle attivita.',
+      startDate: _calendarDateAt(hour: 10),
+      endDate: _calendarDateAt(hour: 11),
+      type: 'event',
+      location: 'Aula virtuale',
+    ),
+    MockCalendarEventData(
+      id: 'calendar-event-2',
+      title: 'Design Review',
+      description: 'Revisione interfacce calendario.',
+      startDate: _calendarDateAt(hour: 11),
+      endDate: _calendarDateAt(hour: 11, minute: 30),
+      type: 'reminder',
+      location: 'Laboratorio',
+    ),
+    MockCalendarEventData(
+      id: 'calendar-event-3',
+      title: 'Esame Basi di Dati',
+      description: 'Appello scritto.',
+      startDate: _calendarDateAt(hour: 11, minute: 45),
+      endDate: _calendarDateAt(hour: 13, minute: 15),
+      type: 'exam',
+      location: 'Aula 5',
+    ),
+    MockCalendarEventData(
+      id: 'calendar-event-4',
+      title: 'Promemoria iscrizione',
+      description: 'Controllare la scadenza di prenotazione.',
+      startDate: _calendarDateAt(hour: 14),
+      endDate: _calendarDateAt(hour: 14, minute: 30),
+      type: 'reminder',
+      location: 'Segreteria online',
+    ),
+    MockCalendarEventData(
+      id: 'calendar-event-5',
+      title: 'Ricevimento docente',
+      description: 'Incontro per chiarimenti sul progetto.',
+      startDate: _calendarDateAt(hour: 15, minute: 30),
+      endDate: _calendarDateAt(hour: 16, minute: 30),
+      type: 'event',
+      location: 'Studio docente',
+    ),
+  ];
+
+  static DateTime _calendarDateAt({required int hour, int minute = 0}) {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, hour, minute);
+  }
 }
