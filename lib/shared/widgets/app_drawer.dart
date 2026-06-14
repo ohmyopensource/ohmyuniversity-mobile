@@ -61,6 +61,15 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                   const SizedBox(height: 6),
                   _DrawerLabelTile(
+                    icon: LucideIcons.calendarDays,
+                    label: 'Calendario',
+                    onTap: () {
+                      _close();
+                      context.pushNamed(AppRoutes.calendarioName);
+                    },
+                  ),
+                  const SizedBox(height: 6),
+                  _DrawerLabelTile(
                     icon: LucideIcons.globe2,
                     label: 'Web',
                     onTap: () => _launch(_mockUniversity.websiteUrl),

@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../features/academic_career/presentation/pages/academic_career_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/aziende/presentation/pages/aziende_page.dart';
+import '../../features/calendario/presentation/pages/calendario_page.dart';
 import '../../features/chat/presentation/pages/chat_page.dart';
 import '../../features/didattica/presentation/pages/administrative_page.dart';
 import '../../features/didattica/presentation/pages/didattica_page.dart';
@@ -98,6 +99,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.notifiche,
         name: AppRoutes.notificheName,
         builder: (context, state) => const NotifichePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.calendario,
+        name: AppRoutes.calendarioName,
+        builder: (context, state) => const CalendarioPage(),
       ),
       GoRoute(
         path: AppRoutes.services,

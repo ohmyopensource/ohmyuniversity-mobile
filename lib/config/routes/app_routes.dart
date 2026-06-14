@@ -73,4 +73,7 @@ abstract final class AppRoutes {
   // Drawer ================================
   static const notifiche = '/notifiche';
   static const notificheName = 'notifiche';
+
+  static const calendario = '/calendario';
+  static const calendarioName = 'calendario';
 }
