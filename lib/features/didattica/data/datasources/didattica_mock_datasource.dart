@@ -1,4 +1,5 @@
 import '../../../../shared/mocks/app_mock_data.dart';
+import '../../domain/entities/didattica_course_type.dart';
 import '../models/didattica_exam_course_model.dart';
 
 class DidatticaMockDataSource {
@@ -19,6 +20,7 @@ class DidatticaMockDataSource {
       grade: course.grade,
       passed: course.passed,
       completedAt: course.completedAt,
+      courseType: DidatticaCourseType.values.byName(course.courseType),
     );
   }
 }

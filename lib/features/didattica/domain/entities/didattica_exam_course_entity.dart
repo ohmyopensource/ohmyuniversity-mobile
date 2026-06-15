@@ -1,3 +1,5 @@
+import 'didattica_course_type.dart';
+
 class DidatticaExamCourseEntity {
   const DidatticaExamCourseEntity({
     required this.id,
@@ -8,6 +10,7 @@ class DidatticaExamCourseEntity {
     required this.credits,
     required this.passed,
     this.grade,
+    this.courseType = DidatticaCourseType.mandatory,
     this.completedAt,
   });
 
@@ -20,4 +23,5 @@ class DidatticaExamCourseEntity {
   final bool passed;
   final String? grade;
   final DateTime? completedAt;
+  final DidatticaCourseType courseType;
 }
