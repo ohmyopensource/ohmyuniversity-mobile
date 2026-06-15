@@ -8,19 +8,19 @@ class AziendePage extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Aziende')),
+      appBar: AppBar(title: const Text('Partner')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.business_center_outlined,
+              Icons.handshake_outlined,
               size: 64,
               color: theme.colorScheme.primary,
             ),
             const SizedBox(height: 16),
             Text(
-              'Aziende',
+              'Partner',
               style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

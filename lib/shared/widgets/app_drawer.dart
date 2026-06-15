@@ -62,7 +62,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   const SizedBox(height: 6),
                   _DrawerLabelTile(
                     icon: LucideIcons.calendarDays,
-                    label: 'Calendario',
+                    label: 'Agenda',
                     onTap: () {
                       _close();
                       context.pushNamed(AppRoutes.calendarioName);
@@ -70,14 +70,8 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                   const SizedBox(height: 6),
                   _DrawerLabelTile(
-                    icon: LucideIcons.globe2,
-                    label: 'Web',
-                    onTap: () => _launch(_mockUniversity.websiteUrl),
-                  ),
-                  const SizedBox(height: 6),
-                  _DrawerLabelTile(
-                    icon: LucideIcons.mail,
-                    label: 'Mail',
+                    icon: LucideIcons.messagesSquare,
+                    label: 'Messaggi',
                     onTap: () => _launch(_mockUniversity.mailUrl),
                   ),
                   const SizedBox(height: 12),
@@ -105,6 +99,10 @@ class _AppDrawerState extends State<AppDrawer> {
                     isExpanded: _expandedSectionId == 'portals',
                     onTap: () => _toggleSection('portals'),
                     children: [
+                      _DrawerSubItem(
+                        label: 'Sito web',
+                        onTap: () => _launch(_mockUniversity.websiteUrl),
+                      ),
                       _DrawerSubItem(label: 'Esse3', onTap: _close),
                       _DrawerSubItem(label: 'Cineca', onTap: _close),
                     ],
