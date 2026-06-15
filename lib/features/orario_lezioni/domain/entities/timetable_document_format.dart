@@ -1,0 +1,1 @@
+enum TimetableDocumentFormat { pdf, web }

@@ -70,6 +70,15 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                   const SizedBox(height: 6),
                   _DrawerLabelTile(
+                    icon: LucideIcons.calendarClock,
+                    label: 'Orario Lezioni',
+                    onTap: () {
+                      _close();
+                      context.pushNamed(AppRoutes.orarioLezioniName);
+                    },
+                  ),
+                  const SizedBox(height: 6),
+                  _DrawerLabelTile(
                     icon: LucideIcons.messagesSquare,
                     label: 'Messaggi',
                     onTap: () => _launch(_mockUniversity.mailUrl),

@@ -76,4 +76,7 @@ abstract final class AppRoutes {
 
   static const calendario = '/calendario';
   static const calendarioName = 'calendario';
+
+  static const orarioLezioni = '/orario-lezioni';
+  static const orarioLezioniName = 'orario-lezioni';
 }

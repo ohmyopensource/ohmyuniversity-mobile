@@ -16,6 +16,7 @@ import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/notifiche/presentation/pages/notifiche_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/orario_lezioni/presentation/pages/orario_lezioni_page.dart';
 import '../../features/orientamento/presentation/pages/argomenti/come_funziona_universita_page.dart';
 import '../../features/orientamento/presentation/pages/argomenti/errori_comuni_page.dart';
 import '../../features/orientamento/presentation/pages/argomenti/quiz_autovalutazione_page.dart';
@@ -104,6 +105,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.calendario,
         name: AppRoutes.calendarioName,
         builder: (context, state) => const CalendarioPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.orarioLezioni,
+        name: AppRoutes.orarioLezioniName,
+        builder: (context, state) => const OrarioLezioniPage(),
       ),
       GoRoute(
         path: AppRoutes.services,
