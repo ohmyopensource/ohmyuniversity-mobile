@@ -82,6 +82,7 @@ class MockExamCourseData {
     required this.credits,
     required this.passed,
     this.grade,
+    this.courseType = 'mandatory',
     this.completedAt,
   });
 
@@ -93,6 +94,7 @@ class MockExamCourseData {
   final int credits;
   final bool passed;
   final String? grade;
+  final String courseType;
   final DateTime? completedAt;
 }
 
@@ -462,6 +464,7 @@ abstract final class AppMockData {
       code: 'INF/01',
       credits: 6,
       passed: false,
+      courseType: 'elective',
     ),
     MockExamCourseData(
       id: 'exam-3-2-1',
@@ -491,6 +494,7 @@ abstract final class AppMockData {
       grade: '28',
       passed: true,
       completedAt: DateTime(2026, 6, 5),
+      courseType: 'elective',
     ),
     MockExamCourseData(
       id: 'exam-3-2-4',
@@ -500,6 +504,7 @@ abstract final class AppMockData {
       code: 'IUS/20',
       credits: 6,
       passed: false,
+      courseType: 'elective',
     ),
   ];
 
