@@ -188,6 +188,34 @@ class MockCalendarEventData {
   final bool isAllDay;
 }
 
+class MockTimetableDocumentData {
+  const MockTimetableDocumentData({
+    required this.id,
+    required this.title,
+    required this.universityName,
+    required this.department,
+    required this.degreeClass,
+    required this.academicYear,
+    required this.semester,
+    required this.updatedAt,
+    required this.format,
+    required this.sourceUrl,
+    this.fileUrl,
+  });
+
+  final String id;
+  final String title;
+  final String universityName;
+  final String department;
+  final String degreeClass;
+  final String academicYear;
+  final int semester;
+  final DateTime updatedAt;
+  final String format;
+  final String sourceUrl;
+  final String? fileUrl;
+}
+
 abstract final class AppMockData {
   // Mock data used for auth responses until real user profile data is available.
   static const mockUserId = 'mock-user-1';
@@ -250,6 +278,34 @@ abstract final class AppMockData {
     websiteUrl: 'https://www.unimol.it',
     mailUrl: 'https://mail.unimol.it',
   );
+  // Mock data used by lesson timetable cards until real database documents are available.
+  static final List<MockTimetableDocumentData> timetableDocuments = [
+    MockTimetableDocumentData(
+      id: 'informatica-2025-2026-s1',
+      title: 'Informatica',
+      universityName: 'Universita degli Studi del Molise',
+      department: 'Dipartimento di Bioscienze e Territorio',
+      degreeClass: 'L-31',
+      academicYear: '2025/2026',
+      semester: 1,
+      updatedAt: DateTime(2026, 6, 10),
+      format: 'pdf',
+      sourceUrl: 'https://www.unimol.it',
+      fileUrl: 'https://www.unimol.it',
+    ),
+    MockTimetableDocumentData(
+      id: 'informatica-2025-2026-s2',
+      title: 'Informatica',
+      universityName: 'Universita degli Studi del Molise',
+      department: 'Dipartimento di Bioscienze e Territorio',
+      degreeClass: 'L-31',
+      academicYear: '2025/2026',
+      semester: 2,
+      updatedAt: DateTime(2026, 6, 10),
+      format: 'web',
+      sourceUrl: 'https://www.unimol.it',
+    ),
+  ];
 
   // Mock data used by Didattica exam lists until real study plan data is available.
   static final List<MockExamCourseData> didatticaExamCourses = [
