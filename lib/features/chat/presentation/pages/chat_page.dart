@@ -8,19 +8,19 @@ class ChatPage extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Chat')),
+      appBar: AppBar(title: const Text('Messaggi')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.chat_bubble_outlined,
+              Icons.mark_chat_unread_outlined,
               size: 64,
               color: theme.colorScheme.primary,
             ),
             const SizedBox(height: 16),
             Text(
-              'Chat',
+              'Messaggi',
               style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

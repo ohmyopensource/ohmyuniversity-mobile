@@ -204,14 +204,14 @@ class _AppShellState extends State<AppShell> {
 
   static const _destinations = [
     NavigationDestination(
-      icon: Icon(LucideIcons.home),
-      selectedIcon: Icon(LucideIcons.home),
-      label: 'Home',
+      icon: Icon(LucideIcons.layoutDashboard),
+      selectedIcon: Icon(LucideIcons.layoutDashboard),
+      label: 'Dashboard',
     ),
     NavigationDestination(
-      icon: Icon(LucideIcons.graduationCap),
-      selectedIcon: Icon(LucideIcons.graduationCap),
-      label: 'Didattica',
+      icon: Icon(LucideIcons.chartLine),
+      selectedIcon: Icon(LucideIcons.chartLine),
+      label: 'Carriera',
     ),
     NavigationDestination(
       icon: Icon(LucideIcons.globe2),
@@ -219,13 +219,13 @@ class _AppShellState extends State<AppShell> {
       label: 'Futuro',
     ),
     NavigationDestination(
-      icon: Icon(LucideIcons.messageSquare),
-      selectedIcon: Icon(LucideIcons.messageSquare),
-      label: 'Chat',
+      icon: Icon(LucideIcons.messagesSquare),
+      selectedIcon: Icon(LucideIcons.messagesSquare),
+      label: 'Messaggi',
     ),
     NavigationDestination(
-      icon: Icon(LucideIcons.briefcase),
-      selectedIcon: Icon(LucideIcons.briefcase),
+      icon: Icon(LucideIcons.handshake),
+      selectedIcon: Icon(LucideIcons.handshake),
       label: 'Partner',
     ),
   ];
