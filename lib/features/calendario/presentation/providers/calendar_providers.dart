@@ -108,3 +108,15 @@ final calendarEventsProvider = FutureProvider<List<CalendarEventEntity>>((ref) {
       .watch(getCalendarEventsUseCaseProvider)
       .call(GetCalendarEventsParams(startDate: startDate, endDate: endDate));
 });
+
+final homeCalendarEventsProvider = FutureProvider<List<CalendarEventEntity>>((
+  ref,
+) {
+  final now = ref.watch(calendarClockProvider).value ?? DateTime.now();
+  final startDate = DateTime(now.year, now.month, now.day);
+  final endDate = startDate.add(const Duration(days: 2));
+
+  return ref
+      .watch(getCalendarEventsUseCaseProvider)
+      .call(GetCalendarEventsParams(startDate: startDate, endDate: endDate));
+});

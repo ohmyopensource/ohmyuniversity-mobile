@@ -8,9 +8,33 @@ import '../../mocks/app_mock_data.dart';
 import '../../../shared/widgets/custom_badge/custom_badge_widget.dart';
 
 abstract final class AcademicSummaryTiles {
-  static const tileColor = Color(0xFFFFFEE7);
-  static const successColor = Color(0xFF95F2A5);
+  static const tileColor = AppColors.colorWarningLight;
+  static const successColor = AppColors.colorSuccessDark;
   static const summaryHeight = 208.0;
+
+  static BoxDecoration tileDecoration({required double alpha}) {
+    return BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          tileColor.withValues(alpha: 0.36),
+          Colors.white.withValues(alpha: 0.96),
+        ],
+      ),
+      borderRadius: BorderRadius.circular(17),
+      border: Border.all(
+        color: AppColors.colorWarningLight.withValues(alpha: 0.42),
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.colorWarningShadow.withValues(alpha: alpha + 0.02),
+          blurRadius: 10,
+          offset: const Offset(0, 5),
+        ),
+      ],
+    );
+  }
 }
 
 enum CareerMetricTrend { up, down }
@@ -369,7 +393,7 @@ class _MetricValue extends StatelessWidget {
         color: Colors.white.withValues(alpha: 0.58),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
-          color: AppColors.colorPrimaryLight.withValues(alpha: 0.86),
+          color: AppColors.colorWarningDark.withValues(alpha: 0.45),
         ),
       ),
       child: Row(
@@ -607,15 +631,5 @@ class _MockQrPainter extends CustomPainter {
 }
 
 BoxDecoration _summaryTileDecoration({required double alpha}) {
-  return BoxDecoration(
-    color: AcademicSummaryTiles.tileColor,
-    borderRadius: BorderRadius.circular(17),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withValues(alpha: alpha),
-        blurRadius: 10,
-        offset: const Offset(0, 5),
-      ),
-    ],
-  );
+  return AcademicSummaryTiles.tileDecoration(alpha: alpha);
 }

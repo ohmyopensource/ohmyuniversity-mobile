@@ -22,7 +22,7 @@ class GraduationProjectionTile extends StatelessWidget {
   final double value;
   final double maxValue;
 
-  static const accentColor = Color(0xFF95F2A5);
+  static const accentColor = AppColors.colorSuccessDark;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +98,7 @@ class AverageTrendTile extends StatelessWidget {
 
   final List<AcademicAverageTrendPoint> points;
 
-  static const lineColor = Color(0xFFC58444);
+  static const lineColor = AppColors.colorWarningDark;
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -39,9 +41,53 @@ class _DashboardWidgetPickerState extends State<DashboardWidgetPicker> {
         .where(
           (option) =>
               option.key != DashboardWidgetOptions.acquiredCredits.key &&
-              option.key != DashboardWidgetOptions.acquiredCreditsCompact.key,
+              option.key != DashboardWidgetOptions.acquiredCreditsCompact.key &&
+              option.key != DashboardWidgetOptions.tuitionFees.key &&
+              option.key != DashboardWidgetOptions.tuitionFeesCompact.key,
         )
         .toList();
+    final pickerChildren = [
+      ...regularOptions
+          .take(4)
+          .map(
+            (option) => _DashboardWidgetPreviewTile(
+              option: option,
+              isSelected: _selectedOptionKey == option.key,
+              onTap: () => _selectOption(option),
+              onLongPress: () => _confirmOption(option),
+            ),
+          ),
+      _DashboardVariantCarousel(
+        title: 'CFU acquisiti',
+        options: const [
+          DashboardWidgetOptions.acquiredCredits,
+          DashboardWidgetOptions.acquiredCreditsCompact,
+        ],
+        selectedOptionKey: _selectedOptionKey,
+        onSelect: _selectOption,
+        onConfirm: _confirmOption,
+      ),
+      ...regularOptions
+          .skip(4)
+          .map(
+            (option) => _DashboardWidgetPreviewTile(
+              option: option,
+              isSelected: _selectedOptionKey == option.key,
+              onTap: () => _selectOption(option),
+              onLongPress: () => _confirmOption(option),
+            ),
+          ),
+      _DashboardVariantCarousel(
+        title: 'Tasse',
+        options: const [
+          DashboardWidgetOptions.tuitionFees,
+          DashboardWidgetOptions.tuitionFeesCompact,
+        ],
+        selectedOptionKey: _selectedOptionKey,
+        onSelect: _selectOption,
+        onConfirm: _confirmOption,
+      ),
+    ];
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -103,28 +149,10 @@ class _DashboardWidgetPickerState extends State<DashboardWidgetPicker> {
                     Flexible(
                       child: ListView.separated(
                         shrinkWrap: true,
-                        itemCount: regularOptions.length + 1,
+                        itemCount: pickerChildren.length,
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 24),
-                        itemBuilder: (context, index) {
-                          if (index == 4) {
-                            return _DashboardCfuVariantCarousel(
-                              selectedOptionKey: _selectedOptionKey,
-                              onSelect: _selectOption,
-                              onConfirm: _confirmOption,
-                            );
-                          }
-
-                          final optionIndex = index > 4 ? index - 1 : index;
-                          final option = regularOptions[optionIndex];
-
-                          return _DashboardWidgetPreviewTile(
-                            option: option,
-                            isSelected: _selectedOptionKey == option.key,
-                            onTap: () => _selectOption(option),
-                            onLongPress: () => _confirmOption(option),
-                          );
-                        },
+                        itemBuilder: (context, index) => pickerChildren[index],
                       ),
                     ),
                   ],
@@ -138,29 +166,27 @@ class _DashboardWidgetPickerState extends State<DashboardWidgetPicker> {
   }
 }
 
-class _DashboardCfuVariantCarousel extends StatefulWidget {
-  const _DashboardCfuVariantCarousel({
+class _DashboardVariantCarousel extends StatefulWidget {
+  const _DashboardVariantCarousel({
+    required this.title,
+    required this.options,
     required this.selectedOptionKey,
     required this.onSelect,
     required this.onConfirm,
   });
 
+  final String title;
+  final List<DashboardWidgetOption> options;
   final String? selectedOptionKey;
   final ValueChanged<DashboardWidgetOption> onSelect;
   final ValueChanged<DashboardWidgetOption> onConfirm;
 
   @override
-  State<_DashboardCfuVariantCarousel> createState() =>
-      _DashboardCfuVariantCarouselState();
+  State<_DashboardVariantCarousel> createState() =>
+      _DashboardVariantCarouselState();
 }
 
-class _DashboardCfuVariantCarouselState
-    extends State<_DashboardCfuVariantCarousel> {
-  static const _options = [
-    DashboardWidgetOptions.acquiredCredits,
-    DashboardWidgetOptions.acquiredCreditsCompact,
-  ];
-
+class _DashboardVariantCarouselState extends State<_DashboardVariantCarousel> {
   final PageController _controller = PageController(viewportFraction: 0.84);
   int _page = 0;
 
@@ -173,12 +199,15 @@ class _DashboardCfuVariantCarouselState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final previewHeight = widget.options
+        .map((option) => option.size.height)
+        .reduce(math.max);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'CFU acquisiti',
+          widget.title,
           style: theme.textTheme.titleMedium?.copyWith(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w900,
@@ -188,17 +217,17 @@ class _DashboardCfuVariantCarouselState
         ),
         const SizedBox(height: 10),
         SizedBox(
-          height: 158,
+          height: previewHeight + 60,
           child: PageView.builder(
             controller: _controller,
-            itemCount: _options.length,
+            itemCount: widget.options.length,
             onPageChanged: (page) => setState(() => _page = page),
             itemBuilder: (context, index) {
-              final option = _options[index];
+              final option = widget.options[index];
 
               return Padding(
                 padding: EdgeInsets.only(
-                  right: index == _options.length - 1 ? 0 : 10,
+                  right: index == widget.options.length - 1 ? 0 : 10,
                 ),
                 child: _DashboardWidgetPreviewTile(
                   option: option,
@@ -214,7 +243,7 @@ class _DashboardCfuVariantCarouselState
         Center(
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: List.generate(_options.length, (index) {
+            children: List.generate(widget.options.length, (index) {
               final isActive = _page == index;
 
               return AnimatedContainer(
