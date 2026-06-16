@@ -27,14 +27,6 @@ class DidatticaQuickActionsSection extends StatelessWidget {
           accentColor: Color(0xFF14185E),
           accentBackgroundColor: Color(0xFFE7FBFF),
         ),
-        SizedBox(height: 10),
-        _DidatticaActionButton(
-          title: 'Amministrativa',
-          icon: LucideIcons.clipboardList,
-          routeName: AppRoutes.didatticaAdministrativeName,
-          accentColor: Color(0xFFD7BE21),
-          accentBackgroundColor: Color(0xFFFFFCE6),
-        ),
       ],
     );
   }
