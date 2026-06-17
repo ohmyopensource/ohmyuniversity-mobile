@@ -48,6 +48,10 @@ abstract final class AppRoutes {
   static const didatticaStudyPlan = '/didattica/piano-di-studio';
   static const didatticaStudyPlanName = 'didattica-piano-di-studio';
 
+  static const didatticaRecommendedAppeals = '/didattica/appelli-consigliati';
+  static const didatticaRecommendedAppealsName =
+      'didattica-appelli-consigliati';
+
   static const didatticaTuitionFees = '/didattica/tasse';
   static const didatticaTuitionFeesName = 'didattica-tasse';
 
