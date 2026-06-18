@@ -56,28 +56,14 @@ class TimetableCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              document.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: textTheme.titleMedium?.copyWith(
-                                color: AppColors.textPrimary,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          CustomBadgeWidget(
-                            label: document.degreeClass,
-                            variant: BadgeVariant.secondary,
-                            size: BadgeSize.xs,
-                            shape: BadgeShape.pill,
-                          ),
-                        ],
+                      Text(
+                        document.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.titleMedium?.copyWith(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -100,8 +86,8 @@ class TimetableCard extends StatelessWidget {
               runSpacing: 8,
               children: [
                 CustomBadgeWidget(
-                  label: 'Semestre ${document.semester}',
-                  variant: BadgeVariant.info,
+                  label: document.degreeClass,
+                  variant: BadgeVariant.secondary,
                   size: BadgeSize.sm,
                   shape: BadgeShape.pill,
                 ),
@@ -111,65 +97,57 @@ class TimetableCard extends StatelessWidget {
                   size: BadgeSize.sm,
                   shape: BadgeShape.pill,
                 ),
-                CustomBadgeWidget(
-                  label: 'Aggiornato ${_formatDate(document.updatedAt)}',
-                  variant: BadgeVariant.neutral,
-                  size: BadgeSize.sm,
-                  shape: BadgeShape.pill,
-                ),
               ],
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                if (document.hasPdf) ...[
-                  Expanded(
-                    child: CustomButtonWidget(
-                      label: 'Scarica PDF',
-                      icon: LucideIcons.download,
-                      variant: ButtonVariant.outline,
-                      size: ButtonSize.sm,
-                      fullWidth: true,
-                      onPressed: () => onDownload(document),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                ],
-                Expanded(
-                  child: CustomButtonWidget(
-                    label: 'Visualizza online',
-                    icon: LucideIcons.externalLink,
-                    iconPosition: ButtonIconPosition.right,
-                    variant: ButtonVariant.info,
-                    size: ButtonSize.sm,
-                    fullWidth: true,
-                    onPressed: () => onView(document),
-                  ),
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final stackActions = constraints.maxWidth < 340;
+                final downloadButton = CustomButtonWidget(
+                  label: 'Scarica PDF',
+                  icon: LucideIcons.download,
+                  variant: ButtonVariant.outline,
+                  size: ButtonSize.sm,
+                  fullWidth: true,
+                  onPressed: () => onDownload(document),
+                );
+                final viewButton = CustomButtonWidget(
+                  label: 'Visualizza online',
+                  icon: LucideIcons.externalLink,
+                  iconPosition: ButtonIconPosition.right,
+                  variant: ButtonVariant.info,
+                  size: ButtonSize.sm,
+                  fullWidth: true,
+                  onPressed: () => onView(document),
+                );
+
+                if (stackActions) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (document.hasPdf) ...[
+                        downloadButton,
+                        const SizedBox(height: 8),
+                      ],
+                      viewButton,
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    if (document.hasPdf) ...[
+                      Expanded(child: downloadButton),
+                      const SizedBox(width: 10),
+                    ],
+                    Expanded(child: viewButton),
+                  ],
+                );
+              },
             ),
           ],
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    const months = [
-      'gen',
-      'feb',
-      'mar',
-      'apr',
-      'mag',
-      'giu',
-      'lug',
-      'ago',
-      'set',
-      'ott',
-      'nov',
-      'dic',
-    ];
-
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 }

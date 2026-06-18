@@ -81,7 +81,7 @@ class _OrarioLezioniPageState extends ConsumerState<OrarioLezioniPage> {
                   ),
                 ),
               ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 12),
             TimetableSearchPrompt(
               onSearch: () => _openSearchSheet(context, allDocuments),
             ),
