@@ -12,17 +12,6 @@ class AuthMockDataSource {
     return UserModel.mock(email: email);
   }
 
-  Future<UserModel> register({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String password,
-  }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    _authenticated = true;
-    return UserModel.mock(email: email, name: '$firstName $lastName');
-  }
-
   Future<void> logout() async {
     _authenticated = false;
   }

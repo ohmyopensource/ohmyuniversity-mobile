@@ -13,21 +13,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserEntity> register({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String password,
-  }) {
-    return _dataSource.register(
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      password: password,
-    );
-  }
-
-  @override
   Future<void> logout() {
     return _dataSource.logout();
   }

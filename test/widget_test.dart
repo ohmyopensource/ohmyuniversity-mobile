@@ -7,16 +7,14 @@ import 'package:ohmyuniversity/app.dart';
 void main() {
   group('App', () {
     testWidgets('renders without crashing', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const ProviderScope(
-          child: App(),
-        ),
-      );
+      await tester.pumpWidget(const ProviderScope(child: App()));
 
-      // @TODO: quick test workaround to change
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 3));
 
       expect(find.byType(MaterialApp), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox.shrink());
     });
   });
 }
