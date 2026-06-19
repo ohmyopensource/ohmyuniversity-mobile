@@ -81,6 +81,7 @@ class AcademicExamsPanel extends StatelessWidget {
     required this.onYearChanged,
     required this.onSemesterChanged,
     required this.onProvisionalGradeChanged,
+    this.compact = false,
   });
 
   final List<AcademicExamCourseData> courses;
@@ -91,6 +92,7 @@ class AcademicExamsPanel extends StatelessWidget {
   final ValueChanged<int> onYearChanged;
   final ValueChanged<int> onSemesterChanged;
   final void Function(String courseId, int grade) onProvisionalGradeChanged;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -109,48 +111,74 @@ class AcademicExamsPanel extends StatelessWidget {
       TabItem(id: '1', label: 'Secondo semestre'),
     ];
 
+    final courseList = compact
+        ? Expanded(
+            child: ListView.separated(
+              padding: EdgeInsets.zero,
+              physics: const BouncingScrollPhysics(),
+              itemCount: visibleCourses.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              itemBuilder: (context, index) => AcademicExamCourseTile(
+                course: visibleCourses[index],
+                provisionalGrade: provisionalGrades[visibleCourses[index].id],
+                onProvisionalGradeChanged: onProvisionalGradeChanged,
+                compact: true,
+              ),
+            ),
+          )
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < visibleCourses.length; i++) ...[
+                AcademicExamCourseTile(
+                  course: visibleCourses[i],
+                  provisionalGrade: provisionalGrades[visibleCourses[i].id],
+                  onProvisionalGradeChanged: onProvisionalGradeChanged,
+                ),
+                if (i != visibleCourses.length - 1) const SizedBox(height: 10),
+              ],
+            ],
+          );
+
     return AnimatedSize(
       duration: const Duration(milliseconds: 260),
       curve: Curves.easeOutCubic,
       alignment: Alignment.topCenter,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 14),
-        decoration: BoxDecoration(
-          color: AppColors.colorPrimaryLight.withValues(alpha: 0.28),
-          borderRadius: BorderRadius.circular(19),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CustomTabWidget(
-              tabs: yearTabs,
-              activeTab: '$selectedYear',
-              tabStyle: TabStyle.pill,
-              variant: TabVariant.primary,
-              size: TabSize.sm,
-              fullWidth: years.length <= 3,
-              onTabChange: (id) => onYearChanged(int.parse(id)),
-            ),
-            const SizedBox(height: 10),
-            CustomTabWidget(
-              tabs: semesterTabs,
-              activeTab: '$selectedSemester',
-              tabStyle: TabStyle.pill,
-              variant: TabVariant.primary,
-              size: TabSize.sm,
-              fullWidth: true,
-              onTabChange: (id) => onSemesterChanged(int.parse(id)),
-            ),
-            const SizedBox(height: 10),
-            for (var i = 0; i < visibleCourses.length; i++) ...[
-              AcademicExamCourseTile(
-                course: visibleCourses[i],
-                provisionalGrade: provisionalGrades[visibleCourses[i].id],
-                onProvisionalGradeChanged: onProvisionalGradeChanged,
+      child: CustomCardWidget(
+        variant: CardVariant.info,
+        padding: CardPadding.none,
+        shadow: CardShadow.md,
+        radius: CardRadius.lg,
+        bordered: false,
+        stretchHeight: compact,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomTabWidget(
+                tabs: yearTabs,
+                activeTab: '$selectedYear',
+                tabStyle: TabStyle.pill,
+                variant: TabVariant.primary,
+                size: TabSize.sm,
+                fullWidth: years.length <= 3,
+                onTabChange: (id) => onYearChanged(int.parse(id)),
               ),
-              if (i != visibleCourses.length - 1) const SizedBox(height: 10),
+              const SizedBox(height: 10),
+              CustomTabWidget(
+                tabs: semesterTabs,
+                activeTab: '$selectedSemester',
+                tabStyle: TabStyle.pill,
+                variant: TabVariant.primary,
+                size: TabSize.sm,
+                fullWidth: true,
+                onTabChange: (id) => onSemesterChanged(int.parse(id)),
+              ),
+              const SizedBox(height: 10),
+              courseList,
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -170,6 +198,7 @@ class AcademicExamAppealsPanel extends StatefulWidget {
     required this.onStatusChanged,
     this.onBookingConfirmed,
     this.showQuestionnaireAction = false,
+    this.compact = false,
   });
 
   static const blueSurface = AppColors.colorPrimaryLight;
@@ -181,6 +210,7 @@ class AcademicExamAppealsPanel extends StatefulWidget {
   final ValueChanged<AcademicExamAppealMonthData> onMonthChanged;
   final ValueChanged<int> onStatusChanged;
   final bool showQuestionnaireAction;
+  final bool compact;
 
   /// Called when the user confirms the booking of an appeal.
   final ValueChanged<AcademicExamAppealData>? onBookingConfirmed;
@@ -254,11 +284,13 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
 
     final startIndex = (_currentPage - 1) * _pageSize;
     final endIndex = (startIndex + _pageSize).clamp(0, totalItems);
-    final pageAppeals = totalItems == 0
+    final pageAppeals = widget.compact
+        ? allAppeals
+        : totalItems == 0
         ? <AcademicExamAppealData>[]
         : allAppeals.sublist(startIndex, endIndex);
 
-    final showPagination = totalItems > _pageSize;
+    final showPagination = !widget.compact && totalItems > _pageSize;
 
     final monthTabs = widget.months
         .map((m) => TabItem(id: m.id, label: _monthLabel(m.month)))
@@ -268,6 +300,36 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
       TabItem(id: '0', label: 'Appelli prenotati'),
       TabItem(id: '1', label: 'Appelli in apertura'),
     ];
+
+    final pageContent = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 320),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) {
+        final isIncoming = child.key == ValueKey(_currentPage);
+        final beginOffset = isIncoming
+            ? Offset(_slideDirection.toDouble(), 0)
+            : Offset(-_slideDirection.toDouble(), 0);
+        return ClipRect(
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: beginOffset,
+              end: Offset.zero,
+            ).animate(animation),
+            child: FadeTransition(opacity: animation, child: child),
+          ),
+        );
+      },
+      child: _AppealPageContent(
+        key: ValueKey(_currentPage),
+        pageAppeals: pageAppeals,
+        showQuestionnaireAction: widget.showQuestionnaireAction,
+        compact: widget.compact,
+        onBookAppeal: widget.onBookingConfirmed != null
+            ? (appeal) => _showBookingModal(context, appeal)
+            : null,
+      ),
+    );
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -286,85 +348,67 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
         duration: const Duration(milliseconds: 260),
         curve: Curves.easeOutCubic,
         alignment: Alignment.topCenter,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 14),
-          decoration: BoxDecoration(
-            color: AcademicExamAppealsPanel.blueSurface.withValues(alpha: 0.28),
-            borderRadius: BorderRadius.circular(19),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (monthTabs.isNotEmpty)
+        child: CustomCardWidget(
+          variant: CardVariant.info,
+          padding: CardPadding.none,
+          shadow: CardShadow.md,
+          radius: CardRadius.lg,
+          bordered: false,
+          stretchHeight: widget.compact,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (monthTabs.isNotEmpty)
+                  CustomTabWidget(
+                    tabs: monthTabs,
+                    activeTab: effectiveSelectedMonth?.id ?? '',
+                    tabStyle: TabStyle.pill,
+                    variant: TabVariant.primary,
+                    size: TabSize.sm,
+                    fullWidth: widget.months.length <= 3,
+                    onTabChange: (id) {
+                      final month = widget.months.firstWhere((m) => m.id == id);
+                      widget.onMonthChanged(month);
+                    },
+                  ),
+                const SizedBox(height: 10),
                 CustomTabWidget(
-                  tabs: monthTabs,
-                  activeTab: effectiveSelectedMonth?.id ?? '',
+                  tabs: statusTabs,
+                  activeTab: '${widget.selectedStatus}',
                   tabStyle: TabStyle.pill,
                   variant: TabVariant.primary,
                   size: TabSize.sm,
-                  fullWidth: widget.months.length <= 3,
-                  onTabChange: (id) {
-                    final month = widget.months.firstWhere((m) => m.id == id);
-                    widget.onMonthChanged(month);
-                  },
+                  fullWidth: true,
+                  onTabChange: (id) => widget.onStatusChanged(int.parse(id)),
                 ),
-              const SizedBox(height: 10),
-              CustomTabWidget(
-                tabs: statusTabs,
-                activeTab: '${widget.selectedStatus}',
-                tabStyle: TabStyle.pill,
-                variant: TabVariant.primary,
-                size: TabSize.sm,
-                fullWidth: true,
-                onTabChange: (id) => widget.onStatusChanged(int.parse(id)),
-              ),
-              const SizedBox(height: 10),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 320),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: (child, animation) {
-                  final isIncoming = child.key == ValueKey(_currentPage);
-                  final beginOffset = isIncoming
-                      ? Offset(_slideDirection.toDouble(), 0)
-                      : Offset(-_slideDirection.toDouble(), 0);
-                  return ClipRect(
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: beginOffset,
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: FadeTransition(opacity: animation, child: child),
+                const SizedBox(height: 10),
+                if (widget.compact)
+                  Expanded(child: pageContent)
+                else
+                  pageContent,
+                if (showPagination) ...[
+                  const SizedBox(height: 14),
+                  CustomPaginationWidget(
+                    totalItems: totalItems,
+                    pageSize: _pageSize,
+                    currentPage: _currentPage,
+                    style: PaginationStyle.dots,
+                    variant: PaginationVariant.primary,
+                    size: PaginationSize.sm,
+                    showPageSizeSelector: false,
+                    showInfo: false,
+                    showFirstLast: false,
+                    showJumpToPage: false,
+                    onPageChange: (page) => _goToPage(
+                      page,
+                      direction: page > _currentPage ? 1 : -1,
                     ),
-                  );
-                },
-                child: _AppealPageContent(
-                  key: ValueKey(_currentPage),
-                  pageAppeals: pageAppeals,
-                  showQuestionnaireAction: widget.showQuestionnaireAction,
-                  onBookAppeal: widget.onBookingConfirmed != null
-                      ? (appeal) => _showBookingModal(context, appeal)
-                      : null,
-                ),
-              ),
-              if (showPagination) ...[
-                const SizedBox(height: 14),
-                CustomPaginationWidget(
-                  totalItems: totalItems,
-                  pageSize: _pageSize,
-                  currentPage: _currentPage,
-                  style: PaginationStyle.dots,
-                  variant: PaginationVariant.primary,
-                  size: PaginationSize.sm,
-                  showPageSizeSelector: false,
-                  showInfo: false,
-                  showFirstLast: false,
-                  showJumpToPage: false,
-                  onPageChange: (page) =>
-                      _goToPage(page, direction: page > _currentPage ? 1 : -1),
-                ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -483,16 +527,39 @@ class _AppealPageContent extends StatelessWidget {
     super.key,
     required this.pageAppeals,
     required this.showQuestionnaireAction,
+    required this.compact,
     this.onBookAppeal,
   });
 
   final List<AcademicExamAppealData> pageAppeals;
   final bool showQuestionnaireAction;
+  final bool compact;
   final ValueChanged<AcademicExamAppealData>? onBookAppeal;
 
   @override
   Widget build(BuildContext context) {
-    if (pageAppeals.isEmpty) return const _EmptyAppealsTile();
+    if (pageAppeals.isEmpty) {
+      return compact
+          ? const Center(child: _EmptyAppealsTile())
+          : const _EmptyAppealsTile();
+    }
+
+    if (compact) {
+      return ListView.separated(
+        padding: EdgeInsets.zero,
+        physics: const BouncingScrollPhysics(),
+        itemCount: pageAppeals.length,
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
+        itemBuilder: (context, index) => AcademicExamAppealTile(
+          appeal: pageAppeals[index],
+          showQuestionnaireAction: showQuestionnaireAction,
+          compact: true,
+          onBook: onBookAppeal != null
+              ? () => onBookAppeal!(pageAppeals[index])
+              : null,
+        ),
+      );
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -520,94 +587,169 @@ class AcademicExamCourseTile extends StatelessWidget {
     required this.course,
     required this.provisionalGrade,
     required this.onProvisionalGradeChanged,
+    this.compact = false,
   });
 
   final AcademicExamCourseData course;
   final int? provisionalGrade;
   final void Function(String courseId, int grade) onProvisionalGradeChanged;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      constraints: const BoxConstraints(minHeight: 58),
-      padding: const EdgeInsets.fromLTRB(12, 8, 7, 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.86),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: AppColors.textPrimary.withValues(alpha: 0.045),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.025),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final useStackedLayout = compact || constraints.maxWidth < 300;
+
+        return Container(
+          constraints: BoxConstraints(minHeight: useStackedLayout ? 82 : 58),
+          padding: const EdgeInsets.fromLTRB(12, 8, 7, 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.86),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: AppColors.textPrimary.withValues(alpha: 0.045),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.025),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+          child: useStackedLayout
+              ? _buildCompactLayout(theme)
+              : Row(
                   children: [
-                    Flexible(
-                      child: Text(
-                        course.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w900,
-                          height: 1,
-                        ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  course.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w900,
+                                    height: 1,
+                                  ),
+                                ),
+                              ),
+                              if (course.passed) ...[
+                                const SizedBox(width: 5),
+                                const Icon(
+                                  LucideIcons.checkCircle,
+                                  size: 18,
+                                  color: AppColors.examPassed,
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            course.code,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: AppColors.textPrimary.withValues(
+                                alpha: 0.72,
+                              ),
+                              fontWeight: FontWeight.w600,
+                              height: 1,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    if (course.passed) ...[
-                      const SizedBox(width: 5),
-                      const Icon(
-                        LucideIcons.checkCircle,
-                        size: 18,
-                        color: AppColors.examPassed,
-                      ),
-                    ],
+                    const SizedBox(width: 9),
+                    // ── CFU badge → CustomBadgeWidget ──
+                    CustomBadgeWidget(
+                      label: '${course.credits} CFU',
+                      variant: BadgeVariant.neutral,
+                      size: BadgeSize.sm,
+                    ),
+                    const SizedBox(width: 8),
+                    _ExamGradeBox(
+                      course: course,
+                      provisionalGrade: provisionalGrade,
+                      onChanged: (grade) =>
+                          onProvisionalGradeChanged(course.id, grade),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  course.code,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.textPrimary.withValues(alpha: 0.72),
-                    fontWeight: FontWeight.w600,
-                    height: 1,
-                  ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCompactLayout(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                course.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w900,
+                  height: 1,
                 ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(width: 9),
-          // ── CFU badge → CustomBadgeWidget ──
-          CustomBadgeWidget(
-            label: '${course.credits} CFU',
-            variant: BadgeVariant.neutral,
-            size: BadgeSize.sm,
-          ),
-          const SizedBox(width: 8),
-          _ExamGradeBox(
-            course: course,
-            provisionalGrade: provisionalGrade,
-            onChanged: (grade) => onProvisionalGradeChanged(course.id, grade),
-          ),
-        ],
-      ),
+            if (course.passed) ...[
+              const SizedBox(width: 5),
+              const Icon(
+                LucideIcons.checkCircle,
+                size: 18,
+                color: AppColors.examPassed,
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 7),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                course.code,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.textPrimary.withValues(alpha: 0.72),
+                  fontWeight: FontWeight.w600,
+                  height: 1,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            CustomBadgeWidget(
+              label: '${course.credits} CFU',
+              variant: BadgeVariant.neutral,
+              size: BadgeSize.sm,
+            ),
+            const SizedBox(width: 7),
+            _ExamGradeBox(
+              course: course,
+              provisionalGrade: provisionalGrade,
+              onChanged: (grade) => onProvisionalGradeChanged(course.id, grade),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -618,10 +760,12 @@ class AcademicExamAppealTile extends ConsumerStatefulWidget {
     required this.appeal,
     this.onBook,
     this.showQuestionnaireAction = false,
+    this.compact = false,
   });
 
   final AcademicExamAppealData appeal;
   final bool showQuestionnaireAction;
+  final bool compact;
 
   /// Callback triggered when the user taps "Prenotabile".
   /// Null means no booking action is wired up.
@@ -656,7 +800,7 @@ class _AcademicExamAppealTileState
         final availableWidth = constraints.hasBoundedWidth
             ? constraints.maxWidth
             : MediaQuery.sizeOf(context).width;
-        final isCompact = availableWidth < 340;
+        final isCompact = widget.compact || availableWidth < 340;
         final iconSize = isCompact ? 38.0 : 42.0;
         final gap = isCompact ? 7.0 : 9.0;
         const trailingWidth = 46.0;
@@ -729,18 +873,22 @@ class _AcademicExamAppealTileState
                     if (!appeal.isBooked) ...[
                       const SizedBox(height: 6),
                       Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          CustomButtonWidget(
-                            label: appeal.isBookable
-                                ? 'Prenotabile'
-                                : 'Non prenotabile',
-                            variant: appeal.isBookable
-                                ? ButtonVariant.primary
-                                : ButtonVariant.ghost,
-                            size: ButtonSize.sm,
-                            disabled: !appeal.isBookable,
-                            onPressed: appeal.isBookable ? widget.onBook : null,
+                          Expanded(
+                            child: CustomButtonWidget(
+                              label: appeal.isBookable
+                                  ? 'Prenotabile'
+                                  : 'Non prenotabile',
+                              variant: appeal.isBookable
+                                  ? ButtonVariant.primary
+                                  : ButtonVariant.ghost,
+                              size: ButtonSize.sm,
+                              fullWidth: true,
+                              disabled: !appeal.isBookable,
+                              onPressed: appeal.isBookable
+                                  ? widget.onBook
+                                  : null,
+                            ),
                           ),
                           if (widget.showQuestionnaireAction &&
                               appeal.isBookable) ...[

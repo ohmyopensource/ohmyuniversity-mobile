@@ -121,67 +121,79 @@ class AcademicTuitionFeeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomCardWidget(
-      variant: _variant,
-      shadow: CardShadow.none,
-      radius: CardRadius.md,
-      padding: CardPadding.none,
-      accentBar: true,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-        child: Row(
-          children: [
-            Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                color: _iconBackground,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(_icon, size: 11, color: _iconColor),
-            ),
-            const SizedBox(width: 7),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CustomTextWidget(
-                    text: _titleLabel,
-                    variant: TextVariant.caption,
-                    weight: TextWeight.bold,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    noWrap: true,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 280;
+        final iconSize = compact ? 20.0 : 22.0;
+        final gap = compact ? 5.0 : 7.0;
+
+        return CustomCardWidget(
+          variant: _variant,
+          shadow: CardShadow.none,
+          radius: CardRadius.md,
+          padding: CardPadding.none,
+          accentBar: true,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(compact ? 6 : 8, 6, 8, 6),
+            child: Row(
+              children: [
+                Container(
+                  width: iconSize,
+                  height: iconSize,
+                  decoration: BoxDecoration(
+                    color: _iconBackground,
+                    shape: BoxShape.circle,
                   ),
-                  if (_dateLabel.isNotEmpty) ...[
-                    const SizedBox(height: 1),
-                    CustomTextWidget(
-                      text: _dateLabel,
-                      variant: TextVariant.caption,
-                      color: TextColor.muted,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  child: Icon(_icon, size: 11, color: _iconColor),
+                ),
+                SizedBox(width: gap),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CustomTextWidget(
+                        text: _titleLabel,
+                        variant: TextVariant.caption,
+                        weight: TextWeight.bold,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        noWrap: true,
+                      ),
+                      if (_dateLabel.isNotEmpty) ...[
+                        const SizedBox(height: 1),
+                        CustomTextWidget(
+                          text: _dateLabel,
+                          variant: TextVariant.caption,
+                          color: TextColor.muted,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          noWrap: true,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                SizedBox(width: gap),
+                SizedBox(
+                  width: compact ? 54 : 64,
+                  height: 20,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: CustomTextWidget(
+                      text: _formatCurrency(fee.amount),
+                      variant: TextVariant.label,
+                      weight: TextWeight.extraBold,
                       noWrap: true,
                     ),
-                  ],
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 7),
-            SizedBox(
-              width: 64,
-              child: CustomTextWidget(
-                text: _formatCurrency(fee.amount),
-                variant: TextVariant.label,
-                weight: TextWeight.extraBold,
-                align: TextAlign.right,
-                noWrap: true,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
