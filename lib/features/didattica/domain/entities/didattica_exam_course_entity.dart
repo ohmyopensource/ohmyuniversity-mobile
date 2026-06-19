@@ -1,4 +1,5 @@
 import 'didattica_course_type.dart';
+import 'didattica_cfu_breakdown_entity.dart';
 
 class DidatticaExamCourseEntity {
   const DidatticaExamCourseEntity({
@@ -12,6 +13,13 @@ class DidatticaExamCourseEntity {
     this.grade,
     this.courseType = DidatticaCourseType.mandatory,
     this.completedAt,
+    this.language = 'Italiano',
+    this.durationHours = 0,
+    this.attendanceMandatory = false,
+    this.scientificSector = '',
+    this.location = '',
+    this.prerequisites = const [],
+    this.cfuBreakdown = const [],
   });
 
   final String id;
@@ -24,4 +32,13 @@ class DidatticaExamCourseEntity {
   final String? grade;
   final DateTime? completedAt;
   final DidatticaCourseType courseType;
+  final String language;
+  final int durationHours;
+  final bool attendanceMandatory;
+  final String scientificSector;
+  final String location;
+  final List<String> prerequisites;
+  final List<DidatticaCfuBreakdownEntity> cfuBreakdown;
+
+  bool get isPropaedeutic => prerequisites.isNotEmpty;
 }

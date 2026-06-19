@@ -8,93 +8,124 @@ class DidatticaStatisticsCalculator {
   static const _defaultTotalCredits = 180;
   static const _defaultMaxGraduationBase = 110.0;
 
-  DidatticaStatisticsEntity calculate(List<DidatticaExamCourseEntity> courses) {
+  DidatticaStatisticsEntity calculate(
+    List<DidatticaExamCourseEntity> courses, {
+    Map<String, String> simulatedGrades = const {},
+  }) {
     final passedCourses = courses.where((course) => course.passed).toList();
-    final gradedCourses = passedCourses.where(_hasValidGrade).toList();
+    final gradeRecords = _buildGradeRecords(courses, simulatedGrades);
     final acquiredCredits = passedCourses.fold<int>(
       0,
       (total, course) => total + course.credits,
     );
-    final arithmeticAverage = _calculateArithmeticAverage(gradedCourses);
-    final weightedAverage = _calculateWeightedAverage(gradedCourses);
+    final arithmeticAverage = _calculateArithmeticAverage(gradeRecords);
+    final weightedAverage = _calculateWeightedAverage(gradeRecords);
+    final graduationBase = _calculateGraduationBase(weightedAverage);
 
     return DidatticaStatisticsEntity(
       arithmeticAverage: arithmeticAverage,
       weightedAverage: weightedAverage,
       acquiredCredits: acquiredCredits,
       totalCredits: _defaultTotalCredits,
-      projectedGraduationBase: _calculateGraduationProjection(weightedAverage),
-      maxGraduationBase: _defaultMaxGraduationBase,
-      averageTrend: _calculateAverageTrend(gradedCourses),
+      graduationBase: graduationBase,
+      projectedGraduationScore: graduationBase,
+      honorsCount: passedCourses
+          .where((course) => course.grade?.trim().toUpperCase() == '30L')
+          .length,
+      gradeHistory: _calculateGradeHistory(gradeRecords),
+      averageTrend: _calculateAverageTrend(gradeRecords),
+      hasSimulation: gradeRecords.any((record) => record.isSimulated),
     );
   }
 
-  bool _hasValidGrade(DidatticaExamCourseEntity course) {
-    final grade = _parseGrade(course.grade);
-    return grade != null && grade >= 18 && grade <= 30;
+  List<_GradeRecord> _buildGradeRecords(
+    List<DidatticaExamCourseEntity> courses,
+    Map<String, String> simulatedGrades,
+  ) {
+    final records = <_GradeRecord>[];
+    var simulationIndex = 0;
+
+    for (final course in courses) {
+      final grade = course.passed
+          ? _parseGrade(course.grade)
+          : _parseGrade(simulatedGrades[course.id]);
+      if (grade == null || grade < 18 || grade > 30) continue;
+
+      final isSimulated = !course.passed;
+      records.add(
+        _GradeRecord(
+          value: grade,
+          credits: course.credits,
+          date: isSimulated
+              ? DateTime(2100, 1, ++simulationIndex)
+              : course.completedAt ?? DateTime(1900),
+          isSimulated: isSimulated,
+        ),
+      );
+    }
+
+    records.sort((first, second) => first.date.compareTo(second.date));
+    return records;
   }
 
-  double _calculateArithmeticAverage(List<DidatticaExamCourseEntity> courses) {
-    if (courses.isEmpty) return 0;
+  double _calculateArithmeticAverage(List<_GradeRecord> grades) {
+    if (grades.isEmpty) return 0;
 
-    final total = courses.fold<double>(
-      0,
-      (sum, course) => sum + _parseGrade(course.grade)!,
-    );
+    final total = grades.fold<double>(0, (sum, grade) => sum + grade.value);
 
-    return _roundToTwoDecimals(total / courses.length);
+    return _roundToTwoDecimals(total / grades.length);
   }
 
-  double _calculateWeightedAverage(List<DidatticaExamCourseEntity> courses) {
-    if (courses.isEmpty) return 0;
+  double _calculateWeightedAverage(List<_GradeRecord> grades) {
+    if (grades.isEmpty) return 0;
 
-    final totalCredits = courses.fold<int>(
+    final totalCredits = grades.fold<int>(
       0,
-      (sum, course) => sum + course.credits,
+      (sum, grade) => sum + grade.credits,
     );
     if (totalCredits == 0) return 0;
 
-    final weightedTotal = courses.fold<double>(
+    final weightedTotal = grades.fold<double>(
       0,
-      (sum, course) => sum + (_parseGrade(course.grade)! * course.credits),
+      (sum, grade) => sum + (grade.value * grade.credits),
     );
 
     return _roundToTwoDecimals(weightedTotal / totalCredits);
   }
 
-  double _calculateGraduationProjection(double weightedAverage) {
+  double _calculateGraduationBase(double weightedAverage) {
     if (weightedAverage == 0) return 0;
 
-    final projected = (weightedAverage / 30) * _defaultMaxGraduationBase;
-    return _roundToTwoDecimals(projected);
+    return _roundToTwoDecimals(
+      (weightedAverage / 30) * _defaultMaxGraduationBase,
+    );
   }
 
   List<AverageTrendPointEntity> _calculateAverageTrend(
-    List<DidatticaExamCourseEntity> courses,
+    List<_GradeRecord> grades,
   ) {
-    final sortedCourses = [...courses]
-      ..sort((first, second) {
-        final firstDate = first.completedAt ?? DateTime(1900);
-        final secondDate = second.completedAt ?? DateTime(1900);
-        return firstDate.compareTo(secondDate);
-      });
-
     final points = <AverageTrendPointEntity>[];
 
-    for (var index = 0; index < sortedCourses.length; index++) {
-      final currentCourses = sortedCourses.take(index + 1).toList();
-      final currentAverage = _calculateWeightedAverage(currentCourses);
-      final course = sortedCourses[index];
+    for (var index = 0; index < grades.length; index++) {
+      final currentGrades = grades.take(index + 1).toList();
+      final currentAverage = _calculateWeightedAverage(currentGrades);
+      final grade = grades[index];
 
       points.add(
-        AverageTrendPointEntity(
-          date: course.completedAt ?? DateTime(1900, 1, index + 1),
-          value: currentAverage,
-        ),
+        AverageTrendPointEntity(date: grade.date, value: currentAverage),
       );
     }
 
     return points;
+  }
+
+  List<AverageTrendPointEntity> _calculateGradeHistory(
+    List<_GradeRecord> grades,
+  ) {
+    return [
+      for (final grade in grades)
+        AverageTrendPointEntity(date: grade.date, value: grade.value),
+    ];
   }
 
   double? _parseGrade(String? grade) {
@@ -113,4 +144,18 @@ class DidatticaStatisticsCalculator {
   double _roundToTwoDecimals(double value) {
     return double.parse(value.toStringAsFixed(2));
   }
+}
+
+class _GradeRecord {
+  const _GradeRecord({
+    required this.value,
+    required this.credits,
+    required this.date,
+    required this.isSimulated,
+  });
+
+  final double value;
+  final int credits;
+  final DateTime date;
+  final bool isSimulated;
 }
