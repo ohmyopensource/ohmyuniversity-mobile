@@ -157,16 +157,18 @@ class AcademicExamsPanel extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomTabWidget(
+                key: const Key('home-exams-year-tabs'),
                 tabs: yearTabs,
                 activeTab: '$selectedYear',
                 tabStyle: TabStyle.pill,
                 variant: TabVariant.primary,
                 size: TabSize.sm,
-                fullWidth: years.length <= 3,
+                fullWidth: true,
                 onTabChange: (id) => onYearChanged(int.parse(id)),
               ),
               const SizedBox(height: 10),
               CustomTabWidget(
+                key: const Key('home-exams-semester-tabs'),
                 tabs: semesterTabs,
                 activeTab: '$selectedSemester',
                 tabStyle: TabStyle.pill,

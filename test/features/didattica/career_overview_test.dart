@@ -67,6 +67,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('course-details-list')), findsOneWidget);
     expect(find.text('Lingua'), findsOneWidget);
+    expect(find.text('Vai alle prenotazioni'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

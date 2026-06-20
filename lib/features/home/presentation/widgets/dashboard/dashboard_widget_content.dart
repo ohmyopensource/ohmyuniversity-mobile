@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../../config/routes/app_routes.dart';
 import '../../../../../config/theme/app_colors.dart';
 import '../../../../../shared/mocks/app_mock_data.dart';
 import '../../../../../shared/widgets/academic/academic_exam_widgets.dart';
-import '../../../../../shared/widgets/academic/academic_statistics_tiles.dart';
 import '../../../../../shared/widgets/academic/academic_summary_tiles.dart';
 import '../../../../../shared/widgets/academic/academic_tuition_widgets.dart';
 import '../../../../calendario/presentation/providers/calendar_providers.dart';
+import '../../../../didattica/presentation/providers/appeals_controller.dart';
+import '../../../../didattica/presentation/providers/career_provider.dart';
 import '../../models/dashboard_widget_option.dart';
 import 'dashboard_calendar_widgets.dart';
+import 'home_appeals_widget.dart';
+import 'home_career_widgets.dart';
 
-class DashboardWidgetContent extends StatelessWidget {
+class DashboardWidgetContent extends ConsumerWidget {
   const DashboardWidgetContent({
     super.key,
     required this.option,
@@ -24,53 +28,72 @@ class DashboardWidgetContent extends StatelessWidget {
   final bool preview;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final statistics = ref.watch(careerStatisticsProvider);
+
     return switch (option.key) {
       'student' => const StudentIdentityTile(),
-      'arithmetic_average' => const CareerMetricTile(
+      'arithmetic_average' => CareerMetricTile(
         label: 'Media aritmetica',
-        value: AppMockData.dashboardArithmeticAverage,
+        value: statistics.arithmeticAverage.toStringAsFixed(1),
         showTrendBadge: true,
         trend: CareerMetricTrend.up,
+        whiteSurface: true,
       ),
-      'weighted_average' => const CareerMetricTile(
+      'weighted_average' => CareerMetricTile(
         label: 'Media Ponderata',
-        value: AppMockData.dashboardWeightedAverage,
+        value: statistics.weightedAverage.toStringAsFixed(1),
         showTrendBadge: true,
         trend: CareerMetricTrend.down,
+        whiteSurface: true,
       ),
-      'average_pair' => const CareerAveragePairTile(
-        arithmeticAverage: AppMockData.dashboardArithmeticAverage,
-        weightedAverage: AppMockData.dashboardWeightedAverage,
+      'average_pair' => CareerAveragePairTile(
+        arithmeticAverage: statistics.arithmeticAverage.toStringAsFixed(1),
+        weightedAverage: statistics.weightedAverage.toStringAsFixed(1),
+        whiteSurface: true,
       ),
-      'acquired_credits' => const CareerMetricTile(
-        label: 'Cfu acquisiti',
-        value: AppMockData.dashboardCreditsValue,
-        showProgress: true,
-        isWide: true,
-        progressValue: AppMockData.dashboardCreditsProgress,
-        progressCaption: AppMockData.dashboardCreditsCaption,
+      'acquired_credits' => HomeCareerProgressWidget(
+        acquiredCredits: statistics.acquiredCredits,
+        totalCredits: statistics.totalCredits,
       ),
-      'acquired_credits_compact' => const CareerMetricTile(
-        label: 'Cfu acquisiti',
-        value: AppMockData.dashboardCreditsValue,
-        showProgress: true,
-        isWide: true,
+      'acquired_credits_compact' => HomeCareerProgressWidget(
+        acquiredCredits: statistics.acquiredCredits,
+        totalCredits: statistics.totalCredits,
+        compact: true,
       ),
-      'graduation_projection' => const GraduationProjectionTile(
-        value: AppMockData.graduationProjection,
-        maxValue: AppMockData.graduationProjectionMax,
+      'graduation_projection' => HomeGraduationProjectionWidget(
+        value: statistics.projectedGraduationScore,
       ),
-      'average_trend' => AverageTrendTile(
-        points: AppMockData.averageTrend
-            .map(_toAcademicAverageTrendPoint)
-            .toList(growable: false),
+      'graduation_base' => HomeCareerMetricWidget(
+        label: 'Base di laurea',
+        value: statistics.graduationBase.toStringAsFixed(0),
+        suffix: '/110',
+        icon: LucideIcons.graduationCap,
+        color: AppColors.colorSuccessDark,
+      ),
+      'honors' => HomeCareerMetricWidget(
+        label: 'Lodi ottenute',
+        value: '${statistics.honorsCount}',
+        icon: LucideIcons.sparkles,
+        color: AppColors.colorWarningDark,
+      ),
+      'grade_history' => HomeCareerHistoryWidget(
+        title: 'Storico voti',
+        points: statistics.gradeHistory,
+        color: AppColors.colorPrimaryDark,
+      ),
+      'average_trend' => HomeCareerHistoryWidget(
+        title: 'Storico media ponderata',
+        points: statistics.averageTrend,
+        color: AppColors.colorSecondaryDark,
       ),
       'calendar_agenda' ||
       'calendar_day' ||
       'calendar_two_day' => const _DashboardCalendarWidget(),
       'exams' => const _DashboardExamsWidget(),
-      'appeals' => const _DashboardAppealsWidget(),
+      'appeals' => HomeAppealsWidget(
+        appeals: ref.watch(allExamBookingsProvider),
+      ),
       'tuition_fees' => const _DashboardTuitionWidget(),
       'tuition_fees_compact' => _DashboardTuitionCompactWidget(
         preview: preview,
@@ -82,12 +105,6 @@ class DashboardWidgetContent extends StatelessWidget {
       ),
     };
   }
-}
-
-AcademicAverageTrendPoint _toAcademicAverageTrendPoint(
-  MockAverageTrendPointData point,
-) {
-  return AcademicAverageTrendPoint(date: point.date, value: point.value);
 }
 
 class _DashboardExamsWidget extends StatefulWidget {
@@ -141,72 +158,6 @@ class _DashboardExamsWidgetState extends State<_DashboardExamsWidget> {
       },
       onProvisionalGradeChanged: (courseId, grade) {
         setState(() => _provisionalGrades[courseId] = grade);
-      },
-    );
-  }
-}
-
-class _DashboardAppealsWidget extends StatefulWidget {
-  const _DashboardAppealsWidget();
-
-  @override
-  State<_DashboardAppealsWidget> createState() =>
-      _DashboardAppealsWidgetState();
-}
-
-class _DashboardAppealsWidgetState extends State<_DashboardAppealsWidget> {
-  String? _selectedMonthId;
-  int _selectedStatus = 0;
-
-  static final _months = AppMockData.dashboardAppealMonths
-      .map(_toAcademicExamAppealMonthData)
-      .toList(growable: false);
-
-  static final _appeals = AppMockData.dashboardExamAppeals
-      .map(_toAcademicExamAppealData)
-      .toList(growable: false);
-
-  static AcademicExamAppealMonthData _toAcademicExamAppealMonthData(
-    MockExamAppealMonthData month,
-  ) {
-    return AcademicExamAppealMonthData(month: month.month, year: month.year);
-  }
-
-  static AcademicExamAppealData _toAcademicExamAppealData(
-    MockExamAppealData appeal,
-  ) {
-    return AcademicExamAppealData(
-      id: appeal.id,
-      examName: appeal.examName,
-      month: appeal.month,
-      date: appeal.date,
-      time: appeal.time,
-      isBooked: appeal.isBooked,
-      isBookable: appeal.isBookable,
-      room: appeal.room,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final selectedMonth = _months.where((month) {
-      return month.id == _selectedMonthId;
-    }).firstOrNull;
-
-    return AcademicExamAppealsPanel(
-      compact: true,
-      months: _months,
-      selectedMonth: selectedMonth,
-      selectedStatus: _selectedStatus,
-      appeals: _appeals,
-      onMonthChanged: (month) {
-        setState(() {
-          _selectedMonthId = month.id;
-          _selectedStatus = 0;
-        });
-      },
-      onStatusChanged: (status) {
-        setState(() => _selectedStatus = status);
       },
     );
   }

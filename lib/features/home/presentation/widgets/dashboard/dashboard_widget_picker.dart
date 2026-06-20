@@ -58,7 +58,7 @@ class _DashboardWidgetPickerState extends State<DashboardWidgetPicker> {
             ),
           ),
       _DashboardVariantCarousel(
-        title: 'CFU acquisiti',
+        title: 'Avanzamento percorso',
         options: const [
           DashboardWidgetOptions.acquiredCredits,
           DashboardWidgetOptions.acquiredCreditsCompact,

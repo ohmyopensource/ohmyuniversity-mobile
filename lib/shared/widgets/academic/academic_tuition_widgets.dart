@@ -45,9 +45,7 @@ class AcademicTuitionPanel extends StatelessWidget {
     final visibleFees = fees
         .where((fee) => selectedStatus == 0 ? !fee.isPaid : fee.isPaid)
         .toList();
-    final panelVariant = selectedStatus == 0
-        ? CardVariant.warning
-        : CardVariant.success;
+    const panelVariant = CardVariant.info;
 
     return CustomCardWidget(
       variant: panelVariant,
