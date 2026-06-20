@@ -1,8 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../../../config/routes/app_routes.dart';
 import '../../../../../config/theme/app_colors.dart';
 import '../../../../../core/constants/app_assets.dart';
 import '../../models/dashboard_widget_item.dart';
@@ -60,7 +62,9 @@ class DashboardEmptyState extends StatelessWidget {
                 children: [
                   const HomeWelcomeCard(),
                   const SizedBox(height: 18),
-                  const HomeAcademicInfoCard(),
+                  HomeAcademicInfoCard(
+                    onTap: () => context.pushNamed(AppRoutes.profileName),
+                  ),
                   const SizedBox(height: 10),
                   SizedBox(
                     height: lowerContentHeight,

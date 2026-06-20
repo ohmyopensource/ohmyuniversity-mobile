@@ -25,6 +25,7 @@ import '../../features/orientamento/presentation/pages/argomenti/scegli_corso_pa
 import '../../features/orientamento/presentation/pages/argomenti/vita_universitaria_page.dart';
 import '../../features/orientamento/presentation/pages/orientamento_page.dart';
 import '../../features/preferiti/presentation/pages/preferiti_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/services/presentation/pages/services_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../shared/widgets/app_drawer.dart';
@@ -91,6 +92,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
 
       // Pushed routes ================================
+      GoRoute(
+        path: AppRoutes.profile,
+        name: AppRoutes.profileName,
+        builder: (context, state) => const ProfilePage(),
+      ),
       GoRoute(
         path: AppRoutes.preferiti,
         name: AppRoutes.preferitiName,
