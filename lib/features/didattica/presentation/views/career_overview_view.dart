@@ -21,7 +21,12 @@ class CareerOverviewView extends ConsumerWidget {
       children: [
         ListView(
           key: const Key('career-overview-list'),
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 112),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            state.hasSimulation ? 62 : 18,
+            16,
+            112,
+          ),
           physics: const BouncingScrollPhysics(),
           children: [
             CareerStatisticsSection(statistics: statistics),
@@ -42,25 +47,34 @@ class CareerOverviewView extends ConsumerWidget {
           ],
         ),
         Positioned(
-          right: 16,
-          bottom: 84,
+          top: 10,
+          left: 0,
+          right: 0,
           child: IgnorePointer(
             ignoring: !state.hasSimulation,
-            child: AnimatedScale(
-              key: const Key('simulation-mode-indicator'),
-              scale: state.hasSimulation ? 1 : 0,
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.easeOutBack,
-              child: CustomBadgeWidget(
-                label: 'Modalità simulazione',
-                icon: LucideIcons.flaskConical,
-                variant: BadgeVariant.secondary,
-                size: BadgeSize.lg,
-                removable: true,
-                semanticLabel: 'Modalità simulazione attiva',
-                onRemoved: () {
-                  ref.read(careerProvider.notifier).clearSimulations();
-                },
+            child: Center(
+              child: AnimatedScale(
+                key: const Key('simulation-mode-indicator'),
+                scale: state.hasSimulation ? 1 : 0,
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOutBack,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 280),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: CustomBadgeWidget(
+                      label: 'Modalità simulazione',
+                      icon: LucideIcons.flaskConical,
+                      variant: BadgeVariant.secondary,
+                      size: BadgeSize.lg,
+                      removable: true,
+                      semanticLabel: 'Modalità simulazione attiva',
+                      onRemoved: () {
+                        ref.read(careerProvider.notifier).clearSimulations();
+                      },
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
