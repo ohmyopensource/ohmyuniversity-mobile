@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../../config/routes/app_routes.dart';
 import '../../../../../config/theme/app_colors.dart';
 import '../../../../../shared/mocks/app_mock_data.dart';
 import '../../../../../shared/widgets/academic/academic_exam_widgets.dart';
 import '../../../../../shared/widgets/academic/academic_statistics_tiles.dart';
 import '../../../../../shared/widgets/academic/academic_summary_tiles.dart';
 import '../../../../../shared/widgets/academic/academic_tuition_widgets.dart';
+import '../../../../calendario/presentation/providers/calendar_providers.dart';
 import '../../models/dashboard_widget_option.dart';
+import 'dashboard_calendar_widgets.dart';
 
 class DashboardWidgetContent extends StatelessWidget {
   const DashboardWidgetContent({
@@ -61,9 +66,15 @@ class DashboardWidgetContent extends StatelessWidget {
             .map(_toAcademicAverageTrendPoint)
             .toList(growable: false),
       ),
+      'calendar_agenda' ||
+      'calendar_day' ||
+      'calendar_two_day' => const _DashboardCalendarWidget(),
       'exams' => const _DashboardExamsWidget(),
       'appeals' => const _DashboardAppealsWidget(),
       'tuition_fees' => const _DashboardTuitionWidget(),
+      'tuition_fees_compact' => _DashboardTuitionCompactWidget(
+        preview: preview,
+      ),
       _ => _CompactInfoWidget(
         option: option,
         value: '',
@@ -199,6 +210,26 @@ class _DashboardAppealsWidgetState extends State<_DashboardAppealsWidget> {
   }
 }
 
+class _DashboardCalendarWidget extends ConsumerWidget {
+  const _DashboardCalendarWidget();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final now = ref.watch(calendarClockProvider).value ?? DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final eventsAsync = ref.watch(homeCalendarEventsProvider);
+
+    return eventsAsync.when(
+      data: (events) =>
+          DashboardCalendarAgendaWidget(date: today, events: events),
+      loading: () =>
+          DashboardCalendarAgendaWidget(date: today, events: const []),
+      error: (_, _) =>
+          DashboardCalendarAgendaWidget(date: today, events: const []),
+    );
+  }
+}
+
 class _DashboardTuitionWidget extends StatefulWidget {
   const _DashboardTuitionWidget();
 
@@ -222,6 +253,10 @@ class _DashboardTuitionWidgetState extends State<_DashboardTuitionWidget> {
       title: fee.title,
       amount: fee.amount,
       isPaid: fee.isPaid,
+      academicYear: fee.academicYear,
+      referenceDate: fee.referenceDate,
+      isOverdue: fee.isOverdue,
+      receiptAvailable: fee.receiptAvailable,
     );
   }
 
@@ -233,6 +268,30 @@ class _DashboardTuitionWidgetState extends State<_DashboardTuitionWidget> {
       onStatusChanged: (status) {
         setState(() => _selectedStatus = status);
       },
+    );
+  }
+}
+
+class _DashboardTuitionCompactWidget extends StatelessWidget {
+  const _DashboardTuitionCompactWidget({required this.preview});
+
+  final bool preview;
+
+  static final _fees = AppMockData.tuitionFees
+      .map(_DashboardTuitionWidgetState._toAcademicTuitionFeeData)
+      .toList(growable: false);
+
+  @override
+  Widget build(BuildContext context) {
+    final paidCount = _fees.where((fee) => fee.isPaid).length;
+    final unpaidCount = _fees.length - paidCount;
+
+    return AcademicTuitionCounterTile(
+      unpaidCount: unpaidCount,
+      paidCount: paidCount,
+      onTap: preview
+          ? null
+          : () => context.pushNamed(AppRoutes.didatticaTuitionFeesName),
     );
   }
 }
@@ -255,11 +314,21 @@ class _CompactInfoWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AcademicSummaryTiles.tileColor,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AcademicSummaryTiles.tileColor.withValues(alpha: 0.36),
+            Colors.white.withValues(alpha: 0.96),
+          ],
+        ),
         borderRadius: BorderRadius.circular(17),
+        border: Border.all(
+          color: AppColors.colorWarningLight.withValues(alpha: 0.42),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: AppColors.colorWarningShadow.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),

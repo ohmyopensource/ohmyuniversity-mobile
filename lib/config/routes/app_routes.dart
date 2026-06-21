@@ -51,9 +51,6 @@ abstract final class AppRoutes {
   static const didatticaTuitionFees = '/didattica/tasse';
   static const didatticaTuitionFeesName = 'didattica-tasse';
 
-  static const didatticaAdministrative = '/didattica/amministrativa';
-  static const didatticaAdministrativeName = 'didattica-amministrativa';
-
   static const explore = '/explore';
   static const exploreName = 'explore';
 

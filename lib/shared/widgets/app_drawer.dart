@@ -29,6 +29,18 @@ class _AppDrawerState extends State<AppDrawer> {
 
   void _close() => Navigator.of(context).pop();
 
+  void _showPlaceholderFeedback(String label) {
+    _close();
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('$label in arrivo'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+  }
+
   Future<void> _launch(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -46,105 +58,175 @@ class _AppDrawerState extends State<AppDrawer> {
           children: [
             _DrawerHeader(university: _mockUniversity, onClose: _close),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(14, 12, 14, 28),
-                physics: const BouncingScrollPhysics(),
+              child: Column(
                 children: [
-                  _DrawerLabelTile(
-                    icon: LucideIcons.bell,
-                    label: 'Notifiche',
-                    badgeCount: widget.notificationCount,
-                    onTap: () {
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        _DrawerLabelTile(
+                          icon: LucideIcons.bell,
+                          label: 'Notifiche',
+                          badgeCount: widget.notificationCount,
+                          onTap: () {
+                            _close();
+                            context.pushNamed(AppRoutes.notificheName);
+                          },
+                        ),
+                        const SizedBox(height: 6),
+                        _DrawerLabelTile(
+                          icon: LucideIcons.calendarDays,
+                          label: 'Agenda',
+                          onTap: () {
+                            _close();
+                            context.pushNamed(AppRoutes.calendarioName);
+                          },
+                        ),
+                        const SizedBox(height: 6),
+                        _DrawerLabelTile(
+                          icon: LucideIcons.calendarClock,
+                          label: 'Orario Lezioni',
+                          onTap: () {
+                            _close();
+                            context.pushNamed(AppRoutes.orarioLezioniName);
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        _DrawerAccordionSection(
+                          id: 'transport',
+                          icon: LucideIcons.bus,
+                          label: 'Trasporti',
+                          isExpanded: _expandedSectionId == 'transport',
+                          onTap: () => _toggleSection('transport'),
+                          children: [
+                            _DrawerSubItem(
+                              label: 'Raggiungi ${_mockUniversity.name}',
+                              onTap: _close,
+                            ),
+                            _DrawerSubItem(
+                              label: 'Prenotazione navette',
+                              onTap: _close,
+                            ),
+                          ],
+                        ),
+                        _DrawerAccordionSection(
+                          id: 'portals',
+                          icon: LucideIcons.externalLink,
+                          label: 'Portali',
+                          isExpanded: _expandedSectionId == 'portals',
+                          onTap: () => _toggleSection('portals'),
+                          children: [
+                            _DrawerSubItem(
+                              label: 'Sito web',
+                              onTap: () => _launch(_mockUniversity.websiteUrl),
+                            ),
+                            _DrawerSubItem(label: 'Esse3', onTap: _close),
+                            _DrawerSubItem(label: 'Cineca', onTap: _close),
+                            _DrawerSubItem(label: 'Biblioteca', onTap: _close),
+                          ],
+                        ),
+                        _DrawerAccordionSection(
+                          id: 'rooms',
+                          icon: LucideIcons.doorOpen,
+                          label: 'Aule',
+                          isExpanded: _expandedSectionId == 'rooms',
+                          onTap: () => _toggleSection('rooms'),
+                          children: [
+                            _DrawerSubItem(label: 'Biblioteca', onTap: _close),
+                            _DrawerSubItem(
+                              label: 'Prenotazioni aule',
+                              onTap: _close,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  _DrawerBottomGroup(
+                    expandedSectionId: _expandedSectionId,
+                    onToggleSection: _toggleSection,
+                    onShowPlaceholderFeedback: _showPlaceholderFeedback,
+                    onOpenTuitionFees: () {
                       _close();
-                      context.pushNamed(AppRoutes.notificheName);
+                      context.pushNamed(AppRoutes.didatticaTuitionFeesName);
                     },
-                  ),
-                  const SizedBox(height: 6),
-                  _DrawerLabelTile(
-                    icon: LucideIcons.calendarDays,
-                    label: 'Agenda',
-                    onTap: () {
-                      _close();
-                      context.pushNamed(AppRoutes.calendarioName);
-                    },
-                  ),
-                  const SizedBox(height: 6),
-                  _DrawerLabelTile(
-                    icon: LucideIcons.calendarClock,
-                    label: 'Orario Lezioni',
-                    onTap: () {
-                      _close();
-                      context.pushNamed(AppRoutes.orarioLezioniName);
-                    },
-                  ),
-                  const SizedBox(height: 6),
-                  _DrawerLabelTile(
-                    icon: LucideIcons.messagesSquare,
-                    label: 'Messaggi',
-                    onTap: () => _launch(_mockUniversity.mailUrl),
-                  ),
-                  const SizedBox(height: 12),
-                  _DrawerAccordionSection(
-                    id: 'transport',
-                    icon: LucideIcons.bus,
-                    label: 'Trasporti',
-                    isExpanded: _expandedSectionId == 'transport',
-                    onTap: () => _toggleSection('transport'),
-                    children: [
-                      _DrawerSubItem(
-                        label: 'Raggiungi ${_mockUniversity.name}',
-                        onTap: _close,
-                      ),
-                      _DrawerSubItem(
-                        label: 'Prenotazione navette',
-                        onTap: _close,
-                      ),
-                    ],
-                  ),
-                  _DrawerAccordionSection(
-                    id: 'portals',
-                    icon: LucideIcons.externalLink,
-                    label: 'Portali',
-                    isExpanded: _expandedSectionId == 'portals',
-                    onTap: () => _toggleSection('portals'),
-                    children: [
-                      _DrawerSubItem(
-                        label: 'Sito web',
-                        onTap: () => _launch(_mockUniversity.websiteUrl),
-                      ),
-                      _DrawerSubItem(label: 'Esse3', onTap: _close),
-                      _DrawerSubItem(label: 'Cineca', onTap: _close),
-                    ],
-                  ),
-                  _DrawerAccordionSection(
-                    id: 'rooms',
-                    icon: LucideIcons.doorOpen,
-                    label: 'Aule',
-                    isExpanded: _expandedSectionId == 'rooms',
-                    onTap: () => _toggleSection('rooms'),
-                    children: [
-                      _DrawerSubItem(label: 'Biblioteca', onTap: _close),
-                      _DrawerSubItem(label: 'Prenotazioni aule', onTap: _close),
-                    ],
-                  ),
-                  _DrawerAccordionSection(
-                    id: 'info',
-                    icon: LucideIcons.info,
-                    label: 'Info',
-                    isExpanded: _expandedSectionId == 'info',
-                    onTap: () => _toggleSection('info'),
-                    children: [
-                      _DrawerSubItem(label: 'Rubrica docenti', onTap: _close),
-                      _DrawerSubItem(label: 'Segreteria', onTap: _close),
-                      _DrawerSubItem(label: 'Impostazioni', onTap: _close),
-                      _DrawerSubItem(label: 'Info app', onTap: _close),
-                    ],
                   ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DrawerBottomGroup extends StatelessWidget {
+  const _DrawerBottomGroup({
+    required this.expandedSectionId,
+    required this.onToggleSection,
+    required this.onShowPlaceholderFeedback,
+    required this.onOpenTuitionFees,
+  });
+
+  final String? expandedSectionId;
+  final ValueChanged<String> onToggleSection;
+  final ValueChanged<String> onShowPlaceholderFeedback;
+  final VoidCallback onOpenTuitionFees;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 16, 14, 22),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: AppColors.textPrimary.withValues(alpha: 0.08)),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _DrawerLabelTile(
+            icon: LucideIcons.contactRound,
+            label: 'Contatti',
+            onTap: () => onShowPlaceholderFeedback('Contatti'),
+          ),
+          const SizedBox(height: 8),
+          _DrawerAccordionSection(
+            id: 'secretariat',
+            icon: LucideIcons.briefcaseBusiness,
+            label: 'Segreteria',
+            isExpanded: expandedSectionId == 'secretariat',
+            onTap: () => onToggleSection('secretariat'),
+            children: [
+              _DrawerSubItem(
+                label: 'Tasse da pagare',
+                onTap: onOpenTuitionFees,
+              ),
+              _DrawerSubItem(
+                label: 'Borse di studio',
+                onTap: () => onShowPlaceholderFeedback('Borse di studio'),
+              ),
+              _DrawerSubItem(
+                label: 'Bandi',
+                onTap: () => onShowPlaceholderFeedback('Bandi'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          _DrawerLabelTile(
+            icon: LucideIcons.settings,
+            label: 'Impostazioni',
+            onTap: () => onShowPlaceholderFeedback('Impostazioni'),
+          ),
+          const SizedBox(height: 8),
+          _DrawerLabelTile(
+            icon: LucideIcons.info,
+            label: 'Info app',
+            onTap: () => onShowPlaceholderFeedback('Info app'),
+          ),
+        ],
       ),
     );
   }

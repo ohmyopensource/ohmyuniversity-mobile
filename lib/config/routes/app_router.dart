@@ -8,7 +8,6 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/aziende/presentation/pages/aziende_page.dart';
 import '../../features/calendario/presentation/pages/calendario_page.dart';
 import '../../features/chat/presentation/pages/chat_page.dart';
-import '../../features/didattica/presentation/pages/administrative_page.dart';
 import '../../features/didattica/presentation/pages/didattica_page.dart';
 import '../../features/didattica/presentation/pages/study_plan_page.dart';
 import '../../features/didattica/presentation/pages/tuition_fees_page.dart';
@@ -130,11 +129,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.didatticaTuitionFees,
         name: AppRoutes.didatticaTuitionFeesName,
         builder: (context, state) => const TuitionFeesPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.didatticaAdministrative,
-        name: AppRoutes.didatticaAdministrativeName,
-        builder: (context, state) => const AdministrativePage(),
       ),
       // App shell ================================
       StatefulShellRoute.indexedStack(

@@ -93,6 +93,7 @@ class _CalendarEventFormSheetState
       await ref.read(createCalendarEventUseCaseProvider).call(event);
       ref.read(selectedCalendarDateProvider.notifier).selectDate(startDate);
       ref.invalidate(calendarEventsProvider);
+      ref.invalidate(homeCalendarEventsProvider);
 
       if (!mounted) return;
       Navigator.of(context).pop();

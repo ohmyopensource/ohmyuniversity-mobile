@@ -97,7 +97,7 @@ class AcademicExamsPanel extends StatelessWidget {
     final visibleCourses = courses
         .where(
           (c) => c.year == selectedYear && c.semester == selectedSemester + 1,
-    )
+        )
         .toList();
 
     final yearTabs = years
@@ -116,7 +116,7 @@ class AcademicExamsPanel extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 14),
         decoration: BoxDecoration(
-          color: const Color(0xFFEEFDFF),
+          color: AppColors.colorPrimaryLight.withValues(alpha: 0.28),
           borderRadius: BorderRadius.circular(19),
         ),
         child: Column(
@@ -171,7 +171,7 @@ class AcademicExamAppealsPanel extends StatefulWidget {
     this.onBookingConfirmed,
   });
 
-  static const blueSurface = Color(0xFFEEFDFF);
+  static const blueSurface = AppColors.colorPrimaryLight;
 
   final List<AcademicExamAppealMonthData> months;
   final AcademicExamAppealMonthData? selectedMonth;
@@ -206,16 +206,16 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
   }
 
   List<AcademicExamAppealData> _filteredAppeals(
-      AcademicExamAppealMonthData selectedMonth,
-      ) {
+    AcademicExamAppealMonthData selectedMonth,
+  ) {
     final showBooked = widget.selectedStatus == 0;
     return widget.appeals
         .where(
           (a) =>
-      a.month == selectedMonth.month &&
-          a.date.year == selectedMonth.year &&
-          a.isBooked == showBooked,
-    )
+              a.month == selectedMonth.month &&
+              a.date.year == selectedMonth.year &&
+              a.isBooked == showBooked,
+        )
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
   }
@@ -241,7 +241,7 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
   Widget build(BuildContext context) {
     final effectiveSelectedMonth =
         widget.selectedMonth ??
-            (widget.months.isNotEmpty ? widget.months.first : null);
+        (widget.months.isNotEmpty ? widget.months.first : null);
 
     final allAppeals = effectiveSelectedMonth == null
         ? <AcademicExamAppealData>[]
@@ -271,14 +271,14 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
       behavior: HitTestBehavior.opaque,
       onHorizontalDragEnd: showPagination
           ? (details) {
-        const threshold = 80.0;
-        final vx = details.primaryVelocity ?? 0;
-        if (vx < -threshold && _currentPage < totalPages) {
-          _goToPage(_currentPage + 1, direction: 1);
-        } else if (vx > threshold && _currentPage > 1) {
-          _goToPage(_currentPage - 1, direction: -1);
-        }
-      }
+              const threshold = 80.0;
+              final vx = details.primaryVelocity ?? 0;
+              if (vx < -threshold && _currentPage < totalPages) {
+                _goToPage(_currentPage + 1, direction: 1);
+              } else if (vx > threshold && _currentPage > 1) {
+                _goToPage(_currentPage - 1, direction: -1);
+              }
+            }
           : null,
       child: AnimatedSize(
         duration: const Duration(milliseconds: 260),
@@ -287,7 +287,7 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
         child: Container(
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 14),
           decoration: BoxDecoration(
-            color: AcademicExamAppealsPanel.blueSurface,
+            color: AcademicExamAppealsPanel.blueSurface.withValues(alpha: 0.28),
             borderRadius: BorderRadius.circular(19),
           ),
           child: Column(
@@ -302,8 +302,7 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
                   size: TabSize.sm,
                   fullWidth: widget.months.length <= 3,
                   onTabChange: (id) {
-                    final month =
-                    widget.months.firstWhere((m) => m.id == id);
+                    final month = widget.months.firstWhere((m) => m.id == id);
                     widget.onMonthChanged(month);
                   },
                 ),
@@ -358,10 +357,8 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
                   showInfo: false,
                   showFirstLast: false,
                   showJumpToPage: false,
-                  onPageChange: (page) => _goToPage(
-                    page,
-                    direction: page > _currentPage ? 1 : -1,
-                  ),
+                  onPageChange: (page) =>
+                      _goToPage(page, direction: page > _currentPage ? 1 : -1),
                 ),
               ],
             ],
@@ -418,10 +415,7 @@ class _BookingConfirmModal extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomTextWidget(
-              text: 'Prenota esame',
-              variant: TextVariant.h5,
-            ),
+            CustomTextWidget(text: 'Prenota esame', variant: TextVariant.h5),
             const SizedBox(height: 4),
             CustomTextWidget(
               text: appeal.examName,
@@ -442,13 +436,15 @@ class _BookingConfirmModal extends ConsumerWidget {
                   variant: ButtonVariant.ghost,
                   onPressed: () {
                     onDismiss();
-                    ref.read(toastServiceProvider.notifier).warning(
-                      'Prenotazione annullata',
-                      options: const ToastOptions(
-                        title: 'Nessuna prenotazione',
-                        position: ToastPosition.topCenter,
-                      ),
-                    );
+                    ref
+                        .read(toastServiceProvider.notifier)
+                        .warning(
+                          'Prenotazione annullata',
+                          options: const ToastOptions(
+                            title: 'Nessuna prenotazione',
+                            position: ToastPosition.topCenter,
+                          ),
+                        );
                   },
                 ),
                 const SizedBox(width: 8),
@@ -457,13 +453,15 @@ class _BookingConfirmModal extends ConsumerWidget {
                   variant: ButtonVariant.primary,
                   onPressed: () {
                     onConfirm();
-                    ref.read(toastServiceProvider.notifier).success(
-                      '${appeal.examName} prenotato con successo',
-                      options: const ToastOptions(
-                        title: 'Prenotazione confermata',
-                        position: ToastPosition.topCenter,
-                      ),
-                    );
+                    ref
+                        .read(toastServiceProvider.notifier)
+                        .success(
+                          '${appeal.examName} prenotato con successo',
+                          options: const ToastOptions(
+                            title: 'Prenotazione confermata',
+                            position: ToastPosition.topCenter,
+                          ),
+                        );
                   },
                 ),
               ],
@@ -609,11 +607,7 @@ class AcademicExamCourseTile extends StatelessWidget {
 }
 
 class AcademicExamAppealTile extends StatelessWidget {
-  const AcademicExamAppealTile({
-    super.key,
-    required this.appeal,
-    this.onBook,
-  });
+  const AcademicExamAppealTile({super.key, required this.appeal, this.onBook});
 
   final AcademicExamAppealData appeal;
 
@@ -644,7 +638,7 @@ class AcademicExamAppealTile extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: isDisabled
-                ? const Color(0xFFE8EAED)
+                ? AppColors.colorNeutral200
                 : AppColors.background.withValues(alpha: 0.82),
             borderRadius: BorderRadius.circular(13),
             border: Border.all(
@@ -661,14 +655,14 @@ class AcademicExamAppealTile extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isDisabled
                       ? AppColors.textPrimary.withValues(alpha: 0.10)
-                      : const Color(0xFFBFDCEB),
+                      : AppColors.colorPrimaryLight.withValues(alpha: 0.72),
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: Icon(
                   LucideIcons.calendarDays,
                   color: isDisabled
                       ? AppColors.textPrimary.withValues(alpha: 0.46)
-                      : const Color(0xFF5B93AE),
+                      : AppColors.colorPrimaryDark,
                   size: 20,
                 ),
               ),
@@ -706,7 +700,9 @@ class AcademicExamAppealTile extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           CustomButtonWidget(
-                            label: appeal.isBookable ? 'Prenotabile' : 'Non prenotabile',
+                            label: appeal.isBookable
+                                ? 'Prenotabile'
+                                : 'Non prenotabile',
                             variant: appeal.isBookable
                                 ? ButtonVariant.primary
                                 : ButtonVariant.ghost,
@@ -798,8 +794,8 @@ class _ExamGradeBox extends StatelessWidget {
       child: _GradeSurface(
         label: label,
         textColor: AppColors.textPrimary,
-        backgroundColor: const Color(0xFFF7F7F3),
-        borderColor: AppColors.cta.withValues(alpha: 0.13),
+        backgroundColor: AppColors.colorNeutral100,
+        borderColor: AppColors.colorWarningLight.withValues(alpha: 0.36),
         showChevron: true,
       ),
     );
@@ -901,7 +897,7 @@ class _EmptyAppealsTile extends StatelessWidget {
         title: 'Nessun appello disponibile',
         shadow: CardShadow.none,
         bordered: false,
-      )
+      ),
     );
   }
 }

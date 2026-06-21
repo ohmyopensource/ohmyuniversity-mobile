@@ -133,12 +133,20 @@ class MockTuitionFeeData {
     required this.title,
     required this.amount,
     required this.isPaid,
+    this.academicYear,
+    this.referenceDate,
+    this.isOverdue = false,
+    this.receiptAvailable = false,
   });
 
   final String id;
   final String title;
   final double amount;
   final bool isPaid;
+  final String? academicYear;
+  final DateTime? referenceDate;
+  final bool isOverdue;
+  final bool receiptAvailable;
 }
 
 class MockAverageTrendPointData {
@@ -811,12 +819,50 @@ abstract final class AppMockData {
   ];
 
   // Mock data used by Home dashboard tuition widgets.
-  static const tuitionFees = [
+  static final List<MockTuitionFeeData> tuitionFees = [
     MockTuitionFeeData(
-      id: 'regional-tax',
-      title: 'Tassa Regionale',
-      amount: 150,
+      id: 'first-installment-2024',
+      title: 'Prima rata',
+      amount: 450,
+      isPaid: true,
+      academicYear: 'A.A. 2024/2025',
+      referenceDate: DateTime(2024, 10, 15),
+      receiptAvailable: true,
+    ),
+    MockTuitionFeeData(
+      id: 'second-installment-2024',
+      title: 'Seconda rata',
+      amount: 380,
+      isPaid: true,
+      academicYear: 'A.A. 2024/2025',
+      referenceDate: DateTime(2025, 2, 20),
+      receiptAvailable: true,
+    ),
+    MockTuitionFeeData(
+      id: 'third-installment-2024',
+      title: 'Terza rata',
+      amount: 380,
       isPaid: false,
+      academicYear: 'A.A. 2024/2025',
+      referenceDate: DateTime(2025, 4, 30),
+      isOverdue: true,
+    ),
+    MockTuitionFeeData(
+      id: 'service-fee-2024',
+      title: 'Contributo servizi',
+      amount: 80,
+      isPaid: true,
+      academicYear: 'A.A. 2024/2025',
+      referenceDate: DateTime(2024, 10, 15),
+      receiptAvailable: true,
+    ),
+    MockTuitionFeeData(
+      id: 'first-installment-2025',
+      title: 'Prima rata',
+      amount: 450,
+      isPaid: false,
+      academicYear: 'A.A. 2025/2026',
+      referenceDate: DateTime(2025, 10, 31),
     ),
   ];
 

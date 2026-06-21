@@ -36,6 +36,7 @@ class _CalendarEventDetailSheetState
     try {
       await ref.read(deleteCalendarEventUseCaseProvider).call(widget.event.id);
       ref.invalidate(calendarEventsProvider);
+      ref.invalidate(homeCalendarEventsProvider);
 
       if (!mounted) return;
       Navigator.of(context).pop();
