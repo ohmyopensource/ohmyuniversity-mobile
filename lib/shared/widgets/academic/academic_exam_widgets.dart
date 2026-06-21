@@ -96,9 +96,12 @@ class AcademicExamsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasSemesterData = courses.any((course) => course.semester > 0);
     final visibleCourses = courses
         .where(
-          (c) => c.year == selectedYear && c.semester == selectedSemester + 1,
+          (course) =>
+              course.year == selectedYear &&
+              (!hasSemesterData || course.semester == selectedSemester + 1),
         )
         .toList();
 
@@ -166,17 +169,19 @@ class AcademicExamsPanel extends StatelessWidget {
                 fullWidth: true,
                 onTabChange: (id) => onYearChanged(int.parse(id)),
               ),
-              const SizedBox(height: 10),
-              CustomTabWidget(
-                key: const Key('home-exams-semester-tabs'),
-                tabs: semesterTabs,
-                activeTab: '$selectedSemester',
-                tabStyle: TabStyle.pill,
-                variant: TabVariant.primary,
-                size: TabSize.sm,
-                fullWidth: true,
-                onTabChange: (id) => onSemesterChanged(int.parse(id)),
-              ),
+              if (hasSemesterData) ...[
+                const SizedBox(height: 10),
+                CustomTabWidget(
+                  key: const Key('home-exams-semester-tabs'),
+                  tabs: semesterTabs,
+                  activeTab: '$selectedSemester',
+                  tabStyle: TabStyle.pill,
+                  variant: TabVariant.primary,
+                  size: TabSize.sm,
+                  fullWidth: true,
+                  onTabChange: (id) => onSemesterChanged(int.parse(id)),
+                ),
+              ],
               const SizedBox(height: 10),
               courseList,
             ],

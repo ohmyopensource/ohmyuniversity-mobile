@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../config/theme/app_colors.dart';
-import '../../../../shared/mocks/app_mock_data.dart';
 import '../../../../shared/widgets/custom_button/custom_button_widget.dart';
 import '../../../../shared/widgets/custom_card/custom_card_widget.dart';
 import '../../../../shared/widgets/custom_text/custom_text_widget.dart';
+import '../../domain/entities/tuition_fee_entity.dart';
 
 class TuitionFeeRecordTile extends StatelessWidget {
   const TuitionFeeRecordTile({
@@ -14,7 +14,7 @@ class TuitionFeeRecordTile extends StatelessWidget {
     required this.onPrimaryAction,
   });
 
-  final MockTuitionFeeData fee;
+  final TuitionFeeEntity fee;
   final VoidCallback onPrimaryAction;
 
   CardVariant get _cardVariant {
