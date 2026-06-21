@@ -9,6 +9,7 @@ import '../../features/aziende/presentation/pages/aziende_page.dart';
 import '../../features/calendario/presentation/pages/calendario_page.dart';
 import '../../features/chat/presentation/pages/chat_page.dart';
 import '../../features/didattica/presentation/pages/didattica_page.dart';
+import '../../features/didattica/presentation/pages/recommended_exam_appeals_page.dart';
 import '../../features/didattica/presentation/pages/study_plan_page.dart';
 import '../../features/didattica/presentation/pages/tuition_fees_page.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
@@ -124,6 +125,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.didatticaStudyPlan,
         name: AppRoutes.didatticaStudyPlanName,
         builder: (context, state) => const StudyPlanPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.didatticaRecommendedAppeals,
+        name: AppRoutes.didatticaRecommendedAppealsName,
+        builder: (context, state) => const RecommendedExamAppealsPage(),
       ),
       GoRoute(
         path: AppRoutes.didatticaTuitionFees,

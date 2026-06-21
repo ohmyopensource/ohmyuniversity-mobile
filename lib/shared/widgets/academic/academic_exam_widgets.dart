@@ -169,6 +169,7 @@ class AcademicExamAppealsPanel extends StatefulWidget {
     required this.onMonthChanged,
     required this.onStatusChanged,
     this.onBookingConfirmed,
+    this.showQuestionnaireAction = false,
   });
 
   static const blueSurface = AppColors.colorPrimaryLight;
@@ -179,6 +180,7 @@ class AcademicExamAppealsPanel extends StatefulWidget {
   final List<AcademicExamAppealData> appeals;
   final ValueChanged<AcademicExamAppealMonthData> onMonthChanged;
   final ValueChanged<int> onStatusChanged;
+  final bool showQuestionnaireAction;
 
   /// Called when the user confirms the booking of an appeal.
   final ValueChanged<AcademicExamAppealData>? onBookingConfirmed;
@@ -339,6 +341,7 @@ class _AcademicExamAppealsPanelState extends State<AcademicExamAppealsPanel> {
                 child: _AppealPageContent(
                   key: ValueKey(_currentPage),
                   pageAppeals: pageAppeals,
+                  showQuestionnaireAction: widget.showQuestionnaireAction,
                   onBookAppeal: widget.onBookingConfirmed != null
                       ? (appeal) => _showBookingModal(context, appeal)
                       : null,
@@ -479,10 +482,12 @@ class _AppealPageContent extends StatelessWidget {
   const _AppealPageContent({
     super.key,
     required this.pageAppeals,
+    required this.showQuestionnaireAction,
     this.onBookAppeal,
   });
 
   final List<AcademicExamAppealData> pageAppeals;
+  final bool showQuestionnaireAction;
   final ValueChanged<AcademicExamAppealData>? onBookAppeal;
 
   @override
@@ -495,6 +500,7 @@ class _AppealPageContent extends StatelessWidget {
         for (var i = 0; i < pageAppeals.length; i++) ...[
           AcademicExamAppealTile(
             appeal: pageAppeals[i],
+            showQuestionnaireAction: showQuestionnaireAction,
             onBook: onBookAppeal != null
                 ? () => onBookAppeal!(pageAppeals[i])
                 : null,
@@ -606,18 +612,44 @@ class AcademicExamCourseTile extends StatelessWidget {
   }
 }
 
-class AcademicExamAppealTile extends StatelessWidget {
-  const AcademicExamAppealTile({super.key, required this.appeal, this.onBook});
+class AcademicExamAppealTile extends ConsumerStatefulWidget {
+  const AcademicExamAppealTile({
+    super.key,
+    required this.appeal,
+    this.onBook,
+    this.showQuestionnaireAction = false,
+  });
 
   final AcademicExamAppealData appeal;
+  final bool showQuestionnaireAction;
 
   /// Callback triggered when the user taps "Prenotabile".
   /// Null means no booking action is wired up.
   final VoidCallback? onBook;
 
   @override
+  ConsumerState<AcademicExamAppealTile> createState() =>
+      _AcademicExamAppealTileState();
+}
+
+class _AcademicExamAppealTileState
+    extends ConsumerState<AcademicExamAppealTile> {
+  void _showQuestionnaireAlert() {
+    ref
+        .read(toastServiceProvider.notifier)
+        .info(
+          'Questionari disponibili prossimamente',
+          options: const ToastOptions(
+            title: 'Questionari',
+            position: ToastPosition.topCenter,
+          ),
+        );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final appeal = widget.appeal;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -708,8 +740,15 @@ class AcademicExamAppealTile extends StatelessWidget {
                                 : ButtonVariant.ghost,
                             size: ButtonSize.sm,
                             disabled: !appeal.isBookable,
-                            onPressed: appeal.isBookable ? onBook : null,
+                            onPressed: appeal.isBookable ? widget.onBook : null,
                           ),
+                          if (widget.showQuestionnaireAction &&
+                              appeal.isBookable) ...[
+                            const SizedBox(width: 7),
+                            _QuestionnaireIconButton(
+                              onTap: _showQuestionnaireAlert,
+                            ),
+                          ],
                         ],
                       ),
                     ],
@@ -733,6 +772,39 @@ class AcademicExamAppealTile extends StatelessWidget {
     final month = appeal.date.month.toString().padLeft(2, '0');
     final room = appeal.room == null ? '' : ' - ${appeal.room}';
     return '$day/$month$room';
+  }
+}
+
+class _QuestionnaireIconButton extends StatelessWidget {
+  const _QuestionnaireIconButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Ink(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: AppColors.colorWarningLight.withValues(alpha: 0.72),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: AppColors.colorWarningDark.withValues(alpha: 0.18),
+            ),
+          ),
+          child: const Icon(
+            LucideIcons.clipboardList,
+            size: 17,
+            color: AppColors.colorWarningText,
+          ),
+        ),
+      ),
+    );
   }
 }
 

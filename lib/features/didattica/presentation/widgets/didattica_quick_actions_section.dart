@@ -11,21 +11,23 @@ class DidatticaQuickActionsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: const [
+      children: [
         _DidatticaActionButton(
+          title: 'Piano appelli',
+          icon: LucideIcons.clipboardCheck,
+          routeName: AppRoutes.didatticaRecommendedAppealsName,
+          accentColor: AppColors.colorPrimaryDark,
+          accentBackgroundColor: AppColors.colorPrimaryLight.withValues(
+            alpha: 0.36,
+          ),
+        ),
+        const SizedBox(height: 12),
+        const _DidatticaActionButton(
           title: 'Piano di studio',
           icon: LucideIcons.calendarDays,
           routeName: AppRoutes.didatticaStudyPlanName,
           accentColor: Color(0xFFE9942F),
           accentBackgroundColor: Color(0xFFFFF1E6),
-        ),
-        SizedBox(height: 10),
-        _DidatticaActionButton(
-          title: 'Tasse da pagare',
-          icon: LucideIcons.creditCard,
-          routeName: AppRoutes.didatticaTuitionFeesName,
-          accentColor: Color(0xFF14185E),
-          accentBackgroundColor: Color(0xFFE7FBFF),
         ),
       ],
     );
