@@ -98,6 +98,12 @@ void main() {
     );
     expect(indicator.scale, 1);
     expect(container.read(careerStatisticsProvider).hasSimulation, isTrue);
+    final indicatorCenter = tester.getCenter(
+      find.byKey(const Key('simulation-mode-indicator')),
+    );
+    final screenCenter =
+        tester.view.physicalSize.width / tester.view.devicePixelRatio / 2;
+    expect(indicatorCenter.dx, closeTo(screenCenter, 1));
 
     container.read(careerProvider.notifier).clearSimulations();
     await tester.pump(const Duration(milliseconds: 250));
@@ -106,6 +112,48 @@ void main() {
       find.byKey(const Key('simulation-mode-indicator')),
     );
     expect(indicator.scale, 0);
+  });
+
+  testWidgets('selects a simulated grade with the scrolling wheel', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    const courseId = 'exam-1-1-2';
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: CareerOverviewView())),
+      ),
+    );
+    await tester.pump();
+
+    final simulateButton = find.byKey(const Key('simulate-$courseId'));
+    await tester.scrollUntilVisible(
+      simulateButton,
+      500,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(simulateButton);
+    await tester.pump();
+    await tester.tap(simulateButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('grade-wheel-picker')), findsOneWidget);
+    expect(find.byKey(const Key('simulation-grade-18')), findsNothing);
+
+    expect(find.byKey(const Key('confirm-simulated-grade')), findsNothing);
+    await tester.tap(find.byKey(const Key('grade-wheel-value-18')));
+    await tester.pumpAndSettle();
+
+    expect(container.read(careerProvider).simulatedGrades[courseId], '18');
+    expect(tester.takeException(), isNull);
   });
 
   test('combines year and status filters', () {

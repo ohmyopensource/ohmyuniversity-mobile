@@ -529,7 +529,10 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
           Icon(LucideIcons.circleCheck, size: _iconSize, color: colors.text),
           if (!widget.iconOnly && _displayLabel.isNotEmpty) ...[
             const SizedBox(width: 8),
-            _buildLabel(colors),
+            if (widget.fullWidth)
+              Flexible(child: _buildLabel(colors))
+            else
+              _buildLabel(colors),
           ],
         ],
       );
@@ -548,7 +551,13 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
       if (_displayLabel.isNotEmpty) children.add(const SizedBox(width: 8));
     }
 
-    if (_displayLabel.isNotEmpty) children.add(_buildLabel(colors));
+    if (_displayLabel.isNotEmpty) {
+      children.add(
+        widget.fullWidth
+            ? Flexible(child: _buildLabel(colors))
+            : _buildLabel(colors),
+      );
+    }
 
     if (widget.icon != null &&
         widget.iconPosition == ButtonIconPosition.right) {
