@@ -45,15 +45,24 @@ class AppealsController extends Notifier<AppealsState> {
 final appealsControllerProvider =
     NotifierProvider<AppealsController, AppealsState>(AppealsController.new);
 
+final allExamBookingsProvider = Provider<List<ExamBookingEntity>>((ref) {
+  final state = ref.watch(appealsControllerProvider);
+  return examBookingsMockData
+      .map(
+        (exam) => state.bookedIds.contains(exam.id)
+            ? exam.copyWith(status: ExamBookingStatus.booked)
+            : exam,
+      )
+      .toList(growable: false);
+});
+
 final visibleExamBookingsProvider = Provider<List<ExamBookingEntity>>((ref) {
   final state = ref.watch(appealsControllerProvider);
   final query = state.searchQuery.trim().toLowerCase();
 
-  return examBookingsMockData
-      .where((sourceExam) {
-        final exam = state.bookedIds.contains(sourceExam.id)
-            ? sourceExam.copyWith(status: ExamBookingStatus.booked)
-            : sourceExam;
+  return ref
+      .watch(allExamBookingsProvider)
+      .where((exam) {
         final matchesFilter = switch (state.filter) {
           AppealsFilter.all => true,
           AppealsFilter.available =>
@@ -67,11 +76,6 @@ final visibleExamBookingsProvider = Provider<List<ExamBookingEntity>>((ref) {
             exam.professor.toLowerCase().contains(query) ||
             exam.location.toLowerCase().contains(query);
         return matchesFilter && matchesSearch;
-      })
-      .map((exam) {
-        return state.bookedIds.contains(exam.id)
-            ? exam.copyWith(status: ExamBookingStatus.booked)
-            : exam;
       })
       .toList(growable: false);
 });

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../config/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_badge/custom_badge_widget.dart';
 import '../../../../shared/widgets/custom_button/custom_button_widget.dart';
-import '../../../../shared/widgets/custom_toast/custom_toast_service.dart';
 import '../../domain/entities/didattica_course_type.dart';
 import '../../domain/entities/didattica_exam_course_entity.dart';
 
@@ -22,13 +20,13 @@ Future<void> showCourseDetailsSheet({
   );
 }
 
-class _CourseDetailsSheet extends ConsumerWidget {
+class _CourseDetailsSheet extends StatelessWidget {
   const _CourseDetailsSheet({required this.course});
 
   final DidatticaExamCourseEntity course;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.86,
@@ -108,22 +106,6 @@ class _CourseDetailsSheet extends ConsumerWidget {
                   if (course.cfuBreakdown.isNotEmpty) ...[
                     const SizedBox(height: 22),
                     _CfuProgram(course: course),
-                  ],
-                  if (!course.passed &&
-                      course.courseType == DidatticaCourseType.mandatory) ...[
-                    const SizedBox(height: 22),
-                    CustomButtonWidget(
-                      label: 'Vai alle prenotazioni',
-                      icon: LucideIcons.calendarClock,
-                      fullWidth: true,
-                      onPressed: () {
-                        ref
-                            .read(toastServiceProvider.notifier)
-                            .info(
-                              'Apri la tab Appelli per consultare le prenotazioni.',
-                            );
-                      },
-                    ),
                   ],
                 ],
               ),

@@ -35,6 +35,21 @@ abstract final class AcademicSummaryTiles {
       ],
     );
   }
+
+  static BoxDecoration whiteTileDecoration({required double alpha}) {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(17),
+      border: Border.all(color: AppColors.colorNeutral200),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: alpha),
+          blurRadius: 10,
+          offset: const Offset(0, 5),
+        ),
+      ],
+    );
+  }
 }
 
 enum CareerMetricTrend { up, down }
@@ -157,6 +172,7 @@ class CareerMetricTile extends StatelessWidget {
     this.progressCaption,
     this.showTrendBadge = false,
     this.trend = CareerMetricTrend.up,
+    this.whiteSurface = false,
   });
 
   final String label;
@@ -167,6 +183,7 @@ class CareerMetricTile extends StatelessWidget {
   final String? progressCaption;
   final bool showTrendBadge;
   final CareerMetricTrend trend;
+  final bool whiteSurface;
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +194,10 @@ class CareerMetricTile extends StatelessWidget {
         horizontal: isWide ? 14 : 9,
         vertical: isWide ? 12 : 10,
       ),
-      decoration: _summaryTileDecoration(alpha: isWide ? 0.06 : 0.06),
+      decoration: _summaryTileDecoration(
+        alpha: .06,
+        whiteSurface: whiteSurface,
+      ),
       child: isWide
           ? Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -291,12 +311,14 @@ class CareerAveragePairTile extends StatelessWidget {
     required this.weightedAverage,
     this.arithmeticTrend = CareerMetricTrend.up,
     this.weightedTrend = CareerMetricTrend.down,
+    this.whiteSurface = false,
   });
 
   final String arithmeticAverage;
   final String weightedAverage;
   final CareerMetricTrend arithmeticTrend;
   final CareerMetricTrend weightedTrend;
+  final bool whiteSurface;
 
   @override
   Widget build(BuildContext context) {
@@ -304,7 +326,10 @@ class CareerAveragePairTile extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: _summaryTileDecoration(alpha: 0.06),
+      decoration: _summaryTileDecoration(
+        alpha: .06,
+        whiteSurface: whiteSurface,
+      ),
       child: Row(
         children: [
           Expanded(
@@ -390,11 +415,16 @@ class _MetricValue extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 74),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.58),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: AppColors.colorWarningDark.withValues(alpha: 0.45),
-        ),
+        border: Border.all(color: AppColors.colorNeutral200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: .07),
+            blurRadius: 7,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -630,6 +660,11 @@ class _MockQrPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-BoxDecoration _summaryTileDecoration({required double alpha}) {
-  return AcademicSummaryTiles.tileDecoration(alpha: alpha);
+BoxDecoration _summaryTileDecoration({
+  required double alpha,
+  bool whiteSurface = false,
+}) {
+  return whiteSurface
+      ? AcademicSummaryTiles.whiteTileDecoration(alpha: alpha)
+      : AcademicSummaryTiles.tileDecoration(alpha: alpha);
 }

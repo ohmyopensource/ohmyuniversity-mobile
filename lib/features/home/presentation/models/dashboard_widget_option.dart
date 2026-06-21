@@ -102,20 +102,20 @@ abstract final class DashboardWidgetOptions {
 
   static const acquiredCredits = DashboardWidgetOption(
     key: 'acquired_credits',
-    title: 'CFU acquisiti',
-    subtitle: 'Formato largo home',
+    title: 'Avanzamento percorso',
+    subtitle: 'CFU acquisiti sul totale',
     icon: LucideIcons.graduationCap,
     accentColor: AppColors.colorWarningDark,
     accentBackgroundColor: AppColors.colorWarningLight,
     columnSpan: 10,
-    rowSpan: 3,
-    size: Size(304, 98),
+    rowSpan: 4,
+    size: Size(304, 116),
   );
 
   static const acquiredCreditsCompact = DashboardWidgetOption(
     key: 'acquired_credits_compact',
-    title: 'CFU acquisiti compatto',
-    subtitle: 'Formato card didattica',
+    title: 'Avanzamento compatto',
+    subtitle: 'CFU acquisiti sul totale',
     icon: LucideIcons.graduationCap,
     accentColor: AppColors.colorWarningDark,
     accentBackgroundColor: AppColors.colorWarningLight,
@@ -126,7 +126,7 @@ abstract final class DashboardWidgetOptions {
 
   static const graduationProjection = DashboardWidgetOption(
     key: 'graduation_projection',
-    title: 'Proiezione voto',
+    title: 'Proiezione di laurea',
     subtitle: 'Voto finale proiettato',
     icon: LucideIcons.trendingUp,
     accentColor: AppColors.colorSuccessDark,
@@ -138,14 +138,50 @@ abstract final class DashboardWidgetOptions {
 
   static const averageTrend = DashboardWidgetOption(
     key: 'average_trend',
-    title: 'Andamento media',
-    subtitle: 'Storico della media',
+    title: 'Storico media ponderata',
+    subtitle: 'Andamento della media',
     icon: LucideIcons.lineChart,
     accentColor: AppColors.colorWarningDark,
     accentBackgroundColor: AppColors.colorWarningLight,
     columnSpan: 10,
-    rowSpan: 6,
-    size: Size(304, 184),
+    rowSpan: 7,
+    size: Size(304, 210),
+  );
+
+  static const graduationBase = DashboardWidgetOption(
+    key: 'graduation_base',
+    title: 'Base di laurea',
+    subtitle: 'Conversione su 110',
+    icon: LucideIcons.graduationCap,
+    accentColor: AppColors.colorSuccessDark,
+    accentBackgroundColor: AppColors.colorSuccessLight,
+    columnSpan: 3,
+    rowSpan: 3,
+    size: Size(96, 98),
+  );
+
+  static const honors = DashboardWidgetOption(
+    key: 'honors',
+    title: 'Lodi ottenute',
+    subtitle: 'Totale lodi in carriera',
+    icon: LucideIcons.sparkles,
+    accentColor: AppColors.colorWarningDark,
+    accentBackgroundColor: AppColors.colorWarningLight,
+    columnSpan: 3,
+    rowSpan: 3,
+    size: Size(96, 98),
+  );
+
+  static const gradeHistory = DashboardWidgetOption(
+    key: 'grade_history',
+    title: 'Storico voti',
+    subtitle: 'Andamento degli esami',
+    icon: LucideIcons.chartNoAxesCombined,
+    accentColor: AppColors.colorPrimaryDark,
+    accentBackgroundColor: AppColors.colorPrimaryLight,
+    columnSpan: 10,
+    rowSpan: 7,
+    size: Size(304, 210),
   );
 
   static const exams = DashboardWidgetOption(
@@ -205,6 +241,9 @@ abstract final class DashboardWidgetOptions {
     acquiredCredits,
     acquiredCreditsCompact,
     graduationProjection,
+    graduationBase,
+    honors,
+    gradeHistory,
     averageTrend,
     exams,
     appeals,
