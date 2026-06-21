@@ -7,6 +7,8 @@ import '../../config/routes/app_routes.dart';
 import '../../config/theme/app_colors.dart';
 import '../../core/usecases/usecase.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/profile/domain/entities/student_badge_entity.dart';
+import '../../features/profile/presentation/providers/student_badge_providers.dart';
 import '../mocks/app_mock_data.dart';
 import '../widgets/avatar_profile_panel/avatar_profile_panel_widget.dart';
 
@@ -18,14 +20,20 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(78);
 
-  static AccountEntry _toAccountEntry(MockAccountData account) {
+  static AccountEntry _toAccountEntry(
+    MockAccountData account,
+    StudentBadgeEntity? badge,
+  ) {
+    final useBadge = account.isCurrent && badge != null;
     return AccountEntry(
       id: account.id,
-      name: account.name,
-      email: account.email,
-      courseLabel: account.courseLabel,
-      universityLabel: account.universityLabel,
-      courseAcronym: account.courseAcronym,
+      name: useBadge ? badge.fullName : account.name,
+      email: useBadge ? 'Matricola ${badge.studentNumber}' : account.email,
+      courseLabel: useBadge ? badge.courseName : account.courseLabel,
+      universityLabel: useBadge
+          ? badge.universityName
+          : account.universityLabel,
+      courseAcronym: useBadge ? badge.courseCode : account.courseAcronym,
       status: _toAccountStatus(account.status),
       isCurrent: account.isCurrent,
     );
@@ -43,6 +51,8 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final badge = ref.watch(studentBadgeProvider).value;
+
     return Material(
       color: AppColors.secondary.withValues(alpha: 0.38),
       child: SafeArea(
@@ -66,7 +76,7 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
                 children: [
                   AvatarProfilePanelWidget(
                     accounts: AppMockData.topBarAccounts
-                        .map(_toAccountEntry)
+                        .map((account) => _toAccountEntry(account, badge))
                         .toList(growable: false),
                     position: PanelPosition.right,
                     animation: PanelAnimation.ios,

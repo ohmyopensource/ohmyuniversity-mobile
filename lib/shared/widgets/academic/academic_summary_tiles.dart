@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../config/theme/app_colors.dart';
-import '../../mocks/app_mock_data.dart';
 import '../../../shared/widgets/custom_badge/custom_badge_widget.dart';
 
 abstract final class AcademicSummaryTiles {
@@ -54,8 +53,34 @@ abstract final class AcademicSummaryTiles {
 
 enum CareerMetricTrend { up, down }
 
+class StudentIdentityData {
+  const StudentIdentityData({
+    required this.fullName,
+    required this.studentNumber,
+    required this.universityName,
+    required this.courseName,
+    required this.badgeId,
+    required this.rfid,
+    required this.honorsCount,
+    required this.passedExamCount,
+    required this.pendingExamCount,
+  });
+
+  final String fullName;
+  final String studentNumber;
+  final String universityName;
+  final String courseName;
+  final String badgeId;
+  final String rfid;
+  final int honorsCount;
+  final int passedExamCount;
+  final int pendingExamCount;
+}
+
 class StudentIdentityTile extends StatefulWidget {
-  const StudentIdentityTile({super.key});
+  const StudentIdentityTile({super.key, required this.data});
+
+  final StudentIdentityData data;
 
   @override
   State<StudentIdentityTile> createState() => _StudentIdentityTileState();
@@ -87,8 +112,8 @@ class _StudentIdentityTileState extends State<StudentIdentityTile> {
               ..setEntry(3, 2, 0.0014)
               ..rotateY(displayAngle),
             child: showBack
-                ? const _StudentBadgeBack()
-                : const _StudentIdentityFront(),
+                ? _StudentBadgeBack(data: widget.data)
+                : _StudentIdentityFront(data: widget.data),
           );
         },
       ),
@@ -451,7 +476,9 @@ class _MetricValue extends StatelessWidget {
 }
 
 class _StudentIdentityFront extends StatelessWidget {
-  const _StudentIdentityFront();
+  const _StudentIdentityFront({required this.data});
+
+  final StudentIdentityData data;
 
   @override
   Widget build(BuildContext context) {
@@ -461,7 +488,7 @@ class _StudentIdentityFront extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            AppMockData.student.fullName,
+            data.fullName,
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -473,7 +500,7 @@ class _StudentIdentityFront extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Text(
-            AppMockData.student.studentId,
+            data.studentNumber,
             style: theme.textTheme.labelLarge?.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w900,
@@ -492,7 +519,7 @@ class _StudentIdentityFront extends StatelessWidget {
           const SizedBox(height: 5),
           // Honors badge.
           CustomBadgeWidget(
-            label: '${AppMockData.student.honorsCount}',
+            label: '${data.honorsCount}',
             icon: LucideIcons.award,
             variant: BadgeVariant.primary,
             size: BadgeSize.xs,
@@ -510,7 +537,7 @@ class _StudentIdentityFront extends StatelessWidget {
           const SizedBox(height: 5),
           // Passed exams badge.
           CustomBadgeWidget(
-            label: '${AppMockData.student.passedExamCount}',
+            label: '${data.passedExamCount}',
             icon: LucideIcons.checkCircle,
             variant: BadgeVariant.success,
             size: BadgeSize.xs,
@@ -519,7 +546,7 @@ class _StudentIdentityFront extends StatelessWidget {
           const SizedBox(height: 6),
           // Failed exams badge.
           CustomBadgeWidget(
-            label: '${AppMockData.student.failedExamCount}',
+            label: '${data.pendingExamCount}',
             icon: LucideIcons.xCircle,
             variant: BadgeVariant.neutral,
             size: BadgeSize.xs,
@@ -532,7 +559,9 @@ class _StudentIdentityFront extends StatelessWidget {
 }
 
 class _StudentBadgeBack extends StatelessWidget {
-  const _StudentBadgeBack();
+  const _StudentBadgeBack({required this.data});
+
+  final StudentIdentityData data;
 
   @override
   Widget build(BuildContext context) {
@@ -543,7 +572,7 @@ class _StudentBadgeBack extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            AppMockData.student.fullName,
+            data.fullName,
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -555,7 +584,7 @@ class _StudentBadgeBack extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Text(
-            AppMockData.student.universityName,
+            data.universityName,
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -578,11 +607,15 @@ class _StudentBadgeBack extends StatelessWidget {
                 color: AppColors.textPrimary.withValues(alpha: 0.12),
               ),
             ),
-            child: const CustomPaint(painter: _MockQrPainter()),
+            child: const Icon(
+              LucideIcons.scanLine,
+              size: 48,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(height: 10),
           Text(
-            AppMockData.student.badgeIdLabel,
+            data.rfid.isNotEmpty ? 'RFID ${data.rfid}' : data.badgeId,
             style: theme.textTheme.labelSmall?.copyWith(
               color: AppColors.textPrimary.withValues(alpha: 0.68),
               fontWeight: FontWeight.w900,
@@ -609,55 +642,6 @@ class _StudentTileSurface extends StatelessWidget {
       child: child,
     );
   }
-}
-
-class _MockQrPainter extends CustomPainter {
-  const _MockQrPainter();
-
-  static const _modules = 21;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final moduleSize = size.shortestSide / _modules;
-    final darkPaint = Paint()..color = AppColors.textPrimary;
-
-    void drawModule(int x, int y) {
-      canvas.drawRect(
-        Rect.fromLTWH(x * moduleSize, y * moduleSize, moduleSize, moduleSize),
-        darkPaint,
-      );
-    }
-
-    void drawFinder(int startX, int startY) {
-      for (var y = 0; y < 7; y++) {
-        for (var x = 0; x < 7; x++) {
-          final isOuter = x == 0 || y == 0 || x == 6 || y == 6;
-          final isInner = x >= 2 && x <= 4 && y >= 2 && y <= 4;
-          if (isOuter || isInner) drawModule(startX + x, startY + y);
-        }
-      }
-    }
-
-    drawFinder(0, 0);
-    drawFinder(14, 0);
-    drawFinder(0, 14);
-
-    for (var y = 0; y < _modules; y++) {
-      for (var x = 0; x < _modules; x++) {
-        final inTopLeft = x < 8 && y < 8;
-        final inTopRight = x > 12 && y < 8;
-        final inBottomLeft = x < 8 && y > 12;
-        if (inTopLeft || inTopRight || inBottomLeft) continue;
-
-        final shouldDraw =
-            (x * 7 + y * 11 + x * y) % 5 == 0 || (x + y * 3) % 11 == 0;
-        if (shouldDraw) drawModule(x, y);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 BoxDecoration _summaryTileDecoration({

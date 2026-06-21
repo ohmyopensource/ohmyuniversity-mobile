@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../config/theme/app_colors.dart';
-import '../../../../../shared/mocks/app_mock_data.dart';
+import '../../../../profile/presentation/providers/student_badge_providers.dart';
 
-class HomeAcademicInfoCard extends StatelessWidget {
+class HomeAcademicInfoCard extends ConsumerWidget {
   const HomeAcademicInfoCard({super.key, this.onTap});
 
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final academicInfo = AppMockData.academicInfo;
+    final badge = ref.watch(studentBadgeProvider).value;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -39,7 +40,7 @@ class HomeAcademicInfoCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              academicInfo.universityName,
+              badge?.universityName ?? 'Dati accademici',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.labelSmall?.copyWith(
@@ -54,19 +55,19 @@ class HomeAcademicInfoCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _AcademicInfoValue(
-                    text: academicInfo.courseName,
+                    text: _valueOrDash(badge?.courseName),
                     textAlign: TextAlign.left,
                   ),
                 ),
                 Expanded(
                   child: _AcademicInfoValue(
-                    text: academicInfo.degreeName,
+                    text: _valueOrDash(badge?.facultyName),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 Expanded(
                   child: _AcademicInfoValue(
-                    text: academicInfo.academicYear,
+                    text: _valueOrDash(badge?.academicYear),
                     textAlign: TextAlign.right,
                   ),
                 ),
@@ -76,6 +77,10 @@ class HomeAcademicInfoCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _valueOrDash(String? value) {
+    return value == null || value.trim().isEmpty ? '-' : value;
   }
 }
 

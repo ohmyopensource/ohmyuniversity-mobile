@@ -12,6 +12,8 @@ import '../../../../calendario/presentation/providers/calendar_providers.dart';
 import '../../../../didattica/presentation/providers/appeals_controller.dart';
 import '../../../../didattica/presentation/providers/career_provider.dart';
 import '../../../../didattica/presentation/providers/tuition_providers.dart';
+import '../../../../profile/presentation/mappers/student_identity_mapper.dart';
+import '../../../../profile/presentation/providers/student_badge_providers.dart';
 import '../../../../didattica/domain/entities/tuition_fee_entity.dart';
 import '../../../../didattica/domain/entities/didattica_exam_course_entity.dart';
 import '../../models/dashboard_widget_option.dart';
@@ -31,10 +33,13 @@ class DashboardWidgetContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (option.key == 'student') {
+      return const _StudentIdentityContent();
+    }
+
     final statistics = ref.watch(careerStatisticsProvider);
 
     return switch (option.key) {
-      'student' => const StudentIdentityTile(),
       'arithmetic_average' => CareerMetricTile(
         label: 'Media aritmetica',
         value: statistics.arithmeticAverage.toStringAsFixed(1),
@@ -106,6 +111,25 @@ class DashboardWidgetContent extends ConsumerWidget {
         caption: option.subtitle,
       ),
     };
+  }
+}
+
+class _StudentIdentityContent extends ConsumerWidget {
+  const _StudentIdentityContent();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final statistics = ref.watch(careerStatisticsProvider);
+    final careerState = ref.watch(careerProvider);
+    final badge = ref.watch(studentBadgeProvider).value;
+    final identity = mapStudentIdentityData(
+      badge: badge,
+      statistics: statistics,
+      totalExams: careerState.courses.length,
+      passedExams: careerState.courses.where((course) => course.passed).length,
+    );
+
+    return StudentIdentityTile(data: identity);
   }
 }
 
