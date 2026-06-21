@@ -113,6 +113,36 @@ void main() {
       );
     });
 
+    testWidgets('keeps the overlay open until an option tap completes', (
+      tester,
+    ) async {
+      await _pumpLogin(tester);
+      await tester.tap(_searchFieldFinder());
+      await tester.pump();
+      await tester.enterText(_searchFieldFinder(), 'unimol');
+      await tester.pump();
+
+      final option = find.byKey(const Key('university-option-unimol'));
+      final gesture = await tester.startGesture(tester.getCenter(option));
+      await tester.pump();
+
+      expect(option, findsOneWidget);
+
+      await gesture.up();
+      await tester.pump();
+
+      expect(
+        tester
+            .widget<UniversitySearchSelect>(
+              find.byKey(const Key('university-search')),
+            )
+            .selected
+            ?.id,
+        'unimol',
+      );
+      expect(_textField(tester, 'university-email').enabled, isTrue);
+    });
+
     testWidgets('switches auth modes and reports unavailable providers', (
       tester,
     ) async {

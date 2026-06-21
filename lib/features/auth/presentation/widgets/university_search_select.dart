@@ -26,6 +26,7 @@ class _UniversitySearchSelectState extends State<UniversitySearchSelect> {
   final _controller = TextEditingController();
   final _overlayController = OverlayPortalController();
   final _layerLink = LayerLink();
+  final _tapRegionGroup = Object();
 
   String _query = '';
   bool _isOpen = false;
@@ -106,6 +107,7 @@ class _UniversitySearchSelectState extends State<UniversitySearchSelect> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) => TapRegion(
+        groupId: _tapRegionGroup,
         onTapOutside: (_) => _close(),
         child: OverlayPortal(
           controller: _overlayController,
@@ -115,12 +117,15 @@ class _UniversitySearchSelectState extends State<UniversitySearchSelect> {
             targetAnchor: Alignment.bottomLeft,
             followerAnchor: Alignment.topLeft,
             offset: const Offset(0, 6),
-            child: SizedBox(
-              width: constraints.maxWidth,
-              child: _SearchResults(
-                universities: _filtered,
-                selected: widget.selected,
-                onSelected: _select,
+            child: TapRegion(
+              groupId: _tapRegionGroup,
+              child: SizedBox(
+                width: constraints.maxWidth,
+                child: _SearchResults(
+                  universities: _filtered,
+                  selected: widget.selected,
+                  onSelected: _select,
+                ),
               ),
             ),
           ),

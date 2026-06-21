@@ -12,5 +12,12 @@ class DidatticaExamCourseModel extends DidatticaExamCourseEntity {
     super.courseType,
     super.grade,
     super.completedAt,
+    super.language,
+    super.durationHours,
+    super.attendanceMandatory,
+    super.scientificSector,
+    super.location,
+    super.prerequisites,
+    super.cfuBreakdown,
   });
 }
