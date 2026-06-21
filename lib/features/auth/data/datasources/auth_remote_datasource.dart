@@ -50,6 +50,23 @@ class AuthRemoteDataSource {
     }
   }
 
+  Future<String?> refreshAccessToken(AuthSessionModel session) async {
+    try {
+      final response = await _dio.post<String>(
+        '/v1/auth/refresh',
+        queryParameters: {
+          'refreshToken': session.refreshToken,
+          'universityId': session.activeProfile?.universityId ?? 'UNIMOL',
+        },
+      );
+      final token = response.data?.trim();
+      return token == null || token.isEmpty ? null : token;
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 401) return null;
+      throw AuthException(_messageFor(error));
+    }
+  }
+
   String _messageFor(DioException error) {
     return switch (error.response?.statusCode) {
       401 => 'Credenziali non valide.',

@@ -14,6 +14,7 @@ import '../../data/constants/login_universities.dart';
 import '../../domain/entities/login_university.dart';
 import '../../domain/exceptions/auth_exception.dart';
 import '../../domain/usecases/login_usecase.dart';
+import '../../../didattica/presentation/providers/career_data_providers.dart';
 import '../providers/auth_provider.dart';
 import 'university_search_select.dart';
 
@@ -88,6 +89,7 @@ class _UniversityLoginFormState extends ConsumerState<UniversityLoginForm> {
     FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _isLoading = true);
 
+    final password = _passwordController.text;
     try {
       await ref
           .read(loginUseCaseProvider)
@@ -97,9 +99,17 @@ class _UniversityLoginFormState extends ConsumerState<UniversityLoginForm> {
               username: _selectedUniversity!.authenticationUsername(
                 _emailController.text,
               ),
-              password: _passwordController.text,
+              password: password,
             ),
           );
+
+      try {
+        await ref.read(getExamBookingHistoryUseCaseProvider).call(password);
+      } catch (_) {
+        // The booking history is optional and must not block authentication.
+      } finally {
+        _passwordController.clear();
+      }
 
       if (!mounted) return;
       ref.read(isAuthenticatedProvider.notifier).setAuthenticated(true);

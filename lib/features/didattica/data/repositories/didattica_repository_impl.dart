@@ -1,16 +1,28 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import '../../domain/entities/career_snapshot_entity.dart';
+import '../../domain/entities/didattica_exam_course_entity.dart';
 import '../../domain/entities/didattica_statistics_entity.dart';
+import '../../domain/entities/exam_booking_entity.dart';
+import '../../domain/entities/exam_booking_history_entity.dart';
+import '../../domain/exceptions/career_data_exception.dart';
 import '../../domain/repositories/didattica_repository.dart';
 import '../../domain/services/didattica_statistics_calculator.dart';
 import '../datasources/didattica_remote_datasource.dart';
 
 class DidatticaRepositoryImpl implements DidatticaRepository {
   const DidatticaRepositoryImpl(
-    this._dataSource, [
+    this._dataSource,
+    this._storage, [
     this._calculator = const DidatticaStatisticsCalculator(),
   ]);
 
+  static const bookingHistoryCacheKey = 'exam_booking_history';
   final DidatticaRemoteDataSource _dataSource;
+  final FlutterSecureStorage _storage;
   final DidatticaStatisticsCalculator _calculator;
 
   @override
@@ -39,5 +51,159 @@ class DidatticaRepositoryImpl implements DidatticaRepository {
         hasSimulation: false,
       ),
     );
+  }
+
+  @override
+  Future<List<ExamBookingEntity>> getAvailableExamBookings({
+    required int degreeCourseId,
+    required List<ExamBookingHistoryEntity> bookingHistory,
+  }) async {
+    final bookingsByActivityId = <int, ExamBookingHistoryEntity>{};
+    for (final booking in bookingHistory) {
+      final activityId = booking.activityId;
+      if (activityId != null) {
+        bookingsByActivityId[activityId] = booking;
+      }
+    }
+
+    final appealsById = <String, ExamBookingEntity>{};
+    CareerDataException? firstError;
+    var successfulRequests = 0;
+    for (final booking in bookingsByActivityId.values) {
+      try {
+        final appeals = await _dataSource.getAvailableExamBookings(
+          degreeCourseId: degreeCourseId,
+          booking: booking,
+        );
+        successfulRequests++;
+        for (final appeal in appeals) {
+          appealsById[appeal.id] = appeal;
+        }
+      } on CareerDataException catch (error) {
+        firstError ??= error;
+      }
+    }
+
+    if (successfulRequests == 0 && firstError != null) {
+      throw firstError;
+    }
+
+    final sortedAppeals = appealsById.values.toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+    return sortedAppeals;
+  }
+
+  @override
+  Future<List<ExamBookingHistoryEntity>> getExamBookingHistory(
+    String password,
+  ) async {
+    final bookings = await _enrichBookingHistory(
+      await _dataSource.getExamBookingHistory(password),
+    );
+    await _storage.write(
+      key: bookingHistoryCacheKey,
+      value: jsonEncode({
+        'cachedAt': DateTime.now().toIso8601String(),
+        'bookings': bookings.map(_bookingToJson).toList(growable: false),
+      }),
+    );
+    return bookings;
+  }
+
+  @override
+  Future<List<ExamBookingHistoryEntity>?> getCachedExamBookingHistory() async {
+    try {
+      final value = await _storage.read(key: bookingHistoryCacheKey);
+      if (value == null || value.isEmpty) return null;
+      final json = jsonDecode(value) as Map<String, dynamic>;
+      final bookings = json['bookings'] as List<dynamic>? ?? [];
+      final decodedBookings = bookings
+          .whereType<Map<String, dynamic>>()
+          .map(_bookingFromJson)
+          .toList(growable: false);
+      return _enrichBookingHistory(decodedBookings);
+    } on FormatException {
+      await _storage.delete(key: bookingHistoryCacheKey);
+      return null;
+    } on PlatformException {
+      return null;
+    }
+  }
+
+  Map<String, dynamic> _bookingToJson(ExamBookingHistoryEntity booking) => {
+    'id': booking.id,
+    'activityId': booking.activityId,
+    'enrollmentActivityId': booking.enrollmentActivityId,
+    'courseCode': booking.courseCode,
+    'courseName': booking.courseName,
+    'bookingDate': booking.bookingDate?.toIso8601String(),
+    'examDate': booking.examDate?.toIso8601String(),
+    'credits': booking.credits,
+    'grade': booking.grade,
+    'passed': booking.passed,
+    'absent': booking.absent,
+    'withdrawn': booking.withdrawn,
+  };
+
+  ExamBookingHistoryEntity _bookingFromJson(Map<String, dynamic> json) {
+    return ExamBookingHistoryEntity(
+      id: (json['id'] as num).toInt(),
+      activityId: (json['activityId'] as num?)?.toInt(),
+      enrollmentActivityId: (json['enrollmentActivityId'] as num?)?.toInt(),
+      courseCode: json['courseCode'] as String? ?? '',
+      courseName: json['courseName'] as String? ?? '',
+      bookingDate: DateTime.tryParse(json['bookingDate'] as String? ?? ''),
+      examDate: DateTime.tryParse(json['examDate'] as String? ?? ''),
+      credits: (json['credits'] as num?)?.toDouble() ?? 0,
+      grade: (json['grade'] as num?)?.toInt(),
+      passed: json['passed'] as bool? ?? false,
+      absent: json['absent'] as bool? ?? false,
+      withdrawn: json['withdrawn'] as bool? ?? false,
+    );
+  }
+
+  Future<List<ExamBookingHistoryEntity>> _enrichBookingHistory(
+    List<ExamBookingHistoryEntity> bookings,
+  ) async {
+    final needsEnrichment = bookings.any(
+      (booking) => booking.courseName.trim().isEmpty || booking.credits <= 0,
+    );
+    if (!needsEnrichment) return bookings;
+
+    try {
+      final apiData = await _dataSource.getCareerData();
+      final courses = apiData.studyPlan.mergeTranscript(
+        apiData.transcript.courses,
+      );
+      final coursesById = <int, DidatticaExamCourseEntity>{};
+      for (final course in courses) {
+        final id = int.tryParse(course.id);
+        if (id != null) coursesById[id] = course;
+      }
+      final coursesByCode = {
+        for (final course in courses)
+          if (course.code.trim().isNotEmpty)
+            course.code.trim().toUpperCase(): course,
+      };
+
+      return bookings
+          .map((booking) {
+            final course =
+                coursesById[booking.enrollmentActivityId] ??
+                coursesByCode[booking.courseCode.trim().toUpperCase()];
+            if (course == null) return booking;
+            return booking.copyWith(
+              courseName: booking.courseName.trim().isEmpty
+                  ? course.name
+                  : booking.courseName,
+              credits: booking.credits <= 0
+                  ? course.credits.toDouble()
+                  : booking.credits,
+            );
+          })
+          .toList(growable: false);
+    } on CareerDataException {
+      return bookings;
+    }
   }
 }
