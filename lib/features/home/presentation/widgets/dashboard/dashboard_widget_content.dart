@@ -124,6 +124,7 @@ class _DashboardExamsWidgetState extends State<_DashboardExamsWidget> {
   @override
   Widget build(BuildContext context) {
     return AcademicExamsPanel(
+      compact: true,
       courses: _courses,
       years: const [1, 2, 3],
       selectedYear: _selectedYear,
@@ -193,6 +194,7 @@ class _DashboardAppealsWidgetState extends State<_DashboardAppealsWidget> {
     }).firstOrNull;
 
     return AcademicExamAppealsPanel(
+      compact: true,
       months: _months,
       selectedMonth: selectedMonth,
       selectedStatus: _selectedStatus,

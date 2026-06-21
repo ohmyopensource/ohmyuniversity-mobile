@@ -33,7 +33,7 @@ class DashboardCalendarAgendaWidget extends StatelessWidget {
     ];
 
     return CustomCardWidget(
-      variant: CardVariant.warning,
+      variant: CardVariant.defaultVariant,
       shadow: CardShadow.md,
       radius: CardRadius.lg,
       padding: CardPadding.none,
@@ -49,12 +49,12 @@ class DashboardCalendarAgendaWidget extends StatelessWidget {
                   width: 39,
                   height: 39,
                   decoration: BoxDecoration(
-                    color: AppColors.colorWarningLight.withValues(alpha: 0.78),
+                    color: AppColors.colorPrimaryLight.withValues(alpha: 0.72),
                     borderRadius: BorderRadius.circular(AppColors.radiusLg),
                   ),
                   child: const Icon(
                     LucideIcons.calendarDays,
-                    color: AppColors.colorWarningText,
+                    color: AppColors.colorPrimaryDark,
                     size: 20,
                   ),
                 ),
@@ -89,13 +89,9 @@ class DashboardCalendarAgendaWidget extends StatelessWidget {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.74),
+                    color: AppColors.colorNeutral100,
                     borderRadius: BorderRadius.circular(AppColors.radiusLg),
-                    border: Border.all(
-                      color: AppColors.colorWarningLight.withValues(
-                        alpha: 0.85,
-                      ),
-                    ),
+                    border: Border.all(color: AppColors.colorNeutral200),
                   ),
                   child: CustomTextWidget(
                     text: today.day.toString(),
@@ -215,11 +211,9 @@ class _DashboardCalendarEmptyState extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.62),
+          color: AppColors.colorNeutral100,
           borderRadius: BorderRadius.circular(AppColors.radiusLg),
-          border: Border.all(
-            color: AppColors.colorWarningLight.withValues(alpha: 0.72),
-          ),
+          border: Border.all(color: AppColors.colorNeutral200),
         ),
         child: const CustomTextWidget(
           text: 'Nessun evento in agenda',
