@@ -68,6 +68,9 @@ abstract final class AppRoutes {
   static const servicesName = 'services';
 
   // Top bar ================================
+  static const profile = '/profile';
+  static const profileName = 'profile';
+
   static const preferiti = '/preferiti';
   static const preferitiName = 'preferiti';
 

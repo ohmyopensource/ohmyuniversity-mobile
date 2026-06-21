@@ -72,6 +72,8 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
                     showSettings: true,
                     showLogout: true,
                     showAddAccount: false,
+                    onProfileClick: () =>
+                        context.pushNamed(AppRoutes.profileName),
                     onAccountSwitch: (_) {},
                     onSettingsClick: () {},
                     onLogoutClick: () {

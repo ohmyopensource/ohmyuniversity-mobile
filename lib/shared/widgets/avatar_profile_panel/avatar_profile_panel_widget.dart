@@ -138,6 +138,7 @@ class AvatarProfilePanelWidget extends StatefulWidget {
     this.position = PanelPosition.right,
     this.animation = PanelAnimation.ios,
     this.panelWidth = 300,
+    this.onProfileClick,
     this.onAccountSwitch,
     this.onSettingsClick,
     this.onLogoutClick,
@@ -163,6 +164,7 @@ class AvatarProfilePanelWidget extends StatefulWidget {
   /// Panel width in logical pixels.
   final double panelWidth;
 
+  final VoidCallback? onProfileClick;
   final ValueChanged<AccountEntry>? onAccountSwitch;
   final VoidCallback? onSettingsClick;
   final VoidCallback? onLogoutClick;
@@ -308,6 +310,10 @@ class _AvatarProfilePanelWidgetState extends State<AvatarProfilePanelWidget>
       showSettings: widget.showSettings,
       showLogout: widget.showLogout,
       showAddAccount: widget.showAddAccount,
+      onProfile: () {
+        widget.onProfileClick?.call();
+        _close();
+      },
       onAccountSwitch: (account) {
         widget.onAccountSwitch?.call(account);
         _close();
@@ -401,6 +407,7 @@ class _PanelContent extends StatelessWidget {
     required this.showSettings,
     required this.showLogout,
     required this.showAddAccount,
+    required this.onProfile,
     required this.onAccountSwitch,
     required this.onSettings,
     required this.onLogout,
@@ -414,6 +421,7 @@ class _PanelContent extends StatelessWidget {
   final bool showSettings;
   final bool showLogout;
   final bool showAddAccount;
+  final VoidCallback onProfile;
   final ValueChanged<AccountEntry> onAccountSwitch;
   final VoidCallback onSettings;
   final VoidCallback onLogout;
@@ -548,17 +556,22 @@ class _PanelContent extends StatelessWidget {
         ? [acronymBadge, info, avatar]
         : [avatar, info, acronymBadge];
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          children[0],
-          const SizedBox(width: 12),
-          children[1],
-          const SizedBox(width: 12),
-          children[2],
-        ],
+    return InkWell(
+      key: const Key('profile-panel-current-account'),
+      onTap: onProfile,
+      hoverColor: _hoverColor,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            children[0],
+            const SizedBox(width: 12),
+            children[1],
+            const SizedBox(width: 12),
+            children[2],
+          ],
+        ),
       ),
     );
   }
