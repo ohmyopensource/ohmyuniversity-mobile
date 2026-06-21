@@ -503,14 +503,17 @@ class _PillTabState extends State<_PillTab> {
 
     Widget content = Padding(
       padding: w._tabPadding,
-      child: _TabContent(
-        tab: widget.tab,
-        isActive: isActive,
-        textColor: textColor,
-        fontSize: w._fontSize,
-        iconSize: w._iconSize,
-        badgeBg: badgeBg,
-        badgeText: badgeText,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: _TabContent(
+          tab: widget.tab,
+          isActive: isActive,
+          textColor: textColor,
+          fontSize: w._fontSize,
+          iconSize: w._iconSize,
+          badgeBg: badgeBg,
+          badgeText: badgeText,
+        ),
       ),
     );
 

@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../config/routes/app_routes.dart';
-import '../../../../config/theme/app_colors.dart';
-import '../../domain/usecases/login_usecase.dart';
-import '../../domain/usecases/register_usecase.dart';
-import '../providers/auth_provider.dart';
-import '../widgets/auth_mode_selector.dart';
-import '../../../../shared/widgets/custom_input/custom_input_widget.dart';
-import '../../../../shared/widgets/custom_button/custom_button_widget.dart';
+import '../../../../config/theme/app_theme.dart';
+import '../../../../core/constants/app_assets.dart';
+import '../../../../shared/widgets/custom_tab/custom_tab_widget.dart';
 import '../../../../shared/widgets/custom_text/custom_text_widget.dart';
+import '../../../../shared/widgets/custom_toast/custom_toast_service.dart';
+import '../widgets/partner_login_form.dart';
+import '../widgets/university_login_form.dart';
+
+enum LoginMode { university, partner }
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -21,320 +20,193 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  LoginMode _mode = LoginMode.university;
 
-  AuthFormMode _mode = AuthFormMode.login;
-  bool _rememberMe = false;
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  void _changeMode(AuthFormMode mode) {
-    if (_mode == mode) return;
-    FocusScope.of(context).unfocus();
+  void _setMode(String id) {
+    final mode = LoginMode.values.firstWhere((value) => value.name == id);
+    if (mode == _mode) return;
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _mode = mode);
   }
 
-  Future<void> _submit() async {
-    if (_isLoading) return;
-    FocusScope.of(context).unfocus();
-    setState(() => _isLoading = true);
-
-    try {
-      if (_mode == AuthFormMode.login) {
-        await ref.read(loginUseCaseProvider).call(
-          LoginParams(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          ),
-        );
-      } else {
-        await ref.read(registerUseCaseProvider).call(
-          RegisterParams(
-            firstName: _firstNameController.text.trim(),
-            lastName: _lastNameController.text.trim(),
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          ),
-        );
-      }
-
-      if (!mounted) return;
-      ref.read(isAuthenticatedProvider.notifier).setAuthenticated(true);
-      context.goNamed(AppRoutes.homeName);
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          const SnackBar(content: Text('Accesso non riuscito. Riprova.')),
-        );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  void _showIdentityProviderMessage(String provider) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text('Accesso con $provider disponibile a breve.')),
-      );
+  void _showUnavailable(String destination) {
+    ref
+        .read(toastServiceProvider.notifier)
+        .info('$destination non è ancora disponibile nell\'app.');
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLogin = _mode == AuthFormMode.login;
-
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              keyboardDismissBehavior:
-              ScrollViewKeyboardDismissBehavior.onDrag,
-              child: ConstrainedBox(
-                constraints:
-                BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      // ── Headline ─────────────────────────────────
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(28, 42, 28, 28),
-                        child: CustomTextWidget(
-                          text:
-                          'La tua carriera universitaria,\ntutta in un posto',
-                          variant: TextVariant.h3,
-                          color: TextColor.defaultColor,
-                          weight: TextWeight.extraBold,
-                          align: TextAlign.center,
+    return Theme(
+      data: AppTheme.light(),
+      child: Builder(
+        builder: (context) => Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 48, 16, 24),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 448),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const _BrandHeader(),
+                            const SizedBox(height: 32),
+                            CustomTabWidget(
+                              key: const Key('login-mode-tabs'),
+                              tabs: const [
+                                TabItem(id: 'university', label: 'Università'),
+                                TabItem(id: 'partner', label: 'Partner'),
+                              ],
+                              activeTab: _mode.name,
+                              tabStyle: TabStyle.pill,
+                              variant: TabVariant.primary,
+                              size: TabSize.sm,
+                              fullWidth: true,
+                              onTabChange: _setMode,
+                            ),
+                            const SizedBox(height: 32),
+                            if (_mode == LoginMode.university)
+                              const UniversityLoginForm(
+                                key: ValueKey('university-login-form'),
+                              )
+                            else
+                              const PartnerLoginForm(
+                                key: ValueKey('partner-login-form'),
+                              ),
+                            const SizedBox(height: 32),
+                            _LegalFooter(onTap: _showUnavailable),
+                          ],
                         ),
                       ),
-                      Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          constraints:
-                          const BoxConstraints(minHeight: 590),
-                          padding:
-                          const EdgeInsets.fromLTRB(22, 26, 22, 22),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEAF6F8),
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(36),
-                            ),
-                            border: Border(
-                              top: BorderSide(
-                                color: AppColors.secondary
-                                    .withValues(alpha: 0.42),
-                              ),
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              AuthModeSelector(
-                                mode: _mode,
-                                onChanged: _changeMode,
-                              ),
-                              const SizedBox(height: 22),
-
-                              // ── Tab Accedi ─────────────────────────
-                              if (isLogin) ...[
-                                CustomInputWidget(
-                                  controller: _emailController,
-                                  label: 'Email',
-                                  placeholder: 'Inserisci la tua email',
-                                  type: InputType.email,
-                                  iconLeft: LucideIcons.mail,
-                                  variant: InputVariant.info,
-                                  required: true,
-                                  onChanged: (_) => setState(() {}),
-                                ),
-                                const SizedBox(height: 14),
-                                CustomInputWidget(
-                                  controller: _passwordController,
-                                  label: 'Password',
-                                  placeholder: 'Inserisci la tua password',
-                                  type: InputType.password,
-                                  iconLeft: LucideIcons.lock,
-                                  variant: InputVariant.info,
-                                  required: true,
-                                  onChanged: (_) => setState(() {}),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Checkbox(
-                                      value: _rememberMe,
-                                      onChanged: (value) => setState(
-                                            () => _rememberMe = value ?? false,
-                                      ),
-                                    ),
-                                    // ── Ricordami ──────────────────
-                                    const CustomTextWidget(
-                                      text: 'Ricordami',
-                                      variant: TextVariant.bodySm,
-                                      color: TextColor.defaultColor,
-                                      weight: TextWeight.bold,
-                                    ),
-                                    const Spacer(),
-                                    TextButton(
-                                      onPressed: () =>
-                                          _showIdentityProviderMessage(
-                                              'recupero password'),
-                                      child: const CustomTextWidget(
-                                        text: 'Password dimenticata?',
-                                        variant: TextVariant.bodySm,
-                                        color: TextColor.primary,
-                                        weight: TextWeight.semibold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-
-                              // ── Tab Registrati ─────────────────────
-                              if (!isLogin) ...[
-                                CustomInputWidget(
-                                  controller: _firstNameController,
-                                  label: 'Nome',
-                                  placeholder: 'Inserisci il tuo nome',
-                                  iconLeft: LucideIcons.user,
-                                  variant: InputVariant.info,
-                                  required: true,
-                                  onChanged: (_) => setState(() {}),
-                                ),
-                                const SizedBox(height: 14),
-                                CustomInputWidget(
-                                  controller: _lastNameController,
-                                  label: 'Cognome',
-                                  placeholder: 'Inserisci il tuo cognome',
-                                  iconLeft: LucideIcons.user,
-                                  variant: InputVariant.info,
-                                  required: true,
-                                  onChanged: (_) => setState(() {}),
-                                ),
-                                const SizedBox(height: 14),
-                                CustomInputWidget(
-                                  controller: _emailController,
-                                  label: 'Email',
-                                  placeholder: 'Inserisci la tua email',
-                                  type: InputType.email,
-                                  iconLeft: LucideIcons.mail,
-                                  variant: InputVariant.info,
-                                  required: true,
-                                  onChanged: (_) => setState(() {}),
-                                ),
-                                const SizedBox(height: 14),
-                                CustomInputWidget(
-                                  controller: _passwordController,
-                                  label: 'Password',
-                                  placeholder: 'Inserisci la tua password',
-                                  type: InputType.password,
-                                  iconLeft: LucideIcons.lock,
-                                  variant: InputVariant.info,
-                                  required: true,
-                                  onChanged: (_) => setState(() {}),
-                                ),
-                              ],
-
-                              const SizedBox(height: 8),
-
-                              // ── Submit button ──────────────────────
-                              CustomButtonWidget(
-                                label: isLogin ? 'Accedi' : 'Registrati',
-                                variant: ButtonVariant.primary,
-                                size: ButtonSize.md,
-                                fullWidth: true,
-                                loading: _isLoading,
-                                onPressed: _submit,
-                              ),
-
-                              const SizedBox(height: 24),
-
-                              // ── O continua con ─────────────────────
-                              const CustomTextWidget(
-                                text: 'O continua con',
-                                variant: TextVariant.label,
-                                color: TextColor.primary,
-                                weight: TextWeight.extraBold,
-                              ),
-                              const SizedBox(height: 10),
-
-                              // ── Identity providers ─────────────────
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomButtonWidget(
-                                      label: 'SPID',
-                                      variant: ButtonVariant.outline,
-                                      size: ButtonSize.md,
-                                      fullWidth: true,
-                                      onPressed: () =>
-                                          _showIdentityProviderMessage(
-                                              'SPID'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: CustomButtonWidget(
-                                      label: 'CIE',
-                                      variant: ButtonVariant.outline,
-                                      size: ButtonSize.md,
-                                      fullWidth: true,
-                                      onPressed: () =>
-                                          _showIdentityProviderMessage(
-                                              'CIE'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const Spacer(),
-                              const SizedBox(height: 28),
-
-                              // ── Sei un futuro studente? ────────────
-                              GestureDetector(
-                                onTap: () => context
-                                    .goNamed(AppRoutes.orientamentoName),
-                                child: Wrap(
-                                  alignment: WrapAlignment.center,
-                                  children: [
-                                    CustomTextWidget(
-                                      text: 'Sei un futuro studente? ',
-                                      variant: TextVariant.bodySm,
-                                      color: TextColor.muted,
-                                    ),
-                                    CustomTextWidget(
-                                      text: 'Clicca qui!',
-                                      variant: TextVariant.bodySm,
-                                      color: TextColor.primary,
-                                      weight: TextWeight.extraBold,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            );
-          },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BrandHeader extends StatelessWidget {
+  const _BrandHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 56,
+          height: 56,
+          padding: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x14000000),
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: SvgPicture.asset(AppAssets.logo),
+          ),
+        ),
+        const SizedBox(height: 16),
+        const CustomTextWidget(
+          text: 'OhMyUniversity!',
+          variant: TextVariant.h4,
+          weight: TextWeight.bold,
+          align: TextAlign.center,
+        ),
+        const SizedBox(height: 4),
+        const CustomTextWidget(
+          text: 'by OhMyOpenSource!',
+          variant: TextVariant.bodySm,
+          color: TextColor.muted,
+          align: TextAlign.center,
+        ),
+      ],
+    );
+  }
+}
+
+class _LegalFooter extends StatelessWidget {
+  const _LegalFooter({required this.onTap});
+
+  final ValueChanged<String> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        const CustomTextWidget(
+          text: 'Accedendo accetti i nostri ',
+          variant: TextVariant.caption,
+          color: TextColor.subtle,
+        ),
+        _FooterLink(
+          key: const Key('terms-link'),
+          label: 'Termini & Condizioni',
+          onTap: () => onTap('Termini & Condizioni'),
+        ),
+        const CustomTextWidget(
+          text: ' e la ',
+          variant: TextVariant.caption,
+          color: TextColor.subtle,
+        ),
+        _FooterLink(
+          key: const Key('privacy-link'),
+          label: 'Privacy Policy',
+          onTap: () => onTap('Privacy Policy'),
+        ),
+        const CustomTextWidget(
+          text: '.',
+          variant: TextVariant.caption,
+          color: TextColor.subtle,
+        ),
+      ],
+    );
+  }
+}
+
+class _FooterLink extends StatelessWidget {
+  const _FooterLink({super.key, required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      link: true,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(4),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: CustomTextWidget(
+            text: label,
+            variant: TextVariant.caption,
+            color: TextColor.muted,
+            underline: true,
+          ),
         ),
       ),
     );
