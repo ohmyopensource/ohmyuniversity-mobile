@@ -4,9 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:ohmyuniversity/features/home/presentation/models/dashboard_widget_option.dart';
 import 'package:ohmyuniversity/features/home/presentation/widgets/dashboard/dashboard_widget_content.dart';
+import 'package:ohmyuniversity/features/didattica/presentation/providers/career_data_providers.dart';
 import 'package:ohmyuniversity/shared/widgets/academic/academic_summary_tiles.dart';
 import 'package:ohmyuniversity/shared/widgets/academic/academic_history_chart.dart';
 import 'package:ohmyuniversity/shared/widgets/custom_tab/custom_tab_widget.dart';
+
+import '../../helpers/career_test_snapshot.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +32,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        ProviderScope(
+        _careerScope(
           child: MaterialApp(
             home: Scaffold(
               body: Center(
@@ -53,7 +56,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const ProviderScope(
+      _careerScope(
         child: MaterialApp(
           home: Scaffold(
             body: SizedBox(
@@ -77,7 +80,7 @@ void main() {
     expect(_hasVisibleWhiteValuePill(tester), isTrue);
 
     await tester.pumpWidget(
-      const ProviderScope(
+      _careerScope(
         child: MaterialApp(
           home: Scaffold(
             body: SizedBox(
@@ -105,7 +108,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const ProviderScope(
+      _careerScope(
         child: MaterialApp(
           home: Scaffold(
             body: SizedBox(
@@ -137,7 +140,7 @@ void main() {
   ) async {
     const option = DashboardWidgetOptions.appeals;
     await tester.pumpWidget(
-      const ProviderScope(
+      _careerScope(
         child: MaterialApp(
           home: Scaffold(
             body: Center(
@@ -209,6 +212,17 @@ void main() {
     await tester.pump();
     expect(tester.takeException(), isNull);
   });
+}
+
+Widget _careerScope({required Widget child}) {
+  return ProviderScope(
+    overrides: [
+      careerSnapshotProvider.overrideWith(
+        (ref) async => buildCareerTestSnapshot(),
+      ),
+    ],
+    child: child,
+  );
 }
 
 bool _hasVisibleWhiteValuePill(WidgetTester tester) {

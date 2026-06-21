@@ -11,6 +11,7 @@ class DidatticaStatisticsCalculator {
   DidatticaStatisticsEntity calculate(
     List<DidatticaExamCourseEntity> courses, {
     Map<String, String> simulatedGrades = const {},
+    DidatticaStatisticsEntity? officialStatistics,
   }) {
     final passedCourses = courses.where((course) => course.passed).toList();
     final gradeRecords = _buildGradeRecords(courses, simulatedGrades);
@@ -21,20 +22,29 @@ class DidatticaStatisticsCalculator {
     final arithmeticAverage = _calculateArithmeticAverage(gradeRecords);
     final weightedAverage = _calculateWeightedAverage(gradeRecords);
     final graduationBase = _calculateGraduationBase(weightedAverage);
+    final hasSimulation = gradeRecords.any((record) => record.isSimulated);
 
     return DidatticaStatisticsEntity(
-      arithmeticAverage: arithmeticAverage,
-      weightedAverage: weightedAverage,
-      acquiredCredits: acquiredCredits,
-      totalCredits: _defaultTotalCredits,
-      graduationBase: graduationBase,
-      projectedGraduationScore: graduationBase,
+      arithmeticAverage: hasSimulation
+          ? arithmeticAverage
+          : officialStatistics?.arithmeticAverage ?? arithmeticAverage,
+      weightedAverage: hasSimulation
+          ? weightedAverage
+          : officialStatistics?.weightedAverage ?? weightedAverage,
+      acquiredCredits: officialStatistics?.acquiredCredits ?? acquiredCredits,
+      totalCredits: officialStatistics?.totalCredits ?? _defaultTotalCredits,
+      graduationBase: hasSimulation
+          ? graduationBase
+          : officialStatistics?.graduationBase ?? graduationBase,
+      projectedGraduationScore: hasSimulation
+          ? graduationBase
+          : officialStatistics?.projectedGraduationScore ?? graduationBase,
       honorsCount: passedCourses
           .where((course) => course.grade?.trim().toUpperCase() == '30L')
           .length,
       gradeHistory: _calculateGradeHistory(gradeRecords),
       averageTrend: _calculateAverageTrend(gradeRecords),
-      hasSimulation: gradeRecords.any((record) => record.isSimulated),
+      hasSimulation: hasSimulation,
     );
   }
 

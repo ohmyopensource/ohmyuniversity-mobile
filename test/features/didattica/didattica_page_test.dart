@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ohmyuniversity/features/didattica/presentation/pages/didattica_page.dart';
+import 'package:ohmyuniversity/features/didattica/presentation/providers/career_data_providers.dart';
+
+import '../../helpers/career_test_snapshot.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -16,9 +19,16 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: DidatticaPage())),
+      ProviderScope(
+        overrides: [
+          careerSnapshotProvider.overrideWith(
+            (ref) async => buildCareerTestSnapshot(),
+          ),
+        ],
+        child: const MaterialApp(home: DidatticaPage()),
+      ),
     );
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     expect(find.text('Panoramica'), findsOneWidget);
     expect(find.text('Appelli'), findsOneWidget);

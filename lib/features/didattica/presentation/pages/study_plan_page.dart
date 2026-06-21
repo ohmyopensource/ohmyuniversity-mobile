@@ -7,6 +7,7 @@ import '../../../../shared/widgets/custom_tab/custom_tab_widget.dart';
 import '../../domain/entities/didattica_course_type.dart';
 import '../../domain/entities/didattica_exam_course_entity.dart';
 import '../providers/exam_courses_provider.dart';
+import '../providers/career_provider.dart';
 
 enum StudyPlanFilter { all, passed, pending, elective }
 
@@ -22,6 +23,36 @@ class _StudyPlanPageState extends ConsumerState<StudyPlanPage> {
 
   @override
   Widget build(BuildContext context) {
+    final careerState = ref.watch(careerProvider);
+    if (careerState.isLoading) {
+      return const Scaffold(
+        backgroundColor: AppColors.background,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (careerState.errorMessage != null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(title: const Text('Piano di studio')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(careerState.errorMessage!, textAlign: TextAlign.center),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: ref.read(careerProvider.notifier).reload,
+                  icon: const Icon(LucideIcons.refreshCw, size: 17),
+                  label: const Text('Riprova'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     final courses = ref.watch(didatticaExamCoursesProvider);
     final filteredCourses = _filterCourses(courses, _activeFilter);
     final years = filteredCourses.map((course) => course.year).toSet().toList()
@@ -265,7 +296,9 @@ class _StudyCourseTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  '${course.code} - Semestre ${course.semester}',
+                  course.semester > 0
+                      ? '${course.code} - Semestre ${course.semester}'
+                      : course.code,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
