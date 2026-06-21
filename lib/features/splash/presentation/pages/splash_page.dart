@@ -5,6 +5,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../../../config/routes/app_routes.dart';
 import '../../../../core/constants/app_assets.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -37,8 +38,13 @@ class _SplashPageState extends ConsumerState<SplashPage>
     await Future.delayed(const Duration(milliseconds: 2400));
 
     if (!mounted) return;
-
-    context.goNamed(AppRoutes.onboardingName);
+    final authenticated = await ref
+        .read(isAuthenticatedProvider.notifier)
+        .restore();
+    if (!mounted) return;
+    context.goNamed(
+      authenticated ? AppRoutes.homeName : AppRoutes.onboardingName,
+    );
   }
 
   @override
