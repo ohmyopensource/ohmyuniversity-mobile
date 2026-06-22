@@ -28,7 +28,8 @@ void main() {
         child: const MaterialApp(home: DidatticaPage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('Panoramica'), findsOneWidget);
     expect(find.text('Appelli'), findsOneWidget);

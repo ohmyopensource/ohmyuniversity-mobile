@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/routes/app_routes.dart';
 import '../../config/theme/app_colors.dart';
+import '../../features/services/domain/entities/external_services_entity.dart';
+import '../../features/services/presentation/providers/external_services_providers.dart';
 import '../mocks/app_mock_data.dart';
+import 'custom_toast/custom_toast_service.dart';
 
-class AppDrawer extends StatefulWidget {
+class AppDrawer extends ConsumerStatefulWidget {
   const AppDrawer({super.key, this.notificationCount = 0});
 
   final int notificationCount;
 
   @override
-  State<AppDrawer> createState() => _AppDrawerState();
+  ConsumerState<AppDrawer> createState() => _AppDrawerState();
 }
 
-class _AppDrawerState extends State<AppDrawer> {
+class _AppDrawerState extends ConsumerState<AppDrawer> {
   static const _mockUniversity = AppMockData.university;
 
   String? _expandedSectionId;
@@ -28,6 +32,14 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   void _close() => Navigator.of(context).pop();
+
+  void _openRoute(String routeName) {
+    final router = GoRouter.of(context);
+    _close();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router.pushNamed(routeName);
+    });
+  }
 
   void _showPlaceholderFeedback(String label) {
     _close();
@@ -48,8 +60,34 @@ class _AppDrawerState extends State<AppDrawer> {
     }
   }
 
+  Future<void> _openExternalService(
+    AsyncValue<ExternalServicesEntity> services,
+    Uri? Function(ExternalServicesEntity) selectUrl,
+    String label,
+  ) async {
+    final toast = ref.read(toastServiceProvider.notifier);
+    if (services.isLoading) {
+      toast.info('Caricamento servizi universitari in corso.');
+      return;
+    }
+    if (services.hasError) {
+      toast.error('Impossibile caricare $label.');
+      return;
+    }
+    final data = services.value;
+    final url = data == null ? null : selectUrl(data);
+    if (url == null) {
+      toast.warning('$label non configurato per il tuo ateneo.');
+      return;
+    }
+    _close();
+    final opened = await launchUrl(url, mode: LaunchMode.externalApplication);
+    if (!opened) toast.error('Impossibile aprire $label.');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final externalServices = ref.watch(externalServicesProvider);
     return Drawer(
       backgroundColor: AppColors.background,
       child: SafeArea(
@@ -69,28 +107,25 @@ class _AppDrawerState extends State<AppDrawer> {
                           icon: LucideIcons.bell,
                           label: 'Notifiche',
                           badgeCount: widget.notificationCount,
-                          onTap: () {
-                            _close();
-                            context.pushNamed(AppRoutes.notificheName);
-                          },
+                          onTap: () => _openRoute(AppRoutes.notificheName),
                         ),
                         const SizedBox(height: 6),
                         _DrawerLabelTile(
                           icon: LucideIcons.calendarDays,
                           label: 'Agenda',
-                          onTap: () {
-                            _close();
-                            context.pushNamed(AppRoutes.calendarioName);
-                          },
+                          onTap: () => _openRoute(AppRoutes.calendarioName),
                         ),
                         const SizedBox(height: 6),
                         _DrawerLabelTile(
                           icon: LucideIcons.calendarClock,
                           label: 'Orario Lezioni',
-                          onTap: () {
-                            _close();
-                            context.pushNamed(AppRoutes.orarioLezioniName);
-                          },
+                          onTap: () => _openRoute(AppRoutes.orarioLezioniName),
+                        ),
+                        const SizedBox(height: 6),
+                        _DrawerLabelTile(
+                          icon: LucideIcons.mail,
+                          label: 'Email istituzionale',
+                          onTap: () => _openRoute(AppRoutes.emailInboxName),
                         ),
                         const SizedBox(height: 12),
                         _DrawerAccordionSection(
@@ -121,9 +156,30 @@ class _AppDrawerState extends State<AppDrawer> {
                               label: 'Sito web',
                               onTap: () => _launch(_mockUniversity.websiteUrl),
                             ),
-                            _DrawerSubItem(label: 'Esse3', onTap: _close),
-                            _DrawerSubItem(label: 'Cineca', onTap: _close),
-                            _DrawerSubItem(label: 'Biblioteca', onTap: _close),
+                            _DrawerSubItem(
+                              label: 'Moodle',
+                              onTap: () => _openExternalService(
+                                externalServices,
+                                (services) => services.moodleUrl,
+                                'Moodle',
+                              ),
+                            ),
+                            _DrawerSubItem(
+                              label: 'Biblioteca',
+                              onTap: () => _openExternalService(
+                                externalServices,
+                                (services) => services.libraryUrl,
+                                'Biblioteca',
+                              ),
+                            ),
+                            _DrawerSubItem(
+                              label: 'Portale Studente',
+                              onTap: () => _openExternalService(
+                                externalServices,
+                                (services) => services.studentPortalUrl,
+                                'Portale Studente',
+                              ),
+                            ),
                           ],
                         ),
                         _DrawerAccordionSection(
@@ -147,10 +203,8 @@ class _AppDrawerState extends State<AppDrawer> {
                     expandedSectionId: _expandedSectionId,
                     onToggleSection: _toggleSection,
                     onShowPlaceholderFeedback: _showPlaceholderFeedback,
-                    onOpenTuitionFees: () {
-                      _close();
-                      context.pushNamed(AppRoutes.didatticaTuitionFeesName);
-                    },
+                    onOpenTuitionFees: () =>
+                        _openRoute(AppRoutes.didatticaTuitionFeesName),
                   ),
                 ],
               ),

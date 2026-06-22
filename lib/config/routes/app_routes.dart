@@ -67,6 +67,9 @@ abstract final class AppRoutes {
   static const services = '/services';
   static const servicesName = 'services';
 
+  static const emailInbox = '/services/email';
+  static const emailInboxName = 'email-inbox';
+
   // Top bar ================================
   static const profile = '/profile';
   static const profileName = 'profile';
