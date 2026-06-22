@@ -12,6 +12,7 @@ import '../../../../shared/widgets/custom_text/custom_text_widget.dart';
 import '../../../../shared/widgets/custom_toast/custom_toast_service.dart';
 import '../../data/constants/login_universities.dart';
 import '../../domain/entities/login_university.dart';
+import '../../domain/exceptions/auth_exception.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../providers/auth_provider.dart';
 import 'university_search_select.dart';
@@ -37,6 +38,9 @@ class _UniversityLoginFormState extends ConsumerState<UniversityLoginForm> {
   bool get _domainUnavailable =>
       _selectedUniversity != null && _selectedUniversity!.emailDomains.isEmpty;
 
+  bool get _integrationUnavailable =>
+      _selectedUniversity != null && _selectedUniversity!.id != 'unimol';
+
   String get _emailError {
     final university = _selectedUniversity;
     final email = _emailController.text.trim();
@@ -53,6 +57,7 @@ class _UniversityLoginFormState extends ConsumerState<UniversityLoginForm> {
   bool get _canSubmit =>
       _selectedUniversity != null &&
       !_domainUnavailable &&
+      !_integrationUnavailable &&
       _emailController.text.trim().isNotEmpty &&
       _emailError.isEmpty &&
       _passwordController.text.trim().isNotEmpty;
@@ -88,7 +93,10 @@ class _UniversityLoginFormState extends ConsumerState<UniversityLoginForm> {
           .read(loginUseCaseProvider)
           .call(
             LoginParams(
-              email: _emailController.text.trim(),
+              universityId: _selectedUniversity!.id.toUpperCase(),
+              username: _selectedUniversity!.authenticationUsername(
+                _emailController.text,
+              ),
               password: _passwordController.text,
             ),
           );
@@ -96,6 +104,9 @@ class _UniversityLoginFormState extends ConsumerState<UniversityLoginForm> {
       if (!mounted) return;
       ref.read(isAuthenticatedProvider.notifier).setAuthenticated(true);
       context.goNamed(AppRoutes.homeName);
+    } on AuthException catch (error) {
+      if (!mounted) return;
+      ref.read(toastServiceProvider.notifier).error(error.message);
     } catch (_) {
       if (!mounted) return;
       ref
@@ -181,6 +192,17 @@ class _UniversityLoginFormState extends ConsumerState<UniversityLoginForm> {
             color: TextColor.warning,
           ),
         ],
+        if (_integrationUnavailable) ...[
+          const SizedBox(height: 8),
+          const CustomTextWidget(
+            key: Key('university-integration-unavailable'),
+            text:
+                'L\'integrazione reale è attualmente disponibile solo per '
+                'l\'Università degli Studi del Molise.',
+            variant: TextVariant.bodySm,
+            color: TextColor.warning,
+          ),
+        ],
         const SizedBox(height: 16),
         CustomInputWidget(
           key: const Key('university-email'),
@@ -188,7 +210,10 @@ class _UniversityLoginFormState extends ConsumerState<UniversityLoginForm> {
           type: InputType.email,
           label: 'Email istituzionale',
           placeholder: 'nome.cognome@studenti.ateneo.it',
-          disabled: _selectedUniversity == null || _domainUnavailable,
+          disabled:
+              _selectedUniversity == null ||
+              _domainUnavailable ||
+              _integrationUnavailable,
           errorMessage: _emailError,
           onChanged: (_) => setState(() {}),
           onSubmitted: (_) => _submit(),
@@ -200,7 +225,10 @@ class _UniversityLoginFormState extends ConsumerState<UniversityLoginForm> {
           type: InputType.password,
           label: 'Password',
           placeholder: '••••••••',
-          disabled: _selectedUniversity == null || _domainUnavailable,
+          disabled:
+              _selectedUniversity == null ||
+              _domainUnavailable ||
+              _integrationUnavailable,
           onChanged: (_) => setState(() {}),
           onSubmitted: (_) => _submit(),
         ),

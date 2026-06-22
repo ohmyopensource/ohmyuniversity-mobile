@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../config/routes/app_routes.dart';
 import '../../config/theme/app_colors.dart';
+import '../../core/usecases/usecase.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../mocks/app_mock_data.dart';
 import '../widgets/avatar_profile_panel/avatar_profile_panel_widget.dart';
@@ -76,7 +77,11 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
                         context.pushNamed(AppRoutes.profileName),
                     onAccountSwitch: (_) {},
                     onSettingsClick: () {},
-                    onLogoutClick: () {
+                    onLogoutClick: () async {
+                      await ref
+                          .read(logoutUseCaseProvider)
+                          .call(const NoParams());
+                      if (!context.mounted) return;
                       ref
                           .read(isAuthenticatedProvider.notifier)
                           .setAuthenticated(false);

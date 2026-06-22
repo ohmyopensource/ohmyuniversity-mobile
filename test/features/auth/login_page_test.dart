@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ohmyuniversity/config/routes/app_routes.dart';
-import 'package:ohmyuniversity/features/auth/domain/entities/user_entity.dart';
+import 'package:ohmyuniversity/features/auth/domain/entities/auth_session_entity.dart';
 import 'package:ohmyuniversity/features/auth/domain/repositories/auth_repository.dart';
 import 'package:ohmyuniversity/features/auth/domain/usecases/login_usecase.dart';
 import 'package:ohmyuniversity/features/auth/presentation/pages/login_page.dart';
@@ -100,6 +100,25 @@ void main() {
 
       expect(
         find.byKey(const Key('university-domain-unavailable')),
+        findsOneWidget,
+      );
+      expect(_textField(tester, 'university-email').enabled, isFalse);
+      expect(
+        tester
+            .widget<CustomButtonWidget>(
+              find.byKey(const Key('university-submit')),
+            )
+            .disabled,
+        isTrue,
+      );
+    });
+
+    testWidgets('limits real integration to UNIMOL', (tester) async {
+      await _pumpLogin(tester);
+      await _selectUniversity(tester, 'polimi');
+
+      expect(
+        find.byKey(const Key('university-integration-unavailable')),
         findsOneWidget,
       );
       expect(_textField(tester, 'university-email').enabled, isFalse);
@@ -264,10 +283,16 @@ void main() {
       container.read(toastServiceProvider.notifier).dismissAll();
     });
 
-    testWidgets('logs in with the mock use case and navigates home', (
+    testWidgets('logs in through the use case and navigates home', (
       tester,
     ) async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          loginUseCaseProvider.overrideWithValue(
+            LoginUseCase(_SuccessfulAuthRepository()),
+          ),
+        ],
+      );
       addTearDown(container.dispose);
       final router = GoRouter(
         initialLocation: AppRoutes.login,
@@ -436,7 +461,11 @@ Future<void> _enterText(WidgetTester tester, String key, String value) async {
 
 class _FailingAuthRepository implements AuthRepository {
   @override
-  Future<UserEntity> login({required String email, required String password}) {
+  Future<AuthSessionEntity> login({
+    required String universityId,
+    required String username,
+    required String password,
+  }) {
     throw Exception('Authentication failed');
   }
 
@@ -445,4 +474,33 @@ class _FailingAuthRepository implements AuthRepository {
 
   @override
   Future<bool> isAuthenticated() async => false;
+
+  @override
+  Future<AuthSessionEntity?> currentSession() async => null;
+}
+
+class _SuccessfulAuthRepository implements AuthRepository {
+  @override
+  Future<AuthSessionEntity> login({
+    required String universityId,
+    required String username,
+    required String password,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    return AuthSessionEntity(
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+      username: username,
+      profiles: const [],
+    );
+  }
+
+  @override
+  Future<void> logout() async {}
+
+  @override
+  Future<bool> isAuthenticated() async => false;
+
+  @override
+  Future<AuthSessionEntity?> currentSession() async => null;
 }

@@ -312,6 +312,7 @@ const loginUniversities = <LoginUniversity>[
     name: 'Università degli Studi del Molise',
     shortName: 'UniMol',
     emailDomains: ['unimol.it', 'studenti.unimol.it'],
+    usesEmailLocalPartAsUsername: true,
   ),
   LoginUniversity(
     id: 'unipmn',

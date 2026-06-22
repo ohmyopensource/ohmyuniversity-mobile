@@ -1,21 +1,30 @@
 import '../../../../core/usecases/usecase.dart';
-import '../entities/user_entity.dart';
+import '../entities/auth_session_entity.dart';
 import '../repositories/auth_repository.dart';
 
 class LoginParams {
-  const LoginParams({required this.email, required this.password});
+  const LoginParams({
+    required this.universityId,
+    required this.username,
+    required this.password,
+  });
 
-  final String email;
+  final String universityId;
+  final String username;
   final String password;
 }
 
-class LoginUseCase implements UseCase<UserEntity, LoginParams> {
+class LoginUseCase implements UseCase<AuthSessionEntity, LoginParams> {
   const LoginUseCase(this._repository);
 
   final AuthRepository _repository;
 
   @override
-  Future<UserEntity> call(LoginParams params) {
-    return _repository.login(email: params.email, password: params.password);
+  Future<AuthSessionEntity> call(LoginParams params) {
+    return _repository.login(
+      universityId: params.universityId,
+      username: params.username,
+      password: params.password,
+    );
   }
 }
