@@ -4,11 +4,13 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../config/theme/app_colors.dart';
 import '../../../../shared/widgets/custom_input/custom_input_widget.dart';
+import '../../../../shared/widgets/custom_card/custom_card_widget.dart';
 import '../../../../shared/widgets/custom_tab/custom_tab_widget.dart';
 import '../../../../shared/widgets/custom_toast/custom_toast_service.dart';
 import '../../domain/entities/exam_booking_entity.dart';
 import '../../domain/entities/exam_booking_history_entity.dart';
 import '../providers/appeals_controller.dart';
+import '../providers/career_provider.dart';
 import '../providers/questionnaires_provider.dart';
 import '../widgets/exam_booking_card.dart';
 import '../widgets/exam_booking_sheets.dart';
@@ -34,6 +36,8 @@ class _AppealsOverviewViewState extends ConsumerState<AppealsOverviewView> {
   Widget build(BuildContext context) {
     final state = ref.watch(appealsControllerProvider);
     final exams = ref.watch(visibleExamBookingsProvider);
+    final recommendations = ref.watch(recommendedExamBookingsProvider);
+    final career = ref.watch(careerProvider);
     final query = state.searchQuery.trim().toLowerCase();
     final history = state.bookingHistory
         .where(
@@ -43,9 +47,11 @@ class _AppealsOverviewViewState extends ConsumerState<AppealsOverviewView> {
               booking.courseCode.toLowerCase().contains(query),
         )
         .toList(growable: false);
-    final resultCount = state.filter == AppealsFilter.booked
-        ? history.length
-        : exams.length;
+    final resultCount = switch (state.filter) {
+      AppealsFilter.booked => history.length,
+      AppealsFilter.recommended => recommendations.length,
+      _ => exams.length,
+    };
 
     return ListView(
       key: const Key('appeals-overview-list'),
@@ -84,17 +90,16 @@ class _AppealsOverviewViewState extends ConsumerState<AppealsOverviewView> {
           key: const Key('appeals-filter-tabs'),
           tabs: const [
             TabItem(id: 'all', label: 'Tutti'),
-            TabItem(id: 'available', label: 'Disponibili'),
             TabItem(id: 'booked', label: 'Prenotati'),
+            TabItem(id: 'available', label: 'Disponibili'),
+            TabItem(id: 'recommended', label: 'Consigliati'),
           ],
           activeTab: state.filter.name,
           tabStyle: TabStyle.pill,
           size: TabSize.sm,
           fullWidth: true,
-          onTabChange: (id) => _changeFilter(
-            ref,
-            AppealsFilter.values.byName(id),
-          ),
+          onTabChange: (id) =>
+              _changeFilter(ref, AppealsFilter.values.byName(id)),
         ),
         const SizedBox(height: 10),
         Text(
@@ -107,16 +112,44 @@ class _AppealsOverviewViewState extends ConsumerState<AppealsOverviewView> {
           ),
         ),
         const SizedBox(height: 12),
-        if (state.filter == AppealsFilter.booked) ...[
+        if (state.filter == AppealsFilter.recommended) ...[
+          const _RecommendationsInfoCard(),
+          const SizedBox(height: 12),
+        ],
+        if (state.filter == AppealsFilter.recommended) ...[
+          if (career.isLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 40),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (career.errorMessage != null)
+            _HistoryError(message: career.errorMessage!)
+          else if (recommendations.isEmpty)
+            const _EmptyAppeals(
+              message: 'Non risultano esami ancora da superare.',
+            )
+          else ...[
+            if (state.error != null) ...[
+              const _AppealsAvailabilityWarning(),
+              const SizedBox(height: 10),
+            ],
+            for (var index = 0; index < recommendations.length; index++)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _RecommendedCourseCard(
+                  recommendation: recommendations[index],
+                  position: index + 1,
+                ),
+              ),
+          ],
+        ] else if (state.filter == AppealsFilter.booked) ...[
           if (state.isHistoryLoading)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 40),
               child: Center(child: CircularProgressIndicator()),
             )
           else if (state.historyError != null)
-            _HistoryError(
-              message: state.historyError!,
-            )
+            _HistoryError(message: state.historyError!)
           else if (history.isEmpty)
             const _EmptyAppeals(message: 'Nessuna prenotazione trovata.')
           else
@@ -139,7 +172,11 @@ class _AppealsOverviewViewState extends ConsumerState<AppealsOverviewView> {
                 .loadAvailableAppeals(),
           )
         else if (exams.isEmpty)
-          const _EmptyAppeals()
+          _EmptyAppeals(
+            message: state.filter == AppealsFilter.recommended
+                ? 'Nessun appello consigliato tra gli esami ancora da superare.'
+                : 'Nessun appello trovato con i filtri selezionati.',
+          )
         else ...[
           ...exams.map((exam) {
             final questionnaireCompleted = ref.watch(
@@ -181,10 +218,7 @@ class _AppealsOverviewViewState extends ConsumerState<AppealsOverviewView> {
     );
   }
 
-  Future<void> _changeFilter(
-    WidgetRef ref,
-    AppealsFilter filter,
-  ) async {
+  Future<void> _changeFilter(WidgetRef ref, AppealsFilter filter) async {
     final controller = ref.read(appealsControllerProvider.notifier);
     if (filter != AppealsFilter.booked) {
       controller.setFilter(filter);
@@ -231,8 +265,213 @@ class _AppealsOverviewViewState extends ConsumerState<AppealsOverviewView> {
   }
 }
 
+class _RecommendationsInfoCard extends StatelessWidget {
+  const _RecommendationsInfoCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return const CustomCardWidget(
+      variant: CardVariant.neutral,
+      padding: CardPadding.sm,
+      shadow: CardShadow.none,
+      radius: CardRadius.lg,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            LucideIcons.sparkles,
+            size: 20,
+            color: AppColors.colorPrimaryDark,
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Priorità automatica',
+                  style: TextStyle(
+                    color: AppColors.colorNeutral900,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                SizedBox(height: 3),
+                Text(
+                  'Appelli degli esami mancanti ordinati dal minor numero di CFU al maggiore.',
+                  style: TextStyle(
+                    color: AppColors.colorNeutral500,
+                    fontSize: 11,
+                    height: 1.35,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecommendedCourseCard extends StatelessWidget {
+  const _RecommendedCourseCard({
+    required this.recommendation,
+    required this.position,
+  });
+
+  final RecommendedExamBooking recommendation;
+  final int position;
+
+  @override
+  Widget build(BuildContext context) {
+    final course = recommendation.course;
+    final appeal = recommendation.appeal;
+    final status = _recommendedStatus(appeal);
+
+    return CustomCardWidget(
+      shadow: CardShadow.sm,
+      radius: CardRadius.lg,
+      padding: CardPadding.sm,
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.colorPrimaryLight.withValues(alpha: 0.65),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              '$position',
+              style: const TextStyle(
+                color: AppColors.colorPrimaryDark,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  course.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.colorNeutral900,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  [
+                    if (course.code.trim().isNotEmpty) course.code,
+                    '${course.credits} CFU',
+                    if (appeal != null) _formatShortDate(appeal.date),
+                  ].join(' · '),
+                  style: const TextStyle(
+                    color: AppColors.colorNeutral500,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+            decoration: BoxDecoration(
+              color: status.background,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              status.label,
+              style: TextStyle(
+                color: status.foreground,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ({String label, Color foreground, Color background}) _recommendedStatus(
+    ExamBookingEntity? appeal,
+  ) {
+    if (appeal == null) {
+      return (
+        label: 'Nessun appello',
+        foreground: AppColors.colorNeutral600,
+        background: AppColors.colorNeutral100,
+      );
+    }
+    return switch (appeal.status) {
+      ExamBookingStatus.open => (
+        label: 'Disponibile',
+        foreground: AppColors.colorSuccessDark,
+        background: AppColors.colorSuccessLight,
+      ),
+      ExamBookingStatus.closing => (
+        label: 'In scadenza',
+        foreground: AppColors.colorWarningDark,
+        background: AppColors.colorWarningLight,
+      ),
+      ExamBookingStatus.booked => (
+        label: 'Prenotato',
+        foreground: AppColors.colorPrimaryDark,
+        background: AppColors.colorPrimaryLight,
+      ),
+      ExamBookingStatus.closed => (
+        label: 'Chiuso',
+        foreground: AppColors.colorNeutral600,
+        background: AppColors.colorNeutral100,
+      ),
+    };
+  }
+
+  String _formatShortDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}';
+  }
+}
+
+class _AppealsAvailabilityWarning extends StatelessWidget {
+  const _AppealsAvailabilityWarning();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      children: [
+        Icon(LucideIcons.info, size: 14, color: AppColors.colorNeutral500),
+        SizedBox(width: 7),
+        Expanded(
+          child: Text(
+            'Gli esami sono ordinati dal piano di studio, ma la disponibilità degli appelli non è aggiornata.',
+            style: TextStyle(
+              color: AppColors.colorNeutral500,
+              fontSize: 10.5,
+              height: 1.35,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _EmptyAppeals extends StatelessWidget {
-  const _EmptyAppeals({this.message = 'Nessun appello trovato con i filtri selezionati.'});
+  const _EmptyAppeals({
+    this.message = 'Nessun appello trovato con i filtri selezionati.',
+  });
 
   final String message;
 

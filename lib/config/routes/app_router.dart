@@ -12,6 +12,7 @@ import '../../features/didattica/presentation/pages/didattica_page.dart';
 import '../../features/didattica/presentation/pages/recommended_exam_appeals_page.dart';
 import '../../features/didattica/presentation/pages/study_plan_page.dart';
 import '../../features/didattica/presentation/pages/tuition_fees_page.dart';
+import '../../features/email/presentation/pages/email_inbox_page.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/notifiche/presentation/pages/notifiche_page.dart';
@@ -121,6 +122,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.services,
         name: AppRoutes.servicesName,
         builder: (context, state) => const ServicesPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.emailInbox,
+        name: AppRoutes.emailInboxName,
+        builder: (context, state) => const EmailInboxPage(),
       ),
       GoRoute(
         path: AppRoutes.academicCareer,

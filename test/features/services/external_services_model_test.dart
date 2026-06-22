@@ -11,8 +11,8 @@ void main() {
     });
 
     expect(model.universityId, 'UNIMOL');
-    expect(model.moodleUrl?.host, 'moodle.unimol.it');
-    expect(model.libraryUrl?.host, 'biblioteche.unimol.it');
+    expect(model.moodleUrl?.host, 'learn.unimol.it');
+    expect(model.libraryUrl?.host, 'www3.unimol.it');
   });
 
   test('ignores malformed or empty URLs', () {

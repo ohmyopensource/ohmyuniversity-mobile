@@ -1,11 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../domain/entities/didattica_exam_course_entity.dart';
 import '../../domain/entities/exam_booking_entity.dart';
 import '../../domain/entities/exam_booking_history_entity.dart';
 import 'career_data_providers.dart';
+import 'career_provider.dart';
 
-enum AppealsFilter { all, available, booked }
+enum AppealsFilter { all, booked, available, recommended }
+
+class RecommendedExamBooking {
+  const RecommendedExamBooking({required this.course, required this.appeal});
+
+  final DidatticaExamCourseEntity course;
+  final ExamBookingEntity? appeal;
+}
 
 class AppealsState {
   const AppealsState({
@@ -93,8 +102,9 @@ class AppealsController extends Notifier<AppealsState> {
         return;
       }
 
-      final bookingHistory =
-          await ref.read(getExamBookingHistoryUseCaseProvider).cached();
+      final bookingHistory = await ref
+          .read(getExamBookingHistoryUseCaseProvider)
+          .cached();
       if (bookingHistory == null) {
         state = state.copyWith(
           isLoading: false,
@@ -107,10 +117,7 @@ class AppealsController extends Notifier<AppealsState> {
 
       final exams = await ref
           .read(getAvailableExamBookingsUseCaseProvider)
-          .call(
-            degreeCourseId: degreeCourseId,
-            bookingHistory: bookingHistory,
-          );
+          .call(degreeCourseId: degreeCourseId, bookingHistory: bookingHistory);
       state = state.copyWith(
         examBookings: exams,
         bookingHistory: bookingHistory,
@@ -174,23 +181,111 @@ final allExamBookingsProvider = Provider<List<ExamBookingEntity>>((ref) {
 final visibleExamBookingsProvider = Provider<List<ExamBookingEntity>>((ref) {
   final state = ref.watch(appealsControllerProvider);
   final query = state.searchQuery.trim().toLowerCase();
+  final exams = ref.watch(allExamBookingsProvider);
 
-  return ref
-      .watch(allExamBookingsProvider)
-      .where((exam) {
-        final matchesFilter = switch (state.filter) {
-          AppealsFilter.all => true,
-          AppealsFilter.available =>
-            exam.status == ExamBookingStatus.open ||
+  final filteredExams = switch (state.filter) {
+    AppealsFilter.all => exams,
+    AppealsFilter.booked =>
+      exams
+          .where((exam) => exam.status == ExamBookingStatus.booked)
+          .toList(growable: false),
+    AppealsFilter.available =>
+      exams
+          .where(
+            (exam) =>
+                exam.status == ExamBookingStatus.open ||
                 exam.status == ExamBookingStatus.closing,
-          AppealsFilter.booked => exam.status == ExamBookingStatus.booked,
-        };
+          )
+          .toList(growable: false),
+    AppealsFilter.recommended => const <ExamBookingEntity>[],
+  };
+
+  return filteredExams
+      .where((exam) {
         final matchesSearch =
             query.isEmpty ||
             exam.courseName.toLowerCase().contains(query) ||
             exam.professor.toLowerCase().contains(query) ||
             exam.location.toLowerCase().contains(query);
-        return matchesFilter && matchesSearch;
+        return matchesSearch;
       })
       .toList(growable: false);
 });
+
+final recommendedExamBookingsProvider = Provider<List<RecommendedExamBooking>>((
+  ref,
+) {
+  final state = ref.watch(appealsControllerProvider);
+  final career = ref.watch(careerProvider);
+  final exams = ref.watch(allExamBookingsProvider);
+  final query = state.searchQuery.trim().toLowerCase();
+
+  final examsByCode = <String, List<ExamBookingEntity>>{};
+  final examsByName = <String, List<ExamBookingEntity>>{};
+  for (final exam in exams) {
+    if (exam.courseAcronym.trim().isNotEmpty) {
+      examsByCode
+          .putIfAbsent(_normalize(exam.courseAcronym), () => [])
+          .add(exam);
+    }
+    examsByName.putIfAbsent(_normalize(exam.courseName), () => []).add(exam);
+  }
+
+  final pendingCourses = career.courses.where((course) {
+    if (course.passed) return false;
+    return query.isEmpty ||
+        course.name.toLowerCase().contains(query) ||
+        course.code.toLowerCase().contains(query);
+  }).toList()..sort(_comparePendingCourses);
+
+  return pendingCourses
+      .map((course) {
+        final matchingExams =
+            examsByCode[_normalize(course.code)] ??
+            examsByName[_normalize(course.name)] ??
+            const <ExamBookingEntity>[];
+        return RecommendedExamBooking(
+          course: course,
+          appeal: _bestExamBooking(matchingExams),
+        );
+      })
+      .toList(growable: false);
+});
+
+int _comparePendingCourses(
+  DidatticaExamCourseEntity first,
+  DidatticaExamCourseEntity second,
+) {
+  final creditsComparison = first.credits.compareTo(second.credits);
+  if (creditsComparison != 0) return creditsComparison;
+  final yearComparison = first.year.compareTo(second.year);
+  if (yearComparison != 0) return yearComparison;
+  final semesterComparison = first.semester.compareTo(second.semester);
+  if (semesterComparison != 0) return semesterComparison;
+  return first.name.compareTo(second.name);
+}
+
+ExamBookingEntity? _bestExamBooking(List<ExamBookingEntity> exams) {
+  if (exams.isEmpty) return null;
+  final sorted = [...exams]
+    ..sort((first, second) {
+      final priorityComparison = _examPriority(
+        first,
+      ).compareTo(_examPriority(second));
+      if (priorityComparison != 0) return priorityComparison;
+      return first.date.compareTo(second.date);
+    });
+  return sorted.first;
+}
+
+int _examPriority(ExamBookingEntity exam) {
+  return switch (exam.status) {
+    ExamBookingStatus.open || ExamBookingStatus.closing => 0,
+    ExamBookingStatus.booked => 1,
+    ExamBookingStatus.closed => 2,
+  };
+}
+
+String _normalize(String value) {
+  return value.trim().toLowerCase().replaceAll(RegExp('[^a-z0-9]'), '');
+}

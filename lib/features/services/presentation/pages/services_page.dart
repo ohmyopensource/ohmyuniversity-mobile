@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../config/theme/app_colors.dart';
+import '../../../../config/routes/app_routes.dart';
 import '../../../../shared/widgets/custom_card/custom_card_widget.dart';
 import '../../../../shared/widgets/custom_toast/custom_toast_service.dart';
 import '../../domain/entities/external_services_entity.dart';
@@ -27,6 +29,7 @@ class ServicesPage extends ConsumerWidget {
         data: (data) => _ServicesContent(
           services: data,
           onOpen: (url) => _openService(ref, url),
+          onOpenEmail: () => context.pushNamed(AppRoutes.emailInboxName),
         ),
       ),
     );
@@ -49,10 +52,15 @@ class ServicesPage extends ConsumerWidget {
 }
 
 class _ServicesContent extends StatelessWidget {
-  const _ServicesContent({required this.services, required this.onOpen});
+  const _ServicesContent({
+    required this.services,
+    required this.onOpen,
+    required this.onOpenEmail,
+  });
 
   final ExternalServicesEntity services;
   final ValueChanged<Uri?> onOpen;
+  final VoidCallback onOpenEmail;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +86,15 @@ class _ServicesContent extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         _ServiceCard(
+          key: const Key('email-service-card'),
+          icon: LucideIcons.mail,
+          title: 'Email istituzionale',
+          description: 'Consulta i messaggi del tuo account universitario.',
+          available: true,
+          onTap: onOpenEmail,
+        ),
+        const SizedBox(height: 12),
+        _ServiceCard(
           key: const Key('moodle-service-card'),
           icon: LucideIcons.graduationCap,
           title: 'Moodle',
@@ -93,6 +110,15 @@ class _ServicesContent extends StatelessWidget {
           description: 'Cataloghi, risorse digitali e servizi bibliotecari.',
           available: services.libraryUrl != null,
           onTap: () => onOpen(services.libraryUrl),
+        ),
+        const SizedBox(height: 12),
+        _ServiceCard(
+          key: const Key('student-portal-service-card'),
+          icon: LucideIcons.school,
+          title: 'Portale Studente',
+          description: 'Accedi ai servizi online della tua carriera.',
+          available: services.studentPortalUrl != null,
+          onTap: () => onOpen(services.studentPortalUrl),
         ),
       ],
     );

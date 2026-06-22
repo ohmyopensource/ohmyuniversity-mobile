@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:ohmyuniversity/features/home/presentation/models/dashboard_widget_option.dart';
 import 'package:ohmyuniversity/features/home/presentation/widgets/dashboard/dashboard_widget_content.dart';
+import 'package:ohmyuniversity/features/didattica/data/mocks/exam_bookings_mock_data.dart';
+import 'package:ohmyuniversity/features/didattica/presentation/providers/appeals_controller.dart';
 import 'package:ohmyuniversity/features/didattica/presentation/providers/career_data_providers.dart';
 import 'package:ohmyuniversity/shared/widgets/academic/academic_summary_tiles.dart';
 import 'package:ohmyuniversity/shared/widgets/academic/academic_history_chart.dart';
@@ -220,6 +222,7 @@ Widget _careerScope({required Widget child}) {
       careerSnapshotProvider.overrideWith(
         (ref) async => buildCareerTestSnapshot(),
       ),
+      allExamBookingsProvider.overrideWithValue(examBookingsMockData),
     ],
     child: child,
   );

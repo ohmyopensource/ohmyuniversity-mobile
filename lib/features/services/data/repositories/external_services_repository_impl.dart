@@ -21,8 +21,9 @@ class ExternalServicesMockRepository implements ExternalServicesRepository {
     return ExternalServicesEntity(
       universityId: 'UNIMOL',
       universityName: 'Università degli Studi del Molise',
-      moodleUrl: Uri.parse('https://moodle.unimol.it'),
-      libraryUrl: Uri.parse('https://biblioteche.unimol.it'),
+      moodleUrl: Uri.parse('https://learn.unimol.it/'),
+      libraryUrl: Uri.parse('https://www3.unimol.it/biblioteche/home'),
+      studentPortalUrl: Uri.parse('https://unimol.esse3.cineca.it/Home.do'),
     );
   }
 }

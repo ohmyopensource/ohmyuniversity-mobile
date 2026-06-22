@@ -26,7 +26,11 @@ void main() {
 
     expect(find.byKey(const Key('moodle-service-card')), findsOneWidget);
     expect(find.byKey(const Key('library-service-card')), findsOneWidget);
+    expect(
+      find.byKey(const Key('student-portal-service-card')),
+      findsOneWidget,
+    );
     expect(find.text('Università degli Studi del Molise'), findsOneWidget);
-    expect(find.text('Servizio non configurato'), findsNWidgets(2));
+    expect(find.text('Servizio non configurato'), findsNWidgets(3));
   });
 }
