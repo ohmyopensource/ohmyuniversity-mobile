@@ -11,7 +11,9 @@ import '../widgets/calendar_day_strip.dart';
 import '../widgets/calendar_event_detail_sheet.dart';
 import '../widgets/calendar_event_form_sheet.dart';
 import '../widgets/calendar_header.dart';
+import '../widgets/calendar_month_view.dart';
 import '../widgets/calendar_timeline.dart';
+import '../widgets/calendar_year_view.dart';
 
 class CalendarioPage extends ConsumerWidget {
   const CalendarioPage({super.key});
@@ -19,6 +21,7 @@ class CalendarioPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDate = ref.watch(selectedCalendarDateProvider);
+    final selectedView = ref.watch(selectedCalendarViewProvider);
     final selectedHour = ref.watch(selectedCalendarHourProvider);
     final currentTime =
         ref.watch(calendarClockProvider).value ?? DateTime.now();
@@ -31,32 +34,55 @@ class CalendarioPage extends ConsumerWidget {
           children: [
             CalendarHeader(
               selectedDate: selectedDate,
+              selectedView: selectedView,
+              onViewChanged: ref
+                  .read(selectedCalendarViewProvider.notifier)
+                  .setView,
               onOpenDatePicker: () => _openDatePicker(context, ref),
               onBack: () => context.goNamed(AppRoutes.homeName),
             ),
-            CalendarDayStrip(
-              selectedDate: selectedDate,
-              onDateSelected: (date) {
-                ref
-                    .read(selectedCalendarDateProvider.notifier)
-                    .selectDate(date);
-                ref
-                    .read(selectedCalendarHourProvider.notifier)
-                    .clearSelection();
-              },
-            ),
+            if (selectedView == CalendarView.day)
+              CalendarDayStrip(
+                selectedDate: selectedDate,
+                onDateSelected: (date) => _selectDate(ref, date),
+              ),
             Expanded(
               child: eventsAsync.when(
-                data: (events) => CalendarTimeline(
-                  events: events,
-                  selectedDate: selectedDate,
-                  currentTime: currentTime,
-                  selectedHour: selectedHour,
-                  onHourSelected: ref
-                      .read(selectedCalendarHourProvider.notifier)
-                      .selectHour,
-                  onEventSelected: (event) => _openEventDetail(context, event),
-                ),
+                data: (events) => switch (selectedView) {
+                  CalendarView.day => CalendarTimeline(
+                    events: events,
+                    selectedDate: selectedDate,
+                    currentTime: currentTime,
+                    selectedHour: selectedHour,
+                    onHourSelected: ref
+                        .read(selectedCalendarHourProvider.notifier)
+                        .selectHour,
+                    onEventSelected: (event) =>
+                        _openEventDetail(context, event),
+                  ),
+                  CalendarView.month => CalendarMonthView(
+                    focusedDate: selectedDate,
+                    events: events,
+                    onDaySelected: (date) {
+                      _selectDate(ref, date);
+                      ref
+                          .read(selectedCalendarViewProvider.notifier)
+                          .setView(CalendarView.day);
+                    },
+                    onMonthChanged: (date) => _selectDate(ref, date),
+                  ),
+                  CalendarView.year => CalendarYearView(
+                    focusedDate: selectedDate,
+                    events: events,
+                    onMonthSelected: (date) {
+                      _selectDate(ref, date);
+                      ref
+                          .read(selectedCalendarViewProvider.notifier)
+                          .setView(CalendarView.month);
+                    },
+                    onYearChanged: (date) => _selectDate(ref, date),
+                  ),
+                },
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (error, stackTrace) =>
                     _CalendarErrorView(message: error.toString()),
@@ -75,6 +101,11 @@ class CalendarioPage extends ConsumerWidget {
         child: const Icon(LucideIcons.plus),
       ),
     );
+  }
+
+  void _selectDate(WidgetRef ref, DateTime date) {
+    ref.read(selectedCalendarDateProvider.notifier).selectDate(date);
+    ref.read(selectedCalendarHourProvider.notifier).clearSelection();
   }
 
   Future<void> _openDatePicker(BuildContext context, WidgetRef ref) async {

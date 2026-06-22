@@ -14,12 +14,35 @@ abstract final class CalendarDateLabels {
     'Dic',
   ];
 
+  static const _fullMonths = [
+    'Gennaio',
+    'Febbraio',
+    'Marzo',
+    'Aprile',
+    'Maggio',
+    'Giugno',
+    'Luglio',
+    'Agosto',
+    'Settembre',
+    'Ottobre',
+    'Novembre',
+    'Dicembre',
+  ];
+
   static const _weekdays = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 
   static String monthYear(DateTime date) {
     final year = date.year.toString().substring(2);
     return '${_months[date.month - 1]} $year';
   }
+
+  static String fullMonth(DateTime date) => _fullMonths[date.month - 1];
+
+  static String fullMonthYear(DateTime date) {
+    return '${fullMonth(date)} ${date.year}';
+  }
+
+  static String shortMonth(DateTime date) => _months[date.month - 1];
 
   static String weekday(DateTime date) {
     return _weekdays[date.weekday - 1];
