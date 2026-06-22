@@ -5,13 +5,15 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../../config/routes/app_routes.dart';
 import '../../../../../config/theme/app_colors.dart';
-import '../../../../../shared/mocks/app_mock_data.dart';
 import '../../../../../shared/widgets/academic/academic_exam_widgets.dart';
 import '../../../../../shared/widgets/academic/academic_summary_tiles.dart';
 import '../../../../../shared/widgets/academic/academic_tuition_widgets.dart';
 import '../../../../calendario/presentation/providers/calendar_providers.dart';
 import '../../../../didattica/presentation/providers/appeals_controller.dart';
 import '../../../../didattica/presentation/providers/career_provider.dart';
+import '../../../../didattica/presentation/providers/tuition_providers.dart';
+import '../../../../didattica/domain/entities/tuition_fee_entity.dart';
+import '../../../../didattica/domain/entities/didattica_exam_course_entity.dart';
 import '../../models/dashboard_widget_option.dart';
 import 'dashboard_calendar_widgets.dart';
 import 'home_appeals_widget.dart';
@@ -94,7 +96,7 @@ class DashboardWidgetContent extends ConsumerWidget {
       'appeals' => HomeAppealsWidget(
         appeals: ref.watch(allExamBookingsProvider),
       ),
-      'tuition_fees' => const _DashboardTuitionWidget(),
+      'tuition_fees' => _DashboardTuitionWidget(preview: preview),
       'tuition_fees_compact' => _DashboardTuitionCompactWidget(
         preview: preview,
       ),
@@ -107,24 +109,21 @@ class DashboardWidgetContent extends ConsumerWidget {
   }
 }
 
-class _DashboardExamsWidget extends StatefulWidget {
+class _DashboardExamsWidget extends ConsumerStatefulWidget {
   const _DashboardExamsWidget();
 
   @override
-  State<_DashboardExamsWidget> createState() => _DashboardExamsWidgetState();
+  ConsumerState<_DashboardExamsWidget> createState() =>
+      _DashboardExamsWidgetState();
 }
 
-class _DashboardExamsWidgetState extends State<_DashboardExamsWidget> {
+class _DashboardExamsWidgetState extends ConsumerState<_DashboardExamsWidget> {
   int _selectedYear = 1;
   int _selectedSemester = 0;
   final Map<String, int> _provisionalGrades = {};
 
-  static final _courses = AppMockData.dashboardExamCourses
-      .map(_toAcademicExamCourseData)
-      .toList(growable: false);
-
   static AcademicExamCourseData _toAcademicExamCourseData(
-    MockExamCourseData course,
+    DidatticaExamCourseEntity course,
   ) {
     return AcademicExamCourseData(
       id: course.id,
@@ -140,11 +139,29 @@ class _DashboardExamsWidgetState extends State<_DashboardExamsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final careerState = ref.watch(careerProvider);
+    if (careerState.isLoading) {
+      return const _DashboardAsyncState(isLoading: true);
+    }
+    if (careerState.errorMessage != null) {
+      return const _DashboardAsyncState(isLoading: false);
+    }
+    final courses = careerState.courses
+        .map(_toAcademicExamCourseData)
+        .toList(growable: false);
+    final years = courses.map((course) => course.year).toSet().toList()..sort();
+    if (years.isEmpty) {
+      return const Center(child: Text('Nessun esame disponibile'));
+    }
+    final effectiveYear = years.contains(_selectedYear)
+        ? _selectedYear
+        : years.first;
+
     return AcademicExamsPanel(
       compact: true,
-      courses: _courses,
-      years: const [1, 2, 3],
-      selectedYear: _selectedYear,
+      courses: courses,
+      years: years,
+      selectedYear: effectiveYear,
       selectedSemester: _selectedSemester,
       provisionalGrades: _provisionalGrades,
       onYearChanged: (year) {
@@ -183,23 +200,22 @@ class _DashboardCalendarWidget extends ConsumerWidget {
   }
 }
 
-class _DashboardTuitionWidget extends StatefulWidget {
-  const _DashboardTuitionWidget();
+class _DashboardTuitionWidget extends ConsumerStatefulWidget {
+  const _DashboardTuitionWidget({required this.preview});
+
+  final bool preview;
 
   @override
-  State<_DashboardTuitionWidget> createState() =>
+  ConsumerState<_DashboardTuitionWidget> createState() =>
       _DashboardTuitionWidgetState();
 }
 
-class _DashboardTuitionWidgetState extends State<_DashboardTuitionWidget> {
+class _DashboardTuitionWidgetState
+    extends ConsumerState<_DashboardTuitionWidget> {
   int _selectedStatus = 0;
 
-  static final _fees = AppMockData.tuitionFees
-      .map(_toAcademicTuitionFeeData)
-      .toList(growable: false);
-
   static AcademicTuitionFeeData _toAcademicTuitionFeeData(
-    MockTuitionFeeData fee,
+    TuitionFeeEntity fee,
   ) {
     return AcademicTuitionFeeData(
       id: fee.id,
@@ -215,36 +231,75 @@ class _DashboardTuitionWidgetState extends State<_DashboardTuitionWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.preview) {
+      return _buildPanel(const []);
+    }
+    return ref
+        .watch(tuitionSnapshotProvider)
+        .when(
+          data: (snapshot) => _buildPanel(
+            snapshot.fees
+                .map(_toAcademicTuitionFeeData)
+                .toList(growable: false),
+          ),
+          loading: () => const _DashboardAsyncState(isLoading: true),
+          error: (_, _) => const _DashboardAsyncState(isLoading: false),
+        );
+  }
+
+  Widget _buildPanel(List<AcademicTuitionFeeData> fees) {
     return AcademicTuitionPanel(
-      fees: _fees,
+      fees: fees,
       selectedStatus: _selectedStatus,
-      onStatusChanged: (status) {
-        setState(() => _selectedStatus = status);
-      },
+      onStatusChanged: (status) => setState(() => _selectedStatus = status),
     );
   }
 }
 
-class _DashboardTuitionCompactWidget extends StatelessWidget {
+class _DashboardTuitionCompactWidget extends ConsumerWidget {
   const _DashboardTuitionCompactWidget({required this.preview});
 
   final bool preview;
 
-  static final _fees = AppMockData.tuitionFees
-      .map(_DashboardTuitionWidgetState._toAcademicTuitionFeeData)
-      .toList(growable: false);
-
   @override
-  Widget build(BuildContext context) {
-    final paidCount = _fees.where((fee) => fee.isPaid).length;
-    final unpaidCount = _fees.length - paidCount;
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (preview) return _buildCounter(context, const []);
 
+    return ref
+        .watch(tuitionSnapshotProvider)
+        .when(
+          data: (snapshot) => _buildCounter(context, snapshot.fees),
+          loading: () => const _DashboardAsyncState(isLoading: true),
+          error: (_, _) => const _DashboardAsyncState(isLoading: false),
+        );
+  }
+
+  Widget _buildCounter(BuildContext context, List<TuitionFeeEntity> fees) {
+    final paidCount = fees.where((fee) => fee.isPaid).length;
     return AcademicTuitionCounterTile(
-      unpaidCount: unpaidCount,
+      unpaidCount: fees.length - paidCount,
       paidCount: paidCount,
       onTap: preview
           ? null
           : () => context.pushNamed(AppRoutes.didatticaTuitionFeesName),
+    );
+  }
+}
+
+class _DashboardAsyncState extends StatelessWidget {
+  const _DashboardAsyncState({required this.isLoading});
+
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: isLoading
+          ? const SizedBox.square(
+              dimension: 22,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(LucideIcons.cloudOff, color: AppColors.colorNeutral400),
     );
   }
 }
