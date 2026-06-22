@@ -4,7 +4,7 @@ import '../../domain/entities/didattica_course_type.dart';
 import '../../domain/entities/didattica_exam_course_entity.dart';
 import '../../domain/entities/didattica_statistics_entity.dart';
 import '../../domain/services/didattica_statistics_calculator.dart';
-import 'exam_courses_provider.dart';
+import 'career_data_providers.dart';
 
 enum CareerExamFilter { all, passed, pending }
 
@@ -14,12 +14,18 @@ class CareerState {
     this.examFilter = CareerExamFilter.all,
     this.yearFilter = 'all',
     this.simulatedGrades = const {},
+    this.officialStatistics = DidatticaStatisticsEntity.empty,
+    this.isLoading = false,
+    this.errorMessage,
   });
 
   final List<DidatticaExamCourseEntity> courses;
   final CareerExamFilter examFilter;
   final String yearFilter;
   final Map<String, String> simulatedGrades;
+  final DidatticaStatisticsEntity officialStatistics;
+  final bool isLoading;
+  final String? errorMessage;
 
   bool get hasSimulation => simulatedGrades.isNotEmpty;
 
@@ -61,12 +67,19 @@ class CareerState {
     CareerExamFilter? examFilter,
     String? yearFilter,
     Map<String, String>? simulatedGrades,
+    DidatticaStatisticsEntity? officialStatistics,
+    bool? isLoading,
+    String? errorMessage,
+    bool clearError = false,
   }) {
     return CareerState(
       courses: courses,
       examFilter: examFilter ?? this.examFilter,
       yearFilter: yearFilter ?? this.yearFilter,
       simulatedGrades: simulatedGrades ?? this.simulatedGrades,
+      officialStatistics: officialStatistics ?? this.officialStatistics,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
   }
 }
@@ -80,14 +93,26 @@ final careerStatisticsProvider = Provider<DidatticaStatisticsEntity>((ref) {
   return const DidatticaStatisticsCalculator().calculate(
     state.courses,
     simulatedGrades: state.simulatedGrades,
+    officialStatistics: state.officialStatistics,
   );
 });
 
 class CareerController extends Notifier<CareerState> {
   @override
   CareerState build() {
-    return CareerState(courses: ref.watch(didatticaExamCoursesProvider));
+    final snapshot = ref.watch(careerSnapshotProvider);
+    return snapshot.when(
+      data: (data) => CareerState(
+        courses: data.courses,
+        officialStatistics: data.statistics,
+      ),
+      loading: () => const CareerState(courses: [], isLoading: true),
+      error: (error, _) =>
+          CareerState(courses: const [], errorMessage: error.toString()),
+    );
   }
+
+  void reload() => ref.invalidate(careerSnapshotProvider);
 
   void setExamFilter(CareerExamFilter filter) {
     if (filter == state.examFilter) return;

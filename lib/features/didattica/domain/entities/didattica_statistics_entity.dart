@@ -25,6 +25,19 @@ class DidatticaStatisticsEntity {
   final List<AverageTrendPointEntity> averageTrend;
   final bool hasSimulation;
 
+  static const empty = DidatticaStatisticsEntity(
+    arithmeticAverage: 0,
+    weightedAverage: 0,
+    acquiredCredits: 0,
+    totalCredits: 0,
+    graduationBase: 0,
+    projectedGraduationScore: 0,
+    honorsCount: 0,
+    gradeHistory: [],
+    averageTrend: [],
+    hasSimulation: false,
+  );
+
   double get projectedGraduationBase => projectedGraduationScore;
   double get maxGraduationBase => 110;
 

@@ -211,15 +211,17 @@ class _SemesterSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          group.semester == 1 ? 'Primo semestre' : 'Secondo semestre',
-          key: Key('semester-heading-${group.semester}'),
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: AppColors.colorNeutral500,
-            fontWeight: FontWeight.w800,
+        if (group.semester > 0) ...[
+          Text(
+            group.semester == 1 ? 'Primo semestre' : 'Secondo semestre',
+            key: Key('semester-heading-${group.semester}'),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: AppColors.colorNeutral500,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
+          const SizedBox(height: 8),
+        ],
         for (var index = 0; index < group.courses.length; index++) ...[
           CareerExamCard(
             course: group.courses[index],

@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ohmyuniversity/features/didattica/domain/entities/didattica_course_type.dart';
+import 'package:ohmyuniversity/features/didattica/presentation/providers/career_data_providers.dart';
 import 'package:ohmyuniversity/features/didattica/presentation/providers/career_provider.dart';
 import 'package:ohmyuniversity/features/didattica/presentation/views/career_overview_view.dart';
+
+import '../../helpers/career_test_snapshot.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -18,11 +21,16 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: Scaffold(body: CareerOverviewView())),
+      ProviderScope(
+        overrides: [
+          careerSnapshotProvider.overrideWith(
+            (ref) async => buildCareerTestSnapshot(),
+          ),
+        ],
+        child: const MaterialApp(home: Scaffold(body: CareerOverviewView())),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
 
     expect(find.text('AVANZAMENTO PERCORSO'), findsOneWidget);
     expect(find.text('PROIEZIONE DI LAUREA'), findsOneWidget);
@@ -74,7 +82,7 @@ void main() {
   testWidgets('shows and clears the floating simulation indicator', (
     tester,
   ) async {
-    final container = ProviderContainer();
+    final container = _careerContainer();
     addTearDown(container.dispose);
 
     await tester.pumpWidget(
@@ -83,7 +91,7 @@ void main() {
         child: const MaterialApp(home: Scaffold(body: CareerOverviewView())),
       ),
     );
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     final pendingCourse = container
         .read(careerProvider)
@@ -123,7 +131,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final container = ProviderContainer();
+    final container = _careerContainer();
     addTearDown(container.dispose);
     const courseId = 'exam-1-1-2';
 
@@ -133,7 +141,7 @@ void main() {
         child: const MaterialApp(home: Scaffold(body: CareerOverviewView())),
       ),
     );
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     final simulateButton = find.byKey(const Key('simulate-$courseId'));
     await tester.scrollUntilVisible(
@@ -158,7 +166,7 @@ void main() {
   });
 
   test('combines year and status filters', () {
-    final container = ProviderContainer();
+    final container = _careerContainer();
     addTearDown(container.dispose);
     final controller = container.read(careerProvider.notifier);
 
@@ -180,4 +188,14 @@ void main() {
       isTrue,
     );
   });
+}
+
+ProviderContainer _careerContainer() {
+  return ProviderContainer(
+    overrides: [
+      careerSnapshotProvider.overrideWith(
+        (ref) async => buildCareerTestSnapshot(),
+      ),
+    ],
+  );
 }

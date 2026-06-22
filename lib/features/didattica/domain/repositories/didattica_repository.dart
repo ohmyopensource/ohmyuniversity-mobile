@@ -1,5 +1,5 @@
-import '../entities/didattica_exam_course_entity.dart';
+import '../entities/career_snapshot_entity.dart';
 
-abstract class DidatticaRepository {
-  List<DidatticaExamCourseEntity> getExamCourses();
+abstract interface class DidatticaRepository {
+  Future<CareerSnapshotEntity> getCareerSnapshot();
 }

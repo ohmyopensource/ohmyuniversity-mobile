@@ -17,6 +17,16 @@ class CareerOverviewView extends ConsumerWidget {
     final state = ref.watch(careerProvider);
     final statistics = ref.watch(careerStatisticsProvider);
 
+    if (state.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (state.errorMessage != null) {
+      return _CareerErrorState(
+        message: state.errorMessage!,
+        onRetry: ref.read(careerProvider.notifier).reload,
+      );
+    }
+
     return Stack(
       children: [
         ListView(
@@ -80,6 +90,47 @@ class CareerOverviewView extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CareerErrorState extends StatelessWidget {
+  const _CareerErrorState({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              LucideIcons.cloudOff,
+              size: 34,
+              color: AppColors.colorNeutral400,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.colorNeutral600,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(LucideIcons.refreshCw, size: 17),
+              label: const Text('Riprova'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
