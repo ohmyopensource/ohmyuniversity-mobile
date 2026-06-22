@@ -9,6 +9,7 @@ class AuthLocalDataSource {
   const AuthLocalDataSource(this._storage);
 
   static const _sessionKey = 'auth_session';
+  static const _bookingHistoryKey = 'exam_booking_history';
   final FlutterSecureStorage _storage;
 
   Future<void> saveSession(AuthSessionModel session) {
@@ -33,5 +34,10 @@ class AuthLocalDataSource {
     }
   }
 
-  Future<void> clearSession() => _storage.delete(key: _sessionKey);
+  Future<void> clearSession() {
+    return Future.wait([
+      _storage.delete(key: _sessionKey),
+      _storage.delete(key: _bookingHistoryKey),
+    ]);
+  }
 }

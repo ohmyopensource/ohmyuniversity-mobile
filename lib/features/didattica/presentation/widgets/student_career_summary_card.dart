@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/widgets/academic/academic_summary_tiles.dart';
+import '../../../profile/presentation/mappers/student_identity_mapper.dart';
+import '../../../profile/presentation/providers/student_badge_providers.dart';
+import '../providers/career_provider.dart';
 import '../providers/exam_courses_provider.dart';
 
 class StudentCareerSummaryCard extends ConsumerWidget {
@@ -10,11 +13,19 @@ class StudentCareerSummaryCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final statistics = ref.watch(didatticaStatisticsProvider);
+    final careerState = ref.watch(careerProvider);
+    final badge = ref.watch(studentBadgeProvider).value;
+    final identity = mapStudentIdentityData(
+      badge: badge,
+      statistics: statistics,
+      totalExams: careerState.courses.length,
+      passedExams: careerState.courses.where((course) => course.passed).length,
+    );
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Expanded(flex: 14, child: StudentIdentityTile()),
+        Expanded(flex: 14, child: StudentIdentityTile(data: identity)),
         const SizedBox(width: 10),
         Expanded(
           flex: 23,

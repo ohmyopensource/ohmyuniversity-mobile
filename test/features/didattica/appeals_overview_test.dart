@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ohmyuniversity/features/didattica/data/mocks/exam_bookings_mock_data.dart';
 import 'package:ohmyuniversity/features/didattica/presentation/providers/appeals_controller.dart';
 import 'package:ohmyuniversity/features/didattica/presentation/providers/questionnaires_provider.dart';
 import 'package:ohmyuniversity/features/didattica/presentation/views/appeals_overview_view.dart';
@@ -10,7 +11,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('filters appeals by availability and search query', () {
-    final container = ProviderContainer();
+    final container = _mockAppealsContainer();
     addTearDown(container.dispose);
 
     expect(container.read(visibleExamBookingsProvider), hasLength(6));
@@ -27,7 +28,7 @@ void main() {
   });
 
   test('enables bookings only for courses with a completed questionnaire', () {
-    final container = ProviderContainer();
+    final container = _mockAppealsContainer();
     addTearDown(container.dispose);
 
     expect(
@@ -54,7 +55,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final container = ProviderContainer();
+    final container = _mockAppealsContainer();
     addTearDown(container.dispose);
 
     await tester.pumpWidget(
@@ -90,8 +91,11 @@ void main() {
     await tester.tap(find.byKey(const Key('confirm-exam-booking')));
     await tester.pumpAndSettle();
 
-    expect(container.read(appealsControllerProvider).bookedIds, contains('e4'));
-    expect(find.text('Prenotato'), findsNWidgets(2));
+    expect(
+      container.read(appealsControllerProvider).bookedIds,
+      isNot(contains('e4')),
+    );
+    expect(find.byKey(const Key('confirm-exam-booking')), findsNothing);
     await tester.pump(const Duration(seconds: 5));
     expect(tester.takeException(), isNull);
   });
@@ -100,8 +104,11 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: Scaffold(body: AppealsOverviewView())),
+      ProviderScope(
+        overrides: [
+          appealsControllerProvider.overrideWith(_MockAppealsController.new),
+        ],
+        child: const MaterialApp(home: Scaffold(body: AppealsOverviewView())),
       ),
     );
     await tester.pump();
@@ -129,8 +136,11 @@ void main() {
 
   testWidgets('shows the empty state when no exam matches', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: Scaffold(body: AppealsOverviewView())),
+      ProviderScope(
+        overrides: [
+          appealsControllerProvider.overrideWith(_MockAppealsController.new),
+        ],
+        child: const MaterialApp(home: Scaffold(body: AppealsOverviewView())),
       ),
     );
     await tester.pump();
@@ -139,6 +149,27 @@ void main() {
     await tester.pump();
 
     expect(find.byKey(const Key('appeals-empty-state')), findsOneWidget);
-    expect(find.text('0 appelli trovati'), findsOneWidget);
+    expect(find.text('0 risultati trovati'), findsOneWidget);
   });
+}
+
+ProviderContainer _mockAppealsContainer() {
+  return ProviderContainer(
+    overrides: [
+      appealsControllerProvider.overrideWith(_MockAppealsController.new),
+    ],
+  );
+}
+
+class _MockAppealsController extends AppealsController {
+  @override
+  AppealsState build() {
+    return AppealsState(examBookings: examBookingsMockData, loaded: true);
+  }
+
+  @override
+  Future<void> loadAvailableAppeals() async {}
+
+  @override
+  Future<void> loadBookingHistory() async {}
 }

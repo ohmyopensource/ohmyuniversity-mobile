@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../config/theme/app_colors.dart';
-import '../../../../shared/mocks/app_mock_data.dart';
 import '../../../../shared/widgets/custom_avatar/custom_avatar_widget.dart';
+import '../../domain/entities/student_badge_entity.dart';
+import '../providers/student_badge_providers.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final student = AppMockData.student;
-    final academicInfo = AppMockData.academicInfo;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final badge = ref.watch(studentBadgeProvider);
 
     return Scaffold(
       key: const Key('profile-page'),
@@ -23,10 +24,43 @@ class ProfilePage extends StatelessWidget {
       ),
       body: SafeArea(
         top: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-          children: [
-            _ProfileHeader(name: student.fullName, email: student.email),
+        child: badge.when(
+          data: (data) => data == null
+              ? const _ProfileUnavailable()
+              : _ProfileContent(badge: data),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => _ProfileError(
+            message: error.toString(),
+            onRetry: () => ref.invalidate(studentBadgeProvider),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileContent extends ConsumerWidget {
+  const _ProfileContent({required this.badge});
+
+  final StudentBadgeEntity badge;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(studentBadgeProvider);
+        await ref.read(studentBadgeProvider.future);
+      },
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        children: [
+            _ProfileHeader(
+              name: badge.fullName,
+              subtitle: badge.courseName,
+            ),
             const SizedBox(height: 18),
             Text(
               'Informazioni accademiche',
@@ -41,43 +75,50 @@ class ProfilePage extends StatelessWidget {
                 _ProfileInfoRow(
                   icon: LucideIcons.creditCard,
                   label: 'Matricola',
-                  value: student.studentId,
+                  value: badge.studentNumber,
                 ),
                 _ProfileInfoRow(
                   icon: LucideIcons.university,
                   label: 'Ateneo',
-                  value: academicInfo.universityName,
+                  value: badge.universityName,
                 ),
                 _ProfileInfoRow(
                   icon: LucideIcons.bookOpen,
                   label: 'Corso di laurea',
-                  value: academicInfo.courseName,
+                  value: badge.courseName,
                 ),
-                _ProfileInfoRow(
-                  icon: LucideIcons.graduationCap,
-                  label: 'Percorso',
-                  value: academicInfo.degreeName,
-                ),
+                if (badge.facultyName.isNotEmpty)
+                  _ProfileInfoRow(
+                    icon: LucideIcons.graduationCap,
+                    label: 'Dipartimento',
+                    value: badge.facultyName,
+                  ),
                 _ProfileInfoRow(
                   icon: LucideIcons.calendarDays,
                   label: 'Anno accademico',
-                  value: academicInfo.academicYear,
-                  showDivider: false,
+                  value: badge.academicYear,
+                  showDivider: badge.rfid.isNotEmpty,
                 ),
+                if (badge.rfid.isNotEmpty)
+                  _ProfileInfoRow(
+                    icon: LucideIcons.scanLine,
+                    label: 'RFID badge',
+                    value: badge.rfid,
+                    showDivider: false,
+                  ),
               ],
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({required this.name, required this.email});
+  const _ProfileHeader({required this.name, required this.subtitle});
 
   final String name;
-  final String email;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +150,7 @@ class _ProfileHeader extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    email,
+                    subtitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -126,9 +167,9 @@ class _ProfileHeader extends StatelessWidget {
                       color: AppColors.colorSuccessLight.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: const Text(
-                      'Studente attivo',
-                      style: TextStyle(
+                    child: Text(
+                      'Profilo universitario',
+                      style: const TextStyle(
                         color: AppColors.colorSuccessText,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -141,6 +182,51 @@ class _ProfileHeader extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _ProfileUnavailable extends StatelessWidget {
+  const _ProfileUnavailable();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Text(
+          'Nessun badge universitario disponibile per questa carriera.',
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileError extends StatelessWidget {
+  const _ProfileError({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(LucideIcons.refreshCw, size: 17),
+              label: const Text('Riprova'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -62,7 +62,9 @@ class _ExamDetailsSheet extends StatelessWidget {
           _DetailTile(
             icon: LucideIcons.users,
             label: 'Posti disponibili',
-            value: exam.spotsLeft == 0
+            value: exam.spotsTotal <= 0
+                ? 'Non disponibili'
+                : exam.spotsLeft == 0
                 ? 'Esauriti'
                 : '${exam.spotsLeft} su ${exam.spotsTotal}',
           ),
