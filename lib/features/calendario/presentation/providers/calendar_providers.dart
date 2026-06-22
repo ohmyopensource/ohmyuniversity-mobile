@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../config/providers/network_providers.dart';
 import '../../data/datasources/calendar_mock_datasource.dart';
+import '../../data/datasources/calendar_remote_datasource.dart';
 import '../../data/repositories/calendar_repository_impl.dart';
 import '../../domain/entities/calendar_event_entity.dart';
 import '../../domain/repositories/calendar_repository.dart';
@@ -67,8 +69,18 @@ final calendarMockDataSourceProvider = Provider<CalendarMockDataSource>((ref) {
   return CalendarMockDataSource();
 });
 
+final calendarRemoteDataSourceProvider = Provider<CalendarRemoteDataSource>((
+  ref,
+) {
+  return CalendarRemoteDataSource(ref.watch(apiDioProvider));
+});
+
 final calendarRepositoryProvider = Provider<CalendarRepository>((ref) {
-  return CalendarRepositoryImpl(ref.watch(calendarMockDataSourceProvider));
+  return CalendarRepositoryImpl(
+    ref.watch(calendarRemoteDataSourceProvider),
+    ref.watch(calendarMockDataSourceProvider),
+    useMock: const bool.fromEnvironment('USE_MOCK_CALENDAR'),
+  );
 });
 
 final getCalendarEventsUseCaseProvider = Provider<GetCalendarEventsUseCase>((

@@ -94,14 +94,16 @@ class CalendarioPage extends ConsumerWidget {
 
   Future<void> _openEventForm(
     BuildContext context,
-    DateTime selectedDate,
-  ) async {
+    DateTime selectedDate, {
+    CalendarEventEntity? event,
+  }) async {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => CalendarEventFormSheet(initialDate: selectedDate),
+      builder: (context) =>
+          CalendarEventFormSheet(initialDate: selectedDate, event: event),
     );
   }
 
@@ -109,13 +111,17 @@ class CalendarioPage extends ConsumerWidget {
     BuildContext context,
     CalendarEventEntity event,
   ) async {
-    await showModalBottomSheet<void>(
+    final edit = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (context) => CalendarEventDetailSheet(event: event),
     );
+
+    if (edit == true && context.mounted) {
+      await _openEventForm(context, event.startDate, event: event);
+    }
   }
 }
 

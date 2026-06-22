@@ -26,29 +26,49 @@ class CalendarEventModel extends CalendarEventEntity {
     );
   }
 
-  factory CalendarEventModel.fromMap(Map<String, Object?> map) {
+  factory CalendarEventModel.fromJson(Map<String, dynamic> json) {
+    final startDate = DateTime.parse(json['startDate'] as String).toLocal();
+    final rawEndDate = json['endDate'] as String?;
+
     return CalendarEventModel(
-      id: map['id'] as String,
-      title: map['title'] as String,
-      description: map['description'] as String? ?? '',
-      startDate: DateTime.parse(map['startDate'] as String),
-      endDate: DateTime.parse(map['endDate'] as String),
-      type: CalendarEventType.values.byName(map['type'] as String),
-      location: map['location'] as String? ?? '',
-      isAllDay: map['isAllDay'] as bool? ?? false,
+      id: json['id'] as String,
+      title: json['title'] as String,
+      description: json['description'] as String? ?? '',
+      startDate: startDate,
+      endDate: rawEndDate == null
+          ? startDate
+          : DateTime.parse(rawEndDate).toLocal(),
+      type: _typeFromBackend(json['type'] as String?),
+      location: json['notes'] as String? ?? '',
+      isAllDay: json['allDay'] as bool? ?? false,
     );
   }
 
-  Map<String, Object?> toMap() {
+  Map<String, Object?> toRequestJson() {
     return {
-      'id': id,
       'title': title,
       'description': description,
-      'startDate': startDate.toIso8601String(),
-      'endDate': endDate.toIso8601String(),
-      'type': type.name,
-      'location': location,
-      'isAllDay': isAllDay,
+      'startDate': startDate.toUtc().toIso8601String(),
+      'endDate': endDate.toUtc().toIso8601String(),
+      'type': _typeToBackend(type),
+      'notes': location,
+      'allDay': isAllDay,
+    };
+  }
+
+  static CalendarEventType _typeFromBackend(String? value) {
+    return switch (value) {
+      'EXAM' => CalendarEventType.exam,
+      'REMINDER' || 'DEADLINE' => CalendarEventType.reminder,
+      _ => CalendarEventType.event,
+    };
+  }
+
+  static String _typeToBackend(CalendarEventType type) {
+    return switch (type) {
+      CalendarEventType.exam => 'EXAM',
+      CalendarEventType.reminder => 'REMINDER',
+      CalendarEventType.event => 'PERSONAL',
     };
   }
 }
