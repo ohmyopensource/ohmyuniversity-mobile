@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../config/routes/app_routes.dart';
 import '../../../../config/theme/app_theme.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../shared/widgets/custom_tab/custom_tab_widget.dart';
@@ -81,7 +83,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               const PartnerLoginForm(
                                 key: ValueKey('partner-login-form'),
                               ),
-                            const SizedBox(height: 32),
+                            const SizedBox(height: 24),
+                            _OrientationLink(
+                              onTap: () =>
+                                  context.goNamed(AppRoutes.orientamentoName),
+                            ),
+                            const SizedBox(height: 24),
                             _LegalFooter(onTap: _showUnavailable),
                           ],
                         ),
@@ -181,6 +188,45 @@ class _LegalFooter extends StatelessWidget {
           color: TextColor.subtle,
         ),
       ],
+    );
+  }
+}
+
+class _OrientationLink extends StatelessWidget {
+  const _OrientationLink({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      link: true,
+      label: 'Apri il percorso di orientamento',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              CustomTextWidget(
+                text: 'Non ancora iscritto? ',
+                variant: TextVariant.bodySm,
+                color: TextColor.muted,
+              ),
+              CustomTextWidget(
+                text: 'Clicca qui',
+                variant: TextVariant.bodySm,
+                weight: TextWeight.semibold,
+                color: TextColor.primary,
+                underline: true,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
