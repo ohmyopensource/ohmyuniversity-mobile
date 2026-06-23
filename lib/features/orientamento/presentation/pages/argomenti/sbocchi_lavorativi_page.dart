@@ -1,98 +1,362 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../../../config/routes/app_routes.dart';
 import '../../../../../config/theme/app_colors.dart';
+import '../../../../../shared/widgets/custom_badge/custom_badge_widget.dart';
+import '../../../../../shared/widgets/custom_card/custom_card_widget.dart';
+import '../../../domain/entities/orientation_question_entity.dart';
+import '../../providers/orientation_providers.dart';
+import '../../widgets/orientation_bottom_nav.dart';
+import '../../widgets/orientation_simple_charts.dart';
 
-const _pastelBackground = Color(0xFFE9F6ED);
+// ─── Colore di sfondo pastel ──────────────────────────────────────────────────
+const _pastelBackground = Color(0xFFE9F6ED); // green-50 leggero
 
-class SbocchiLavorativiPage extends StatefulWidget {
-  const SbocchiLavorativiPage({super.key});
+// ─── Dati statici ─────────────────────────────────────────────────────────────
 
-  @override
-  State<SbocchiLavorativiPage> createState() => _SbocchiLavorativiPageState();
+class _CareerArea {
+  const _CareerArea({
+    required this.area,
+    required this.occupazione1anno,
+    required this.stipendioMedio,
+  });
+
+  final String area;
+  final int occupazione1anno;
+  final String stipendioMedio;
 }
 
-class _SbocchiLavorativiPageState extends State<SbocchiLavorativiPage> {
-  late final PageController _pageController;
-  int _currentPage = 0;
+const _careerAreas = [
+  _CareerArea(
+    area: 'Ingegneria',
+    occupazione1anno: 83,
+    stipendioMedio: '1.350 €/mese',
+  ),
+  _CareerArea(
+    area: 'Economica',
+    occupazione1anno: 76,
+    stipendioMedio: '1.200 €/mese',
+  ),
+  _CareerArea(
+    area: 'Scientifica',
+    occupazione1anno: 73,
+    stipendioMedio: '1.150 €/mese',
+  ),
+  _CareerArea(
+    area: 'Sanitaria',
+    occupazione1anno: 89,
+    stipendioMedio: '1.400 €/mese',
+  ),
+  _CareerArea(
+    area: 'Umanistica',
+    occupazione1anno: 52,
+    stipendioMedio: '1.050 €/mese',
+  ),
+  _CareerArea(
+    area: 'Artistica',
+    occupazione1anno: 48,
+    stipendioMedio: '980 €/mese',
+  ),
+];
+
+class _CareerTip {
+  const _CareerTip({required this.titolo, required this.testo});
+
+  final String titolo;
+  final String testo;
+}
+
+const _careerTips = [
+  _CareerTip(
+    titolo: 'I numeri medi nascondono grandi differenze.',
+    testo:
+        'Lo stesso corso può avere tassi di occupazione molto diversi a seconda dell\'ateneo, della sede e delle competenze acquisite durante il percorso.',
+  ),
+  _CareerTip(
+    titolo: 'Il contesto geografico incide.',
+    testo:
+        'Una laurea in ingegneria a Milano apre porte diverse rispetto alla stessa laurea in una città più piccola. La rete locale e i tirocini fanno la differenza.',
+  ),
+  _CareerTip(
+    titolo: 'Le competenze trasversali contano.',
+    testo:
+        'Lingue, capacità di comunicazione, lavoro di squadra e problem solving sono richiesti trasversalmente. Non sottovalutarle durante il percorso universitario.',
+  ),
+];
+
+// ─── Pagina principale ────────────────────────────────────────────────────────
+
+class SbocchiLavorativiPage extends ConsumerStatefulWidget {
+  const SbocchiLavorativiPage({
+    super.key,
+    required this.activeIndex,
+    required this.totalTopics,
+    required this.answeredCount,
+    required this.totalCount,
+    required this.onPrevious,
+    required this.onNext,
+    required this.onBackToTopics,
+  });
+
+  final int activeIndex;
+  final int totalTopics;
+  final int answeredCount;
+  final int totalCount;
+  final VoidCallback onPrevious;
+  final VoidCallback onNext;
+  final VoidCallback onBackToTopics;
+
+  @override
+  ConsumerState<SbocchiLavorativiPage> createState() =>
+      _SbocchiLavorativiPageState();
+}
+
+class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
+  late final List<OrientationQuestionEntity> _questions;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    final topics = ref.read(orientationTopicsProvider);
+    final topic = topics.firstWhere((t) => t.id == 'sbocchi');
+    _questions = topic.questions;
   }
 
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
+  void _goToQuestions() {
+    ref.read(orientationQuestionStageProvider.notifier).showQuestions();
+  }
+
+  Color _occupazioneColor(int val) {
+    if (val >= 75) return AppColors.colorSuccessDark;
+    if (val >= 55) return AppColors.colorWarningDark;
+    return AppColors.colorErrorDark;
+  }
+
+  BadgeVariant _occupazioneVariant(int val) {
+    if (val >= 75) return BadgeVariant.success;
+    if (val >= 55) return BadgeVariant.warning;
+    return BadgeVariant.error;
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final topicProgress = (widget.activeIndex + 1) / widget.totalTopics;
 
     return Scaffold(
       backgroundColor: _pastelBackground,
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () => context.goNamed(AppRoutes.orientamentoName),
-                    icon: const Icon(LucideIcons.arrowLeft),
-                    color: AppColors.textPrimary,
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shape: const CircleBorder(),
-                      side: BorderSide(
-                        color: AppColors.primary.withValues(alpha: 0.34),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      'Oltre la Laurea',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
-              ),
+            // ── Header progresso ─────────────────────────────────────────────
+            _TopicProgressHeader(
+              index: widget.activeIndex + 1,
+              total: widget.totalTopics,
+              title: 'Sbocchi lavorativi',
+              progress: topicProgress,
+              answeredCount: widget.answeredCount,
+              totalCount: widget.totalCount,
             ),
+
+            // ── Contenuto scrollabile ─────────────────────────────────────────
             Expanded(
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() => _currentPage = index);
-                },
-                children: const [
-                  _OrientationScrollablePage(
-                    title: 'Prospettive e dati reali',
-                    child: _CareerOutcomesContent(),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  // Macro-area badge
+                  CustomBadgeWidget(
+                    label:
+                        'Macro-area ${widget.activeIndex + 1} di ${widget.totalTopics}',
+                    variant: BadgeVariant.primary,
+                    size: BadgeSize.sm,
+                    shape: BadgeShape.pill,
                   ),
-                  _OrientationScrollablePage(
-                    title: 'Errori comuni da evitare',
-                    child: _CommonMistakesContent(),
+                  const SizedBox(height: 12),
+
+                  // Titolo sezione
+                  Text(
+                    'Sbocchi lavorativi',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w900,
+                      height: 1.1,
+                    ),
                   ),
+                  const SizedBox(height: 7),
+                  Text(
+                    'Prima di scegliere un corso, vale la pena capire cosa succede dopo la laurea. I dati seguenti si basano sul rapporto AlmaLaurea: la fonte più affidabile disponibile gratuitamente in Italia.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.colorNeutral500,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ── Chart occupazione ─────────────────────────────────────
+                  Text(
+                    'Occupazione a 1 anno dalla laurea',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Percentuale di laureati triennali occupati a 12 mesi, per area di studio.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.colorNeutral500,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const OrientationCareerDirectionsCard(),
+                  const SizedBox(height: 24),
+
+                  // ── Tabella stipendi ──────────────────────────────────────
+                  Text(
+                    'Stipendi medi netti al primo impiego',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Dati indicativi basati su rilevazioni AlmaLaurea. Il contesto, le competenze trasversali e la sede geografica influenzano significativamente questi valori.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.colorNeutral500,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _SalaryTable(
+                    areas: _careerAreas,
+                    occupazioneVariant: _occupazioneVariant,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ── Come leggere i dati (timeline) ────────────────────────
+                  Text(
+                    'Come leggere questi dati',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'I numeri raccontano una parte della storia. Ecco cosa tenere a mente.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.colorNeutral500,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ..._careerTips.asMap().entries.map((entry) {
+                    final isLast = entry.key == _careerTips.length - 1;
+                    return _TimelineStep(tip: entry.value, isLast: isLast);
+                  }),
+                  const SizedBox(height: 24),
+
+                  // ── Callout AlmaLaurea ────────────────────────────────────
+                  CustomCardWidget(
+                    variant: CardVariant.success,
+                    padding: CardPadding.md,
+                    shadow: CardShadow.sm,
+                    radius: CardRadius.lg,
+                    bordered: false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              LucideIcons.circleCheck,
+                              size: 18,
+                              color: AppColors.colorSuccessDark,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Approfondisci con AlmaLaurea',
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(
+                                      color: AppColors.textPrimary,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Su almalaurea.it puoi cercare dati reali per corso, ateneo e anno di laurea. È lo strumento più affidabile disponibile gratuitamente per valutare gli sbocchi di un corso specifico.',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: AppColors.colorNeutral600,
+                                height: 1.4,
+                              ),
+                        ),
+                        const SizedBox(height: 12),
+                        // Link esterno visivo
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.colorSuccessDark.withValues(
+                              alpha: 0.12,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              AppColors.radiusMd,
+                            ),
+                            border: Border.all(
+                              color: AppColors.colorSuccessDark.withValues(
+                                alpha: 0.24,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                LucideIcons.externalLink,
+                                size: 14,
+                                color: AppColors.colorSuccessDark,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'www.almalaurea.it',
+                                style: Theme.of(context).textTheme.labelMedium
+                                    ?.copyWith(
+                                      color: AppColors.colorSuccessDark,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 28),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
-              child: _OrientationDots(
-                count: 2,
-                currentIndex: _currentPage,
-              ),
+
+            // ── Nav inferiore ─────────────────────────────────────────────────
+            OrientationBottomNav(
+              hasPrevious: widget.activeIndex > 0,
+              hasNext: widget.activeIndex < widget.totalTopics - 1,
+              onPrevious: widget.onPrevious,
+              onNext: widget.onNext,
+              onBackToTopics: widget.onBackToTopics,
+              primaryActionLabel: _questions.isNotEmpty
+                  ? 'Vai alle domande'
+                  : null,
+              onPrimaryAction: _questions.isNotEmpty ? _goToQuestions : null,
             ),
           ],
         ),
@@ -101,201 +365,133 @@ class _SbocchiLavorativiPageState extends State<SbocchiLavorativiPage> {
   }
 }
 
-class _OrientationScrollablePage extends StatelessWidget {
-  const _OrientationScrollablePage({
+// ─── Widget privati ───────────────────────────────────────────────────────────
+
+class _TopicProgressHeader extends StatelessWidget {
+  const _TopicProgressHeader({
+    required this.index,
+    required this.total,
     required this.title,
-    required this.child,
+    required this.progress,
+    required this.answeredCount,
+    required this.totalCount,
   });
 
+  final int index;
+  final int total;
   final String title;
-  final Widget child;
+  final double progress;
+  final int answeredCount;
+  final int totalCount;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return ColoredBox(
-      color: Colors.transparent,
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(28, 30, 28, 24),
-        physics: const BouncingScrollPhysics(),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 12),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: AppColors.colorNeutral200)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
-              height: 1.18,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '$index di $total · $title',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'Completamento ${totalCount == 0 ? 0 : ((answeredCount / totalCount) * 100).round()}%',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: AppColors.colorNeutral500,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppColors.radiusFull),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: AppColors.colorNeutral200,
+              color: AppColors.colorPrimaryDark,
             ),
           ),
-          const SizedBox(height: 34),
-          child,
         ],
       ),
     );
   }
 }
 
-class _CommonMistakesContent extends StatelessWidget {
-  const _CommonMistakesContent();
+class _SalaryTable extends StatelessWidget {
+  const _SalaryTable({required this.areas, required this.occupazioneVariant});
+
+  final List<_CareerArea> areas;
+  final BadgeVariant Function(int) occupazioneVariant;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _MistakeBlock(
-          color: Color(0xFFEA4335),
-          title: 'Scegliere per moda',
-          body:
-              'Informatica, economia, marketing: ci sono corsi che "vanno" in un certo periodo storico. Ma se non ti appassionano, il rischio di abbandonare è altissimo. Il mercato del lavoro cambia: punta su ciò che ti motiva, non su ciò che è trendy.',
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppColors.radiusLg),
+      child: Table(
+        border: TableBorder.all(
+          color: AppColors.colorNeutral200,
+          borderRadius: BorderRadius.circular(AppColors.radiusLg),
         ),
-        SizedBox(height: 20),
-        _MistakeBlock(
-          color: Color(0xFFFF6D00),
-          title: 'Seguire gli amici',
-          body:
-              'Andare nella stessa università degli amici può sembrare rassicurante. Ma se il corso non è giusto per te, saranno tre anni difficili. La scelta universitaria è personale: i tuoi amici avranno i loro percorsi, tu abbi il tuo.',
-        ),
-        SizedBox(height: 20),
-        _MistakeBlock(
-          color: Color(0xFF9C27B0),
-          title: 'Sottovalutare matematica e logica',
-          body:
-              'Anche corsi apparentemente non tecnici richiedono statistica e logica. Arriva preparato: il primo anno spesso fa la selezione naturale proprio su queste basi.',
-        ),
-        SizedBox(height: 20),
-        _MistakeBlock(
-          color: Color(0xFF1A73E8),
-          title: 'Non informarsi sugli esami',
-          body:
-              'Molti studenti si iscrivono senza aver mai visto un esame del corso che scelgono. Chiedi, leggi, cerca testimonianze: sapere cosa ti aspetta è già metà del lavoro.',
-        ),
-        SizedBox(height: 20),
-        _MistakeBlock(
-          color: Color(0xFF34A853),
-          title: 'Rimandare la prima sessione',
-          body:
-              'Il primo anno è fondamentale. Chi rimanda gli esami della prima sessione tende ad accumulare ritardo che diventa sempre più difficile da recuperare. Inizia subito, anche se non sei sicuro di essere pronto.',
-        ),
-        SizedBox(height: 20),
-        _MistakeBlock(
-          color: Color(0xFFF5B700),
-          title: 'Non informarsi su borse e agevolazioni',
-          body:
-              'Migliaia di studenti perdono ogni anno borse di studio e agevolazioni semplicemente perché non fanno domanda in tempo. Controlla bandi, borse di merito e posti in residenza.',
-        ),
-      ],
-    );
-  }
-}
-
-class _CareerOutcomesContent extends StatelessWidget {
-  const _CareerOutcomesContent();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _CarouselTextBlock(
-          title: 'Consapevolezza del futuro e del mercato.',
-          body:
-              'Il mercato del lavoro evolve rapidamente e alcune professioni di domani potrebbero non esistere ancora oggi. La laurea è un ottimo punto di partenza, ma faranno la differenza adattabilità, soft skills e rete di contatti costruita durante gli studi.',
-        ),
-        SizedBox(height: 24),
-        _CarouselTextBlock(
-          title: 'Una visione aperta: l’orizzonte estero.',
-          body:
-              'Non limitare le prospettive ai confini nazionali. Erasmus, tirocini internazionali o lavoro da remoto per aziende straniere possono darti un vantaggio competitivo e rendere il tuo percorso più aperto al mercato europeo.',
-        ),
-        SizedBox(height: 24),
-        _CarouselTextBlock(
-          title: 'Sbocchi lavorativi per area.',
-          body:
-              'In questa sezione, selezionando la tua università e il tuo corso, potrai vedere i dati reali di occupazione a 1, 3 e 5 anni dalla laurea. I dati provengono da AlmaLaurea e dal European Data Portal.',
-        ),
-        SizedBox(height: 42),
-        Row(
-          children: [
-            Expanded(
-              child: _CarouselStatHighlight(
-                value: '77%',
-                label: 'laureati occupati a 1 anno, media nazionale',
-                color: Color(0xFF34A853),
-              ),
-            ),
-            SizedBox(width: 18),
-            Expanded(
-              child: _CarouselStatHighlight(
-                value: '91%',
-                label: 'laureati occupati a 5 anni',
-                color: Color(0xFF1A73E8),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 34),
-        _DataIncomingBox(),
-      ],
-    );
-  }
-}
-
-class _MistakeBlock extends StatelessWidget {
-  const _MistakeBlock({
-    required this.color,
-    required this.title,
-    required this.body,
-  });
-
-  final Color color;
-  final String title;
-  final String body;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withValues(alpha: 0.22)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        columnWidths: const {
+          0: FlexColumnWidth(2.2),
+          1: FlexColumnWidth(1.5),
+          2: FlexColumnWidth(1.8),
+        },
         children: [
-          Container(
-            width: 10,
-            height: 10,
-            margin: const EdgeInsets.only(top: 8),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color,
-            ),
+          // Header
+          TableRow(
+            decoration: const BoxDecoration(color: AppColors.colorNeutral100),
+            children: [
+              _TableHeader('Area'),
+              _TableHeader('Occup. 1a'),
+              _TableHeader('Stipendio'),
+            ],
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          // Righe dati
+          ...areas.map(
+            (area) => TableRow(
+              decoration: const BoxDecoration(color: Colors.white),
               children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w900,
+                _TableCell(
+                  child: Text(
+                    area.area,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  body,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    height: 1.28,
-                    color: AppColors.textPrimary.withValues(alpha: 0.72),
+                _TableCell(
+                  child: CustomBadgeWidget(
+                    label: '${area.occupazione1anno}%',
+                    variant: occupazioneVariant(area.occupazione1anno),
+                    size: BadgeSize.sm,
+                    shape: BadgeShape.pill,
+                  ),
+                ),
+                _TableCell(
+                  child: Text(
+                    area.stipendioMedio,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.colorNeutral600,
+                    ),
                   ),
                 ),
               ],
@@ -307,170 +503,92 @@ class _MistakeBlock extends StatelessWidget {
   }
 }
 
-class _CarouselTextBlock extends StatelessWidget {
-  const _CarouselTextBlock({
-    required this.title,
-    required this.body,
-  });
-
-  final String title;
-  final String body;
+class _TableHeader extends StatelessWidget {
+  const _TableHeader(this.text);
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w900,
-            color: AppColors.textPrimary,
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: AppColors.colorNeutral500,
+          fontWeight: FontWeight.w800,
         ),
-        const SizedBox(height: 8),
-        Text(
-          body,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            height: 1.32,
-            color: AppColors.textPrimary.withValues(alpha: 0.72),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CarouselStatHighlight extends StatelessWidget {
-  const _CarouselStatHighlight({
-    required this.value,
-    required this.label,
-    required this.color,
-  });
-
-  final String value;
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      constraints: const BoxConstraints(minHeight: 112),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withValues(alpha: 0.24)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            value,
-            style: theme.textTheme.headlineLarge?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w900,
-              height: 0.95,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            label,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              height: 1.16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
       ),
     );
   }
 }
 
-class _DataIncomingBox extends StatelessWidget {
-  const _DataIncomingBox();
+class _TableCell extends StatelessWidget {
+  const _TableCell({required this.child});
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.24),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            LucideIcons.database,
-            size: 34,
-            color: AppColors.primary,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Dati in arrivo — fonte European Data Portal',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Seleziona università e corso di laurea per visualizzare i dati reali di occupazione, stipendio medio e settori di sbocco. I dati saranno aggiornati tramite le API del European Data Portal e di AlmaLaurea.',
-            style: theme.textTheme.bodyLarge?.copyWith(
-              height: 1.28,
-              color: AppColors.textPrimary.withValues(alpha: 0.72),
-            ),
-          ),
-        ],
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      child: child,
     );
   }
 }
 
-class _OrientationDots extends StatelessWidget {
-  const _OrientationDots({
-    required this.count,
-    required this.currentIndex,
-  });
+class _TimelineStep extends StatelessWidget {
+  const _TimelineStep({required this.tip, required this.isLast});
 
-  final int count;
-  final int currentIndex;
+  final _CareerTip tip;
+  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(count, (index) {
-        final isActive = index == currentIndex;
-
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 260),
-          curve: Curves.easeInOut,
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          width: isActive ? 24 : 8,
-          height: 8,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.primary),
-            color: isActive
-                ? AppColors.primary.withValues(alpha: 0.18)
-                : Colors.transparent,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              margin: const EdgeInsets.only(top: 4),
+              decoration: const BoxDecoration(
+                color: AppColors.colorPrimaryDark,
+                shape: BoxShape.circle,
+              ),
+            ),
+            if (!isLast)
+              Container(width: 2, height: 38, color: AppColors.colorNeutral200),
+          ],
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: isLast ? 0 : 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tip.titolo,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  tip.testo,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.colorNeutral500,
+                    height: 1.4,
+                  ),
+                ),
+                if (!isLast) const SizedBox(height: 14),
+              ],
+            ),
           ),
-        );
-      }),
+        ),
+      ],
     );
   }
 }
