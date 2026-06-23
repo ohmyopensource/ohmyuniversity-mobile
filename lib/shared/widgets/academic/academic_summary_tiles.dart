@@ -37,7 +37,7 @@ abstract final class AcademicSummaryTiles {
 
   static BoxDecoration whiteTileDecoration({required double alpha}) {
     return BoxDecoration(
-      color: Colors.white,
+      color: AppColors.background,
       borderRadius: BorderRadius.circular(17),
       border: Border.all(color: AppColors.colorNeutral200),
       boxShadow: [
@@ -638,7 +638,7 @@ class _StudentTileSurface extends StatelessWidget {
     return Container(
       height: AcademicSummaryTiles.summaryHeight,
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 10),
-      decoration: _summaryTileDecoration(alpha: 0.07),
+      decoration: _summaryTileDecoration(alpha: 0.07, whiteSurface: true),
       child: child,
     );
   }
