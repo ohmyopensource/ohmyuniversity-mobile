@@ -12,4 +12,5 @@ abstract interface class DidatticaRepository {
     String password,
   );
   Future<List<ExamBookingHistoryEntity>?> getCachedExamBookingHistory();
+  Future<List<Map<String, dynamic>>> getSuggestedExams();
 }
