@@ -23,10 +23,16 @@ class _OrarioLezioniPageState extends ConsumerState<OrarioLezioniPage> {
 
   @override
   Widget build(BuildContext context) {
-    final allDocuments = ref.watch(studentTimetablesProvider);
-    final documents = allDocuments
-        .where((document) => document.semester == _selectedSemester)
-        .toList();
+    final timetables = ref.watch(studentTimetablesProvider);
+    final allDocuments = timetables.value ?? const <TimetableDocumentEntity>[];
+    final hasSemesterData = allDocuments.any(
+      (document) => document.semester != null,
+    );
+    final documents = hasSemesterData
+        ? allDocuments
+              .where((document) => document.semester == _selectedSemester)
+              .toList()
+        : allDocuments;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -53,13 +59,15 @@ class _OrarioLezioniPageState extends ConsumerState<OrarioLezioniPage> {
               ),
             ),
             const SizedBox(height: 22),
-            TimetableSemesterSwitch(
-              selectedSemester: _selectedSemester,
-              onChanged: (semester) {
-                setState(() => _selectedSemester = semester);
-              },
-            ),
-            const SizedBox(height: 24),
+            if (hasSemesterData) ...[
+              TimetableSemesterSwitch(
+                selectedSemester: _selectedSemester,
+                onChanged: (semester) {
+                  setState(() => _selectedSemester = semester);
+                },
+              ),
+              const SizedBox(height: 24),
+            ],
             Text(
               'I miei corsi',
               style: textTheme.titleMedium?.copyWith(
@@ -68,7 +76,17 @@ class _OrarioLezioniPageState extends ConsumerState<OrarioLezioniPage> {
               ),
             ),
             const SizedBox(height: 12),
-            if (documents.isEmpty)
+            if (timetables.isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 40),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (timetables.hasError)
+              _TimetableErrorState(
+                message: timetables.error.toString(),
+                onRetry: () => ref.invalidate(studentTimetablesProvider),
+              )
+            else if (documents.isEmpty)
               const _TimetableEmptyState()
             else
               ...documents.map(
@@ -82,9 +100,10 @@ class _OrarioLezioniPageState extends ConsumerState<OrarioLezioniPage> {
                 ),
               ),
             const SizedBox(height: 12),
-            TimetableSearchPrompt(
-              onSearch: () => _openSearchSheet(context, allDocuments),
-            ),
+            if (timetables.hasValue && allDocuments.isNotEmpty)
+              TimetableSearchPrompt(
+                onSearch: () => _openSearchSheet(context, allDocuments),
+              ),
           ],
         ),
       ),
@@ -166,6 +185,39 @@ class _TimetableEmptyState extends StatelessWidget {
               height: 1.35,
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TimetableErrorState extends StatelessWidget {
+  const _TimetableErrorState({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return CustomCardWidget(
+      variant: CardVariant.neutral,
+      padding: CardPadding.md,
+      shadow: CardShadow.sm,
+      radius: CardRadius.lg,
+      bordered: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            message,
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppColors.colorNeutral500,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextButton(onPressed: onRetry, child: const Text('Riprova')),
         ],
       ),
     );

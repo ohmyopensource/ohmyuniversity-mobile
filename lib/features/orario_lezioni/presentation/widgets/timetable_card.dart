@@ -91,12 +91,13 @@ class TimetableCard extends StatelessWidget {
                   size: BadgeSize.sm,
                   shape: BadgeShape.pill,
                 ),
-                CustomBadgeWidget(
-                  label: document.academicYear,
-                  variant: BadgeVariant.neutral,
-                  size: BadgeSize.sm,
-                  shape: BadgeShape.pill,
-                ),
+                if (document.academicYear case final academicYear?)
+                  CustomBadgeWidget(
+                    label: academicYear,
+                    variant: BadgeVariant.neutral,
+                    size: BadgeSize.sm,
+                    shape: BadgeShape.pill,
+                  ),
               ],
             ),
             const SizedBox(height: 16),

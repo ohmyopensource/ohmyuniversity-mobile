@@ -32,6 +32,9 @@ class _TimetableSearchModalState extends State<TimetableSearchModal> {
   late int _selectedSemester;
   bool _showResult = true;
 
+  bool get _hasSemesterData =>
+      widget.documents.any((document) => document.semester != null);
+
   @override
   void initState() {
     super.initState();
@@ -126,24 +129,26 @@ class _TimetableSearchModalState extends State<TimetableSearchModal> {
             });
           },
         ),
-        const SizedBox(height: 12),
-        CustomInputWidget(
-          label: 'Semestre',
-          type: InputType.select,
-          initialValue: _selectedSemester.toString(),
-          options: const [
-            SelectOption(label: 'Primo semestre', value: '1'),
-            SelectOption(label: 'Secondo semestre', value: '2'),
-          ],
-          iconLeft: LucideIcons.bookOpen,
-          variant: InputVariant.primary,
-          onChanged: (value) {
-            setState(() {
-              _selectedSemester = int.parse(value);
-              _showResult = false;
-            });
-          },
-        ),
+        if (_hasSemesterData) ...[
+          const SizedBox(height: 12),
+          CustomInputWidget(
+            label: 'Semestre',
+            type: InputType.select,
+            initialValue: _selectedSemester.toString(),
+            options: const [
+              SelectOption(label: 'Primo semestre', value: '1'),
+              SelectOption(label: 'Secondo semestre', value: '2'),
+            ],
+            iconLeft: LucideIcons.bookOpen,
+            variant: InputVariant.primary,
+            onChanged: (value) {
+              setState(() {
+                _selectedSemester = int.parse(value);
+                _showResult = false;
+              });
+            },
+          ),
+        ],
         const SizedBox(height: 16),
         CustomButtonWidget(
           label: 'Cerca orario',
@@ -199,7 +204,7 @@ class _TimetableSearchModalState extends State<TimetableSearchModal> {
 
     _selectedDepartment = seed.department;
     _selectedCourse = seed.title;
-    _selectedSemester = seed.semester;
+    _selectedSemester = seed.semester ?? widget.initialSemester;
     _showResult = true;
   }
 
@@ -207,7 +212,7 @@ class _TimetableSearchModalState extends State<TimetableSearchModal> {
     for (final document in widget.documents) {
       if (document.department == _selectedDepartment &&
           document.title == _selectedCourse &&
-          document.semester == _selectedSemester) {
+          (!_hasSemesterData || document.semester == _selectedSemester)) {
         return document;
       }
     }
@@ -308,18 +313,20 @@ class _TimetableSearchResultPreview extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      CustomBadgeWidget(
-                        label: 'Semestre ${document.semester}',
-                        variant: BadgeVariant.info,
-                        size: BadgeSize.sm,
-                        shape: BadgeShape.pill,
-                      ),
-                      CustomBadgeWidget(
-                        label: document.academicYear,
-                        variant: BadgeVariant.neutral,
-                        size: BadgeSize.sm,
-                        shape: BadgeShape.pill,
-                      ),
+                      if (document.semester case final semester?)
+                        CustomBadgeWidget(
+                          label: 'Semestre $semester',
+                          variant: BadgeVariant.info,
+                          size: BadgeSize.sm,
+                          shape: BadgeShape.pill,
+                        ),
+                      if (document.academicYear case final academicYear?)
+                        CustomBadgeWidget(
+                          label: academicYear,
+                          variant: BadgeVariant.neutral,
+                          size: BadgeSize.sm,
+                          shape: BadgeShape.pill,
+                        ),
                     ],
                   ),
                 ],

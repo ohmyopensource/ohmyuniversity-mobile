@@ -7,8 +7,8 @@ class TimetableDocumentEntity {
     required this.universityName,
     required this.department,
     required this.degreeClass,
-    required this.academicYear,
-    required this.semester,
+    this.academicYear,
+    this.semester,
     required this.updatedAt,
     required this.format,
     required this.sourceUrl,
@@ -20,8 +20,8 @@ class TimetableDocumentEntity {
   final String universityName;
   final String department;
   final String degreeClass;
-  final String academicYear;
-  final int semester;
+  final String? academicYear;
+  final int? semester;
   final DateTime updatedAt;
   final TimetableDocumentFormat format;
   final String sourceUrl;

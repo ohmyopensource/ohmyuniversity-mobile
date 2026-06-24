@@ -6,7 +6,13 @@ class GetStudentTimetablesUseCase {
 
   final TimetableRepository _repository;
 
-  List<TimetableDocumentEntity> call() {
-    return _repository.getStudentTimetables();
+  Future<List<TimetableDocumentEntity>> call({
+    required String universityId,
+    required String courseName,
+  }) {
+    return _repository.getStudentTimetables(
+      universityId: universityId,
+      courseName: courseName,
+    );
   }
 }

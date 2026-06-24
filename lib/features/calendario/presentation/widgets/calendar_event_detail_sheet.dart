@@ -123,6 +123,18 @@ class _CalendarEventDetailSheetState
                     children: [
                       Expanded(
                         child: CustomButtonWidget(
+                          label: 'Modifica',
+                          icon: LucideIcons.pencil,
+                          fullWidth: true,
+                          variant: ButtonVariant.outline,
+                          onPressed: _isDeleting
+                              ? null
+                              : () => Navigator.of(context).pop(true),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: CustomButtonWidget(
                           label: 'Elimina',
                           icon: LucideIcons.trash2,
                           fullWidth: true,
@@ -131,19 +143,17 @@ class _CalendarEventDetailSheetState
                           onPressed: _deleteEvent,
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: CustomButtonWidget(
-                          label: 'Chiudi',
-                          icon: LucideIcons.x,
-                          fullWidth: true,
-                          variant: ButtonVariant.ghost,
-                          onPressed: _isDeleting
-                              ? null
-                              : () => Navigator.of(context).pop(),
-                        ),
-                      ),
                     ],
+                  ),
+                  const SizedBox(height: 10),
+                  CustomButtonWidget(
+                    label: 'Chiudi',
+                    icon: LucideIcons.x,
+                    fullWidth: true,
+                    variant: ButtonVariant.ghost,
+                    onPressed: _isDeleting
+                        ? null
+                        : () => Navigator.of(context).pop(false),
                   ),
                 ],
               ),

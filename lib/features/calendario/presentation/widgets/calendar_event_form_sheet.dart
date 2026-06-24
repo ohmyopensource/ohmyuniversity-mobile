@@ -12,9 +12,14 @@ import '../providers/calendar_providers.dart';
 import 'calendar_event_type_ui.dart';
 
 class CalendarEventFormSheet extends ConsumerStatefulWidget {
-  const CalendarEventFormSheet({super.key, required this.initialDate});
+  const CalendarEventFormSheet({
+    super.key,
+    required this.initialDate,
+    this.event,
+  });
 
   final DateTime initialDate;
+  final CalendarEventEntity? event;
 
   @override
   ConsumerState<CalendarEventFormSheet> createState() =>
@@ -23,15 +28,34 @@ class CalendarEventFormSheet extends ConsumerStatefulWidget {
 
 class _CalendarEventFormSheetState
     extends ConsumerState<CalendarEventFormSheet> {
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _startTimeController = TextEditingController(text: '09:00');
-  final _durationController = TextEditingController(text: '60');
+  late final TextEditingController _titleController;
+  late final TextEditingController _descriptionController;
+  late final TextEditingController _locationController;
+  late final TextEditingController _startTimeController;
+  late final TextEditingController _durationController;
 
-  CalendarEventType _selectedType = CalendarEventType.event;
+  late CalendarEventType _selectedType;
   bool _isSaving = false;
   String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    final event = widget.event;
+    final startDate = event?.startDate ?? widget.initialDate;
+    final duration = event?.endDate.difference(startDate).inMinutes ?? 60;
+    _titleController = TextEditingController(text: event?.title ?? '');
+    _descriptionController = TextEditingController(
+      text: event?.description ?? '',
+    );
+    _locationController = TextEditingController(text: event?.location ?? '');
+    _startTimeController = TextEditingController(
+      text:
+          '${startDate.hour.toString().padLeft(2, '0')}:${startDate.minute.toString().padLeft(2, '0')}',
+    );
+    _durationController = TextEditingController(text: duration.toString());
+    _selectedType = event?.type ?? CalendarEventType.event;
+  }
 
   @override
   void dispose() {
@@ -80,7 +104,9 @@ class _CalendarEventFormSheetState
       time.minute,
     );
     final event = CalendarEventEntity(
-      id: 'calendar-event-${DateTime.now().millisecondsSinceEpoch}',
+      id:
+          widget.event?.id ??
+          'calendar-event-${DateTime.now().millisecondsSinceEpoch}',
       title: title,
       description: _descriptionController.text.trim(),
       startDate: startDate,
@@ -90,7 +116,11 @@ class _CalendarEventFormSheetState
     );
 
     try {
-      await ref.read(createCalendarEventUseCaseProvider).call(event);
+      if (widget.event == null) {
+        await ref.read(createCalendarEventUseCaseProvider).call(event);
+      } else {
+        await ref.read(updateCalendarEventUseCaseProvider).call(event);
+      }
       ref.read(selectedCalendarDateProvider.notifier).selectDate(startDate);
       ref.invalidate(calendarEventsProvider);
       ref.invalidate(homeCalendarEventsProvider);
@@ -156,7 +186,9 @@ class _CalendarEventFormSheetState
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Nuovo elemento',
+                      widget.event == null
+                          ? 'Nuovo elemento'
+                          : 'Modifica elemento',
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w900,
