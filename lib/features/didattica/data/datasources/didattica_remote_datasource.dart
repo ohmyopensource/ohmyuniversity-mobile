@@ -1,35 +1,14 @@
 import 'package:dio/dio.dart';
 
-import '../../domain/entities/course_questionnaire_entity.dart';
+import '../../domain/exceptions/career_data_exception.dart';
 import '../../domain/entities/exam_booking_entity.dart';
 import '../../domain/entities/exam_booking_history_entity.dart';
-import '../../domain/exceptions/career_data_exception.dart';
 import '../models/career_api_models.dart';
 
 class DidatticaRemoteDataSource {
   const DidatticaRemoteDataSource(this._dio);
 
   final Dio _dio;
-  Future<List<Map<String, dynamic>>> getSuggestedExams() async {
-    try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/v1/carriera/esami-suggeriti',
-      );
-
-      final data = response.data;
-      if (data == null) return const [];
-
-      final rawItems =
-          data['esami'] as List<dynamic>? ??
-              data['suggeriti'] as List<dynamic>? ??
-              data['appelli'] as List<dynamic>? ??
-              const [];
-
-      return rawItems.whereType<Map<String, dynamic>>().toList(growable: false);
-    } on DioException catch (_) {
-      return const [];
-    }
-  }
 
   Future<CareerApiDataModel> getCareerData() async {
     try {
@@ -59,23 +38,23 @@ class DidatticaRemoteDataSource {
   }
 
   Future<List<ExamBookingHistoryEntity>> getExamBookingHistory(
-      String password,
-      ) async {
+    String password,
+  ) async {
     try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/v1/carriera/prenotazioni-libretto',
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/v1/carriera/prenotazioni',
+        data: {'password': password},
       );
-
       final bookings = response.data?['prenotazioni'] as List<dynamic>? ?? [];
-
       return bookings
           .whereType<Map<String, dynamic>>()
           .map(_mapBooking)
           .toList(growable: false);
     } on DioException catch (error) {
       throw CareerDataException(switch (error.response?.statusCode) {
-        401 => "Sessione scaduta. Effettua nuovamente l'accesso.",
-        503 => 'Le prenotazioni non sono momentaneamente disponibili.',
+        400 => 'Inserisci la password ESSE3.',
+        401 => 'Password ESSE3 non valida.',
+        503 => 'Lo storico prenotazioni non è momentaneamente disponibile.',
         _ => 'Impossibile caricare lo storico prenotazioni.',
       });
     }
@@ -90,12 +69,12 @@ class DidatticaRemoteDataSource {
 
     try {
       final response = await _dio.get<Map<String, dynamic>>(
-        '/v1/carriera/appelli-prenotabili',
+        '/v1/carriera/appelli',
+        queryParameters: {'cdsId': degreeCourseId, 'adId': activityId},
       );
       final appeals = response.data?['appelli'] as List<dynamic>? ?? [];
       return appeals
           .whereType<Map<String, dynamic>>()
-          .where((json) => (json['adId'] as num?)?.toInt() == activityId)
           .map((json) => _mapAppeal(json, booking))
           .toList(growable: false);
     } on DioException catch (error) {
@@ -107,63 +86,21 @@ class DidatticaRemoteDataSource {
     }
   }
 
-  Future<List<CourseQuestionnaireEntity>> getQuestionnaires() async {
-    try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/v1/carriera/questionari',
-      );
-      final pending = response.data?['daCompilare'] as List<dynamic>? ?? [];
-      final completed = response.data?['compilati'] as List<dynamic>? ?? [];
-      return [
-        ...pending.whereType<Map<String, dynamic>>().map(
-          (json) => _mapQuestionnaire(json, CourseQuestionnaireStatus.pending),
-        ),
-        ...completed.whereType<Map<String, dynamic>>().map(
-          (json) =>
-              _mapQuestionnaire(json, CourseQuestionnaireStatus.completed),
-        ),
-      ];
-    } on DioException catch (error) {
-      throw CareerDataException(_messageFor(error));
-    }
-  }
-
-  CourseQuestionnaireEntity _mapQuestionnaire(
-    Map<String, dynamic> json,
-    CourseQuestionnaireStatus status,
-  ) {
-    return CourseQuestionnaireEntity(
-      id: (json['adsceId'] ?? json['adCod'] ?? json['adDes']).toString(),
-      courseName: _textOrFallback(json['adDes'], 'Corso non disponibile'),
-      professor: 'Docente non disponibile',
-      type: _textOrFallback(json['adCod'], 'Questionario didattica'),
-      status: status,
-      completedAt: status == CourseQuestionnaireStatus.completed
-          ? DateTime.now()
-          : null,
-    );
-  }
-
   ExamBookingHistoryEntity _mapBooking(Map<String, dynamic> json) {
+    final result = json['esito'] as Map<String, dynamic>?;
     return ExamBookingHistoryEntity(
       id: (json['applistaId'] as num).toInt(),
       activityId: (json['adId'] as num?)?.toInt(),
       enrollmentActivityId: (json['adsceId'] as num?)?.toInt(),
-      courseCode: _textOrFallback(
-        json['adStuCod'],
-        _textOrFallback(json['adCod'], ''),
-      ),
-      courseName: _textOrFallback(
-        json['adStuDes'],
-        _textOrFallback(json['adDes'], ''),
-      ),
-      bookingDate: _parseDateTime(json['dataInizioIscr'] as String?),
-      examDate: _parseDateTime(json['dataOraTurno'] as String?),
-      credits: (json['cfu'] as num?)?.toDouble() ?? 0,
-      grade: (json['votoEsa'] as num?)?.toInt(),
-      passed: json['superato'] as bool? ?? false,
-      absent: json['assente'] as bool? ?? false,
-      withdrawn: json['ritirato'] as bool? ?? false,
+      courseCode: json['adStuCod'] as String? ?? '',
+      courseName: json['adStuDes'] as String? ?? '',
+      bookingDate: _parseDate(json['dataIns'] as String?),
+      examDate: _parseDate(json['dataEsa'] as String?),
+      credits: (json['pesoAd'] as num?)?.toDouble() ?? 0,
+      grade: (result?['votoEsa'] as num?)?.toInt(),
+      passed: result?['superato'] as bool? ?? false,
+      absent: result?['assente'] as bool? ?? false,
+      withdrawn: result?['ritirato'] as bool? ?? false,
     );
   }
 
@@ -172,27 +109,22 @@ class DidatticaRemoteDataSource {
     ExamBookingHistoryEntity booking,
   ) {
     final start =
-        _parseDateTime(json['dataInizioApp'] as String?) ?? DateTime.now();
-    final deadline = _parseDateTime(json['dataFineIscr'] as String?) ?? start;
-    final state = (json['stato'] as String? ?? '').toUpperCase();
-    final booked = state == 'P' || state == 'PRENOTATO';
-    final bookable = state.isEmpty || state == 'A' || state == 'APERTO';
+        _parseDateTime(json['dataInizio'] as String?) ?? DateTime.now();
+    final deadline =
+        _parseDateTime(json['dataScadPrenotazione'] as String?) ?? start;
+    final booked = json['prenotato'] as bool? ?? false;
+    final bookable = json['prenotabile'] as bool? ?? false;
 
     return ExamBookingEntity(
-      id:
-          (json['appId'] ??
-                  json['appelloId'] ??
-                  '${booking.activityId}-${start.toIso8601String()}')
-              .toString(),
+      id: (json['appId'] ?? '${booking.activityId}-${start.toIso8601String()}')
+          .toString(),
       courseName: _textOrFallback(json['adDes'], booking.courseName),
       courseAcronym: _textOrFallback(json['adCod'], booking.courseCode),
       professor: _textOrFallback(json['docente'], 'Docente non disponibile'),
       date: start,
-      time: _textOrFallback(
-        json['oraEsa'],
-        '${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}',
-      ),
-      location: _textOrFallback(json['aulaDes'], 'Aula non disponibile'),
+      time:
+          '${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}',
+      location: _textOrFallback(json['aula'], 'Aula non disponibile'),
       building: 'Edificio non disponibile',
       enrollDeadline: deadline,
       spotsTotal: 0,
@@ -205,6 +137,13 @@ class DidatticaRemoteDataSource {
       credits: booking.credits.round(),
       year: 0,
     );
+  }
+
+  DateTime? _parseDate(String? value) {
+    if (value == null || value.isEmpty) return null;
+    final date = value.split(' ').first.split('/');
+    if (date.length != 3) return DateTime.tryParse(value);
+    return DateTime.tryParse('${date[2]}-${date[1]}-${date[0]}');
   }
 
   DateTime? _parseDateTime(String? value) {
@@ -245,7 +184,7 @@ class DidatticaRemoteDataSource {
 
   String _messageFor(DioException error) {
     return switch (error.response?.statusCode) {
-      401 => "Sessione scaduta. Effettua nuovamente l'accesso.",
+      401 => 'Sessione scaduta. Effettua nuovamente l’accesso.',
       503 => 'I dati ESSE3 non sono momentaneamente disponibili.',
       _
           when error.type == DioExceptionType.connectionTimeout ||

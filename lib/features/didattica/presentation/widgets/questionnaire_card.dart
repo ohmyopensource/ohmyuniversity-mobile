@@ -150,13 +150,8 @@ class QuestionnaireCard extends StatelessWidget {
 
   String get _dateLabel {
     if (_completed) {
-      final completedAt = questionnaire.completedAt;
-      if (completedAt == null) return 'Questionario completato';
-      return 'Compilato il ${formatExamDate(completedAt)}';
+      return 'Compilato il ${formatExamDate(questionnaire.completedAt!)}';
     }
-
-    final deadline = questionnaire.deadline;
-    if (deadline == null) return 'Da compilare prima della prenotazione';
-    return 'Scadenza: ${formatExamDate(deadline)}';
+    return 'Scadenza: ${formatExamDate(questionnaire.deadline!)}';
   }
 }
