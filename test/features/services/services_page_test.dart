@@ -6,10 +6,12 @@ import 'package:ohmyuniversity/features/services/presentation/pages/services_pag
 import 'package:ohmyuniversity/features/services/presentation/providers/external_services_providers.dart';
 
 void main() {
-  testWidgets('shows Moodle and library from the provider', (tester) async {
+  testWidgets('shows portal sections and provider-backed cards', (
+    tester,
+  ) async {
     const services = ExternalServicesEntity(
       universityId: 'UNIMOL',
-      universityName: 'Università degli Studi del Molise',
+      universityName: 'Universita degli Studi del Molise',
       moodleUrl: null,
       libraryUrl: null,
     );
@@ -24,13 +26,36 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('moodle-service-card')), findsOneWidget);
-    expect(find.byKey(const Key('library-service-card')), findsOneWidget);
-    expect(
-      find.byKey(const Key('student-portal-service-card')),
-      findsOneWidget,
+    expect(find.text('Portali'), findsWidgets);
+    expect(find.text('In evidenza'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('portal-search-field')),
+      'moodle',
     );
-    expect(find.text('Università degli Studi del Molise'), findsOneWidget);
-    expect(find.text('Servizio non configurato'), findsNWidgets(3));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('moodle-service-card')), findsOneWidget);
+    expect(find.text('Didattica'), findsOneWidget);
+    expect(find.text('Servizio non configurato'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('portal-search-field')),
+      'biblioteca',
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('biblioteca-service-card')), findsOneWidget);
+    expect(find.text('Didattica'), findsOneWidget);
+    expect(find.text('Servizio non configurato'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('portal-search-field')),
+      'esse3',
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('esse3-service-card')), findsOneWidget);
+    expect(find.text('Segreteria'), findsOneWidget);
+    expect(find.text('Servizio non configurato'), findsOneWidget);
+
+    expect(find.text('Universita degli Studi del Molise'), findsOneWidget);
   });
 }
