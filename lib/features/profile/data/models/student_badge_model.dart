@@ -19,6 +19,7 @@ class StudentBadgeModel extends StudentBadgeEntity {
     required super.validUntil,
     required super.frontImagePresent,
     required super.rearImagePresent,
+    required super.photoUrl,
   });
 
   factory StudentBadgeModel.fromJson(Map<String, dynamic> json) {
@@ -40,6 +41,11 @@ class StudentBadgeModel extends StudentBadgeEntity {
       validUntil: _parseDate(json['dataFin'] as String?),
       frontImagePresent: json['frontImagePresent'] as bool? ?? false,
       rearImagePresent: json['rearImagePresent'] as bool? ?? false,
+      photoUrl:
+          json['foto'] as String? ??
+          json['photoUrl'] as String? ??
+          json['imageUrl'] as String? ??
+          '',
     );
   }
 
@@ -49,9 +55,9 @@ class StudentBadgeModel extends StudentBadgeEntity {
     final isoDate = DateTime.tryParse(normalized);
     if (isoDate != null) return isoDate;
 
-    final match = RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})').firstMatch(
-      normalized,
-    );
+    final match = RegExp(
+      r'^(\d{1,2})/(\d{1,2})/(\d{4})',
+    ).firstMatch(normalized);
     if (match == null) return null;
     return DateTime(
       int.parse(match.group(3)!),

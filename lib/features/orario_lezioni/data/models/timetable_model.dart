@@ -34,22 +34,39 @@ class TimetableModel extends TimetableDocumentEntity {
   }
 
   factory TimetableModel.fromJson(Map<String, dynamic> json) {
-    final pdfUrl = _optionalString(json['pdfUrl']);
-    final sourceUrl = _optionalString(json['timetablePageUrl']) ?? pdfUrl;
+    final pdfUrl = _optionalString(
+      json['pdfUrl'] ?? json['fileUrl'] ?? json['urlPdf'],
+    );
+
+    final pageUrl = _optionalString(
+      json['timetablePageUrl'] ?? json['sourceUrl'] ?? json['pageUrl'],
+    );
+
+    final sourceUrl = pageUrl ?? pdfUrl;
 
     if (sourceUrl == null) {
       throw const FormatException('Missing timetable URL');
     }
 
     return TimetableModel(
-      id: json['id']?.toString() ?? sourceUrl,
-      title: _optionalString(json['label']) ?? 'Orario lezioni',
-      universityName:
-          _optionalString(json['universityId']) ?? 'Ateneo universitario',
-      department: _optionalString(json['departmentName']) ?? 'Dipartimento',
-      degreeClass: _optionalString(json['degreeType']) ?? 'Corso di laurea',
-      updatedAt:
-          DateTime.tryParse(json['fetchedAt']?.toString() ?? '') ??
+      id: _optionalString(json['id']) ?? sourceUrl,
+      title: _optionalString(json['label'] ?? json['title']) ??
+          'Orario lezioni',
+      universityName: _optionalString(
+        json['universityName'] ?? json['universityId'],
+      ) ??
+          'Ateneo universitario',
+      department: _optionalString(
+        json['departmentName'] ?? json['department'],
+      ) ??
+          'Dipartimento',
+      degreeClass: _optionalString(
+        json['degreeType'] ?? json['courseName'] ?? json['degreeClass'],
+      ) ??
+          'Corso di laurea',
+      academicYear: _optionalString(json['academicYear'] ?? json['aa']),
+      semester: _parseSemester(json['semester'] ?? json['semestre']),
+      updatedAt: _parseDate(json['fetchedAt'] ?? json['updatedAt']) ??
           DateTime.fromMillisecondsSinceEpoch(0),
       format: pdfUrl == null
           ? TimetableDocumentFormat.web
@@ -57,6 +74,22 @@ class TimetableModel extends TimetableDocumentEntity {
       sourceUrl: sourceUrl,
       fileUrl: pdfUrl,
     );
+  }
+
+  static int? _parseSemester(Object? value) {
+    if (value == null) return null;
+    if (value is num) return value.toInt();
+
+    final text = value.toString().toLowerCase();
+    if (text.contains('1') || text.contains('primo')) return 1;
+    if (text.contains('2') || text.contains('secondo')) return 2;
+
+    return null;
+  }
+
+  static DateTime? _parseDate(Object? value) {
+    if (value == null) return null;
+    return DateTime.tryParse(value.toString());
   }
 
   static String? _optionalString(Object? value) {

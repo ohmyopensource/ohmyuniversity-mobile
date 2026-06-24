@@ -54,6 +54,10 @@ class DidatticaRepositoryImpl implements DidatticaRepository {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> getSuggestedExams() {
+    return _dataSource.getSuggestedExams();
+  }
+  @override
   Future<List<ExamBookingEntity>> getAvailableExamBookings({
     required int degreeCourseId,
     required List<ExamBookingHistoryEntity> bookingHistory,

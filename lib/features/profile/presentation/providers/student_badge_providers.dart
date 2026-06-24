@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../config/providers/network_providers.dart';
@@ -24,4 +27,22 @@ final getStudentBadgeUseCaseProvider = Provider<GetStudentBadgeUseCase>((ref) {
 
 final studentBadgeProvider = FutureProvider<StudentBadgeEntity?>((ref) {
   return ref.watch(getStudentBadgeUseCaseProvider).call();
+});
+
+final studentProfilePhotoProvider = FutureProvider<String?>((ref) async {
+  try {
+    final response = await ref
+        .watch(apiDioProvider)
+        .get<List<int>>(
+          '/v1/carriera/foto',
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+    final bytes = response.data;
+    if (bytes == null || bytes.isEmpty) return null;
+
+    return 'data:image/jpeg;base64,${base64Encode(bytes)}';
+  } on DioException {
+    return null;
+  }
 });

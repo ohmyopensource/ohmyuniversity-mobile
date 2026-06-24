@@ -5,19 +5,27 @@ class AuthSessionModel extends AuthSessionEntity {
   const AuthSessionModel({
     required super.accessToken,
     required super.refreshToken,
+    required super.universityId,
     required super.username,
+    required super.nome,
+    required super.cognome,
     required super.profiles,
   });
 
   factory AuthSessionModel.fromJson(
     Map<String, dynamic> json, {
+    required String universityId,
     required String username,
   }) {
     final rawProfiles = json['profili'] as List<dynamic>? ?? const [];
+
     return AuthSessionModel(
       accessToken: json['accessToken'] as String? ?? '',
       refreshToken: json['refreshToken'] as String? ?? '',
+      universityId: universityId,
       username: username,
+      nome: json['nome'] as String? ?? '',
+      cognome: json['cognome'] as String? ?? '',
       profiles: rawProfiles
           .whereType<Map<String, dynamic>>()
           .map(CareerProfileModel.fromJson)
@@ -25,21 +33,45 @@ class AuthSessionModel extends AuthSessionEntity {
     );
   }
 
+  factory AuthSessionModel.fromStoredJson(Map<String, dynamic> json) {
+    return AuthSessionModel.fromJson(
+      json,
+      universityId: json['universityId'] as String? ?? '',
+      username: json['username'] as String? ?? '',
+    );
+  }
+
+  AuthSessionModel copyWith({
+    String? accessToken,
+    String? refreshToken,
+    String? universityId,
+    String? username,
+    String? nome,
+    String? cognome,
+    List<CareerProfileEntity>? profiles,
+  }) {
+    return AuthSessionModel(
+      accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
+      universityId: universityId ?? this.universityId,
+      username: username ?? this.username,
+      nome: nome ?? this.nome,
+      cognome: cognome ?? this.cognome,
+      profiles: profiles ?? this.profiles,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     'accessToken': accessToken,
     'refreshToken': refreshToken,
+    'universityId': universityId,
     'username': username,
+    'nome': nome,
+    'cognome': cognome,
     'profili': profiles
         .map((profile) => CareerProfileModel.fromEntity(profile).toJson())
         .toList(growable: false),
   };
-
-  factory AuthSessionModel.fromStoredJson(Map<String, dynamic> json) {
-    return AuthSessionModel.fromJson(
-      json,
-      username: json['username'] as String? ?? '',
-    );
-  }
 }
 
 class CareerProfileModel extends CareerProfileEntity {
@@ -98,6 +130,43 @@ class CareerProfileModel extends CareerProfileEntity {
       courseDurationYears: entity.courseDurationYears,
       academicYear: entity.academicYear,
       active: entity.active,
+    );
+  }
+
+  CareerProfileModel copyWith({
+    String? universityId,
+    String? universityName,
+    int? studentId,
+    int? enrollmentId,
+    String? studentNumber,
+    String? courseName,
+    String? courseCode,
+    int? degreeCourseId,
+    String? courseTypeCode,
+    String? studentStatus,
+    String? studentStatusDescription,
+    int? courseYear,
+    int? courseDurationYears,
+    int? academicYear,
+    bool? active,
+  }) {
+    return CareerProfileModel(
+      universityId: universityId ?? this.universityId,
+      universityName: universityName ?? this.universityName,
+      studentId: studentId ?? this.studentId,
+      enrollmentId: enrollmentId ?? this.enrollmentId,
+      studentNumber: studentNumber ?? this.studentNumber,
+      courseName: courseName ?? this.courseName,
+      courseCode: courseCode ?? this.courseCode,
+      degreeCourseId: degreeCourseId ?? this.degreeCourseId,
+      courseTypeCode: courseTypeCode ?? this.courseTypeCode,
+      studentStatus: studentStatus ?? this.studentStatus,
+      studentStatusDescription:
+          studentStatusDescription ?? this.studentStatusDescription,
+      courseYear: courseYear ?? this.courseYear,
+      courseDurationYears: courseDurationYears ?? this.courseDurationYears,
+      academicYear: academicYear ?? this.academicYear,
+      active: active ?? this.active,
     );
   }
 

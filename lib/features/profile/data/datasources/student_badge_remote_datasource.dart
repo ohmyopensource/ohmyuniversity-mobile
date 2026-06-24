@@ -13,16 +13,22 @@ class StudentBadgeRemoteDataSource {
       final response = await _dio.get<Map<String, dynamic>>(
         '/v1/carriera/badge',
       );
+
       final data = response.data;
-      return data == null ? null : StudentBadgeModel.fromJson(data);
+      if (data == null || data.isEmpty) return null;
+
+      return StudentBadgeModel.fromJson(data);
     } on DioException catch (error) {
       if (error.response?.statusCode == 404) return null;
-      throw ProfileDataException(
-        switch (error.response?.statusCode) {
-          401 => 'Sessione scaduta. Effettua nuovamente l’accesso.',
-          503 => 'Il badge universitario non è momentaneamente disponibile.',
-          _ => 'Impossibile caricare il badge universitario.',
-        },
+
+      throw ProfileDataException(switch (error.response?.statusCode) {
+        401 => "Sessione scaduta. Effettua nuovamente l'accesso.",
+        503 => 'Il profilo universitario non è momentaneamente disponibile.',
+        _ => 'Impossibile caricare il profilo universitario.',
+      });
+    } on FormatException {
+      throw const ProfileDataException(
+        'Il servizio ha restituito un profilo non valido.',
       );
     }
   }

@@ -2,9 +2,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/mocks/questionnaires_mock_data.dart';
 import '../../domain/entities/course_questionnaire_entity.dart';
+import 'career_data_providers.dart';
+
+final remoteQuestionnairesProvider =
+    FutureProvider<List<CourseQuestionnaireEntity>>((ref) {
+      return ref.watch(didatticaRemoteDataSourceProvider).getQuestionnaires();
+    });
 
 final questionnairesProvider = Provider<List<CourseQuestionnaireEntity>>((ref) {
-  return questionnairesMockData;
+  return ref
+      .watch(remoteQuestionnairesProvider)
+      .maybeWhen(
+        data: (questionnaires) => questionnaires,
+        orElse: () => questionnairesMockData,
+      );
 });
 
 final pendingQuestionnairesProvider = Provider<List<CourseQuestionnaireEntity>>(
