@@ -135,6 +135,7 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
   Offset _rippleOffset = Offset.zero;
   double _rippleRadius = 0;
   bool _isPressed = false;
+  bool _isHovered = false;
 
   @override
   void initState() {
@@ -356,6 +357,19 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
           rippleColor: const Color(0x2E50648E),
         );
       case ButtonVariant.outline:
+        if (_isHovered) {
+          return _ButtonColors(
+            gradient: LinearGradient(
+              colors: [AppColors.colorPrimaryLight, AppColors.colorPrimaryDark],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            text: AppColors.colorPrimaryText,
+            shadow: AppColors.colorPrimaryShadow,
+            focusColor: AppColors.colorPrimaryFocus,
+            rippleColor: Colors.white38,
+          );
+        }
         return _ButtonColors(
           background: Colors.transparent,
           text: isDark
@@ -496,6 +510,8 @@ class _CustomButtonWidgetState extends State<CustomButtonWidget>
       onTapUp: _handleTapUp,
       onTapCancel: _handleTapCancel,
       child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
         cursor: _isInert
             ? SystemMouseCursors.forbidden
             : SystemMouseCursors.click,

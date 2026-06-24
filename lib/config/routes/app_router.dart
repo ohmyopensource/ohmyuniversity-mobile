@@ -19,11 +19,8 @@ import '../../features/notifiche/presentation/pages/notifiche_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/orario_lezioni/presentation/pages/orario_lezioni_page.dart';
 import '../../features/orientamento/presentation/pages/argomenti/come_funziona_universita_page.dart';
-import '../../features/orientamento/presentation/pages/argomenti/errori_comuni_page.dart';
 import '../../features/orientamento/presentation/pages/argomenti/quiz_autovalutazione_page.dart';
-import '../../features/orientamento/presentation/pages/argomenti/sbocchi_lavorativi_page.dart';
 import '../../features/orientamento/presentation/pages/argomenti/scegli_corso_page.dart';
-import '../../features/orientamento/presentation/pages/argomenti/vita_universitaria_page.dart';
 import '../../features/orientamento/presentation/pages/orientamento_page.dart';
 import '../../features/preferiti/presentation/pages/preferiti_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -75,21 +72,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.orientamentoComeFunziona,
         name: AppRoutes.orientamentoComeFunzionaName,
         builder: (context, state) => const ComeFunzionaUniversitaPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.orientamentoVitaUniversitaria,
-        name: AppRoutes.orientamentoVitaUniversitariaName,
-        builder: (context, state) => const VitaUniversitariaPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.orientamentoSbocchi,
-        name: AppRoutes.orientamentoSbocchiName,
-        builder: (context, state) => const SbocchiLavorativiPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.orientamentoErroriComuni,
-        name: AppRoutes.orientamentoErroriComuniName,
-        builder: (context, state) => const ErroriComuniPage(),
       ),
 
       // Pushed routes ================================
