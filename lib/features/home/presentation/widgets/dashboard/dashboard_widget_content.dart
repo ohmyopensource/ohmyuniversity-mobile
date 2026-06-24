@@ -9,13 +9,14 @@ import '../../../../../shared/widgets/academic/academic_exam_widgets.dart';
 import '../../../../../shared/widgets/academic/academic_summary_tiles.dart';
 import '../../../../../shared/widgets/academic/academic_tuition_widgets.dart';
 import '../../../../calendario/presentation/providers/calendar_providers.dart';
+import '../../../../didattica/domain/entities/didattica_exam_course_entity.dart';
+import '../../../../didattica/domain/entities/tuition_fee_entity.dart';
 import '../../../../didattica/presentation/providers/appeals_controller.dart';
 import '../../../../didattica/presentation/providers/career_provider.dart';
 import '../../../../didattica/presentation/providers/tuition_providers.dart';
+import '../../../../orario_lezioni/presentation/providers/timetable_providers.dart';
 import '../../../../profile/presentation/mappers/student_identity_mapper.dart';
 import '../../../../profile/presentation/providers/student_badge_providers.dart';
-import '../../../../didattica/domain/entities/tuition_fee_entity.dart';
-import '../../../../didattica/domain/entities/didattica_exam_course_entity.dart';
 import '../../models/dashboard_widget_option.dart';
 import 'dashboard_calendar_widgets.dart';
 import 'home_appeals_widget.dart';
@@ -97,6 +98,7 @@ class DashboardWidgetContent extends ConsumerWidget {
       'calendar_agenda' ||
       'calendar_day' ||
       'calendar_two_day' => const _DashboardCalendarWidget(),
+      'timetable' => const _DashboardTimetableWidget(),
       'exams' => const _DashboardExamsWidget(),
       'appeals' => HomeAppealsWidget(
         appeals: ref.watch(allExamBookingsProvider),
@@ -164,19 +166,25 @@ class _DashboardExamsWidgetState extends ConsumerState<_DashboardExamsWidget> {
   @override
   Widget build(BuildContext context) {
     final careerState = ref.watch(careerProvider);
+
     if (careerState.isLoading) {
       return const _DashboardAsyncState(isLoading: true);
     }
+
     if (careerState.errorMessage != null) {
       return const _DashboardAsyncState(isLoading: false);
     }
+
     final courses = careerState.courses
         .map(_toAcademicExamCourseData)
         .toList(growable: false);
+
     final years = courses.map((course) => course.year).toSet().toList()..sort();
+
     if (years.isEmpty) {
       return const Center(child: Text('Nessun esame disponibile'));
     }
+
     final effectiveYear = years.contains(_selectedYear)
         ? _selectedYear
         : years.first;
@@ -224,6 +232,29 @@ class _DashboardCalendarWidget extends ConsumerWidget {
   }
 }
 
+class _DashboardTimetableWidget extends ConsumerWidget {
+  const _DashboardTimetableWidget();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final timetables = ref.watch(studentTimetablesProvider);
+
+    return timetables.when(
+      data: (items) {
+        final first = items.isEmpty ? null : items.first;
+
+        return _CompactInfoWidget(
+          option: DashboardWidgetOptions.timetable,
+          value: items.isEmpty ? '0' : '${items.length}',
+          caption: first == null ? 'Nessun orario disponibile' : first.title,
+        );
+      },
+      loading: () => const _DashboardAsyncState(isLoading: true),
+      error: (_, _) => const _DashboardAsyncState(isLoading: false),
+    );
+  }
+}
+
 class _DashboardTuitionWidget extends ConsumerStatefulWidget {
   const _DashboardTuitionWidget({required this.preview});
 
@@ -258,6 +289,7 @@ class _DashboardTuitionWidgetState
     if (widget.preview) {
       return _buildPanel(const []);
     }
+
     return ref
         .watch(tuitionSnapshotProvider)
         .when(
@@ -300,6 +332,7 @@ class _DashboardTuitionCompactWidget extends ConsumerWidget {
 
   Widget _buildCounter(BuildContext context, List<TuitionFeeEntity> fees) {
     final paidCount = fees.where((fee) => fee.isPaid).length;
+
     return AcademicTuitionCounterTile(
       unpaidCount: fees.length - paidCount,
       paidCount: paidCount,

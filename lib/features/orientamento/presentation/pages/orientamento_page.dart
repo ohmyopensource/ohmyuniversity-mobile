@@ -40,13 +40,12 @@ class _OrientamentoPageState extends ConsumerState<OrientamentoPage> {
 
     if (_view == _OrientationView.topic) {
       final topic = topics[activeIndex];
-      final onPrevious = () =>
+      void onPrevious() =>
           ref.read(orientationControllerProvider.notifier).previousTopic();
-      final onNext = () =>
+      void onNext() =>
           ref.read(orientationControllerProvider.notifier).nextTopic();
-      final onBackToTopics = () =>
-          setState(() => _view = _OrientationView.topics);
-      final onComplete = () => setState(() => _view = _OrientationView.summary);
+      void onBackToTopics() => setState(() => _view = _OrientationView.topics);
+      void onComplete() => setState(() => _view = _OrientationView.summary);
 
       if (showQuestions) {
         return OrientationTopicDetailPage(

@@ -9,7 +9,6 @@ import '../../core/usecases/usecase.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/profile/domain/entities/student_badge_entity.dart';
 import '../../features/profile/presentation/providers/student_badge_providers.dart';
-import '../mocks/app_mock_data.dart';
 import '../widgets/avatar_profile_panel/avatar_profile_panel_widget.dart';
 
 class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -20,38 +19,37 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(78);
 
-  static AccountEntry _toAccountEntry(
-    MockAccountData account,
+  static AccountEntry _activeAccount(
     StudentBadgeEntity? badge,
+    String? photoSrc,
   ) {
-    final useBadge = account.isCurrent && badge != null;
     return AccountEntry(
-      id: account.id,
-      name: useBadge ? badge.fullName : account.name,
-      email: useBadge ? 'Matricola ${badge.studentNumber}' : account.email,
-      courseLabel: useBadge ? badge.courseName : account.courseLabel,
-      universityLabel: useBadge
-          ? badge.universityName
-          : account.universityLabel,
-      courseAcronym: useBadge ? badge.courseCode : account.courseAcronym,
-      status: _toAccountStatus(account.status),
-      isCurrent: account.isCurrent,
+      id: badge?.studentNumber.isNotEmpty == true
+          ? badge!.studentNumber
+          : 'active-profile',
+      name: badge?.fullName.isNotEmpty == true ? badge!.fullName : 'Profilo',
+      email: badge?.studentNumber.isNotEmpty == true
+          ? 'Matricola ${badge!.studentNumber}'
+          : 'Profilo attivo',
+      courseLabel: badge?.courseName.isNotEmpty == true
+          ? badge!.courseName
+          : 'Corso non disponibile',
+      universityLabel: badge?.universityName.isNotEmpty == true
+          ? badge!.universityName
+          : 'Ateneo non disponibile',
+      courseAcronym: badge?.courseCode.isNotEmpty == true
+          ? badge!.courseCode
+          : 'AM',
+      avatarSrc: photoSrc,
+      status: AccountStatus.active,
+      isCurrent: true,
     );
-  }
-
-  static AccountStatus _toAccountStatus(MockAccountStatus status) {
-    return switch (status) {
-      MockAccountStatus.active => AccountStatus.active,
-      MockAccountStatus.warning => AccountStatus.warning,
-      MockAccountStatus.suspended => AccountStatus.suspended,
-      MockAccountStatus.withdrawn => AccountStatus.withdrawn,
-      MockAccountStatus.graduated => AccountStatus.graduated,
-    };
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final badge = ref.watch(studentBadgeProvider).value;
+    final photoSrc = ref.watch(studentProfilePhotoProvider).value;
 
     return Material(
       color: AppColors.secondary.withValues(alpha: 0.38),
@@ -75,33 +73,33 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
               _TopBarGroup(
                 children: [
                   AvatarProfilePanelWidget(
-                    accounts: AppMockData.topBarAccounts
-                        .map((account) => _toAccountEntry(account, badge))
-                        .toList(growable: false),
+                    accounts: [_activeAccount(badge, photoSrc)],
                     position: PanelPosition.right,
                     animation: PanelAnimation.ios,
-                    showSettings: true,
+                    showSettings: false,
                     showLogout: true,
                     showAddAccount: false,
                     onProfileClick: () =>
                         context.pushNamed(AppRoutes.profileName),
                     onAccountSwitch: (_) {},
-                    onSettingsClick: () {},
                     onLogoutClick: () async {
                       await ref
                           .read(logoutUseCaseProvider)
                           .call(const NoParams());
+
                       if (!context.mounted) return;
+
                       ref
                           .read(isAuthenticatedProvider.notifier)
                           .setAuthenticated(false);
+
                       context.goNamed(AppRoutes.loginName);
                     },
                   ),
                   const SizedBox(width: 14),
                   _TopBarAction(
                     icon: LucideIcons.search,
-                    tooltip: 'Search',
+                    tooltip: 'Cerca',
                     hasSoftBackground: true,
                     onTap: () {},
                   ),
@@ -112,7 +110,7 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
                 children: [
                   _TopBarAction(
                     icon: LucideIcons.heart,
-                    tooltip: 'Favourites',
+                    tooltip: 'Preferiti',
                     onTap: () => context.pushNamed(AppRoutes.preferitiName),
                   ),
                   const SizedBox(width: 14),

@@ -169,7 +169,6 @@ class _CustomModalWidgetState extends State<CustomModalWidget>
     with SingleTickerProviderStateMixin {
   // ── state ──────────────────────────────────
   bool _isOpen = false;
-  bool _isVisible = false;
   bool _isShaking = false;
 
   // ── animation ──────────────────────────────
@@ -284,7 +283,6 @@ class _CustomModalWidgetState extends State<CustomModalWidget>
     setState(() => _isOpen = true);
 
     _openTimer = Timer(const Duration(milliseconds: 10), () {
-      setState(() => _isVisible = true);
       _animCtrl.forward();
       widget.onOpened?.call();
     });
@@ -298,7 +296,6 @@ class _CustomModalWidgetState extends State<CustomModalWidget>
       return;
     }
 
-    setState(() => _isVisible = false);
     _animCtrl.reverse();
 
     _closeTimer = Timer(_closeDuration, () {
