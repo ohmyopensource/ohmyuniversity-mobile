@@ -33,8 +33,8 @@ class CalendarEventCard extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: compact ? 12 : 14,
-          vertical: compact ? 10 : 13,
+          horizontal: compact ? 10 : 15,
+          vertical: compact ? 8 : 14,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -68,7 +68,7 @@ class CalendarEventCard extends StatelessWidget {
                 children: [
                   Text(
                     event.title,
-                    maxLines: 1,
+                    maxLines: compact ? 1 : 2,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: foregroundColor,
@@ -90,6 +90,30 @@ class CalendarEventCard extends StatelessWidget {
                       height: 1,
                     ),
                   ),
+                  if (!compact && event.location.trim().isNotEmpty) ...[
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 13,
+                          color: foregroundColor.withValues(alpha: 0.66),
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            event.location.trim(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: foregroundColor.withValues(alpha: 0.66),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

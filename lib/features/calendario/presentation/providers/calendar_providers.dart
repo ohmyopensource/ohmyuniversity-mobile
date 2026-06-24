@@ -13,7 +13,7 @@ import '../../domain/usecases/delete_calendar_event_usecase.dart';
 import '../../domain/usecases/get_calendar_events_usecase.dart';
 import '../../domain/usecases/update_calendar_event_usecase.dart';
 
-enum CalendarView { day, week, month }
+enum CalendarView { day, month, year }
 
 final selectedCalendarDateProvider =
     NotifierProvider<CalendarSelectionController, DateTime>(
@@ -61,9 +61,25 @@ final calendarClockProvider = StreamProvider.autoDispose<DateTime>((
   }
 });
 
-final selectedCalendarViewProvider = Provider<CalendarView>((ref) {
-  return CalendarView.day;
-});
+final selectedCalendarViewProvider =
+    NotifierProvider<CalendarViewController, CalendarView>(
+      CalendarViewController.new,
+    );
+
+class CalendarViewController extends Notifier<CalendarView> {
+  @override
+  CalendarView build() => CalendarView.day;
+
+  void setView(CalendarView view) => state = view;
+
+  void goBack() {
+    state = switch (state) {
+      CalendarView.day => CalendarView.month,
+      CalendarView.month => CalendarView.year,
+      CalendarView.year => CalendarView.year,
+    };
+  }
+}
 
 final calendarMockDataSourceProvider = Provider<CalendarMockDataSource>((ref) {
   return CalendarMockDataSource();
@@ -109,12 +125,21 @@ final deleteCalendarEventUseCaseProvider = Provider<DeleteCalendarEventUseCase>(
 
 final calendarEventsProvider = FutureProvider<List<CalendarEventEntity>>((ref) {
   final selectedDate = ref.watch(selectedCalendarDateProvider);
-  final startDate = DateTime(
-    selectedDate.year,
-    selectedDate.month,
-    selectedDate.day,
-  );
-  final endDate = startDate.add(const Duration(days: 1));
+  final selectedView = ref.watch(selectedCalendarViewProvider);
+  final (startDate, endDate) = switch (selectedView) {
+    CalendarView.day => (
+      DateTime(selectedDate.year, selectedDate.month, selectedDate.day),
+      DateTime(selectedDate.year, selectedDate.month, selectedDate.day + 1),
+    ),
+    CalendarView.month => (
+      DateTime(selectedDate.year, selectedDate.month),
+      DateTime(selectedDate.year, selectedDate.month + 1),
+    ),
+    CalendarView.year => (
+      DateTime(selectedDate.year),
+      DateTime(selectedDate.year + 1),
+    ),
+  };
 
   return ref
       .watch(getCalendarEventsUseCaseProvider)
