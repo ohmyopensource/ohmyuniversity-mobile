@@ -31,6 +31,7 @@ void main() {
       validUntil: null,
       frontImagePresent: true,
       rearImagePresent: false,
+      photoUrl: '',
     );
 
     await tester.pumpWidget(

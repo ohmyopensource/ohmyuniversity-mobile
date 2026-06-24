@@ -16,7 +16,9 @@ class StudentBadgeEntity {
     required this.validFrom,
     required this.validUntil,
     required this.frontImagePresent,
+    required this.photoUrl,
     required this.rearImagePresent,
+
   });
 
   final int? badgeId;
@@ -36,6 +38,7 @@ class StudentBadgeEntity {
   final DateTime? validUntil;
   final bool frontImagePresent;
   final bool rearImagePresent;
+  final String photoUrl;
 
   String get fullName => '$firstName $lastName'.trim();
 

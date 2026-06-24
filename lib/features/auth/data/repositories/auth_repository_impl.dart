@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import '../../domain/entities/auth_session_entity.dart';
+import '../../domain/entities/career_profile_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
+import '../models/auth_session_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl(this._remoteDataSource, this._localDataSource);
@@ -27,6 +29,35 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<AuthSessionEntity> switchCareer(CareerProfileEntity profile) async {
+    final session = await _localDataSource.readSession();
+    if (session == null) {
+      throw StateError('Sessione non disponibile.');
+    }
+
+    final selectedProfile = CareerProfileModel.fromEntity(profile);
+    final accessToken = await _remoteDataSource.switchCareer(
+      session: session,
+      profile: selectedProfile,
+    );
+
+    final profiles = session.profiles
+        .map(
+          (item) => CareerProfileModel.fromEntity(
+            item,
+          ).copyWith(active: _sameCareer(item, selectedProfile)),
+        )
+        .toList(growable: false);
+
+    final updatedSession = session.copyWith(
+      accessToken: accessToken,
+      profiles: profiles,
+    );
+    await _localDataSource.saveSession(updatedSession);
+    return updatedSession;
+  }
+
+  @override
   Future<void> logout() async {
     final session = await _localDataSource.readSession();
     try {
@@ -44,29 +75,42 @@ class AuthRepositoryImpl implements AuthRepository {
     final session = await _localDataSource.readSession();
     if (session == null ||
         session.accessToken.isEmpty ||
-        session.refreshToken.isEmpty) {
-      await _localDataSource.clearSession();
-      return false;
-    }
-    final claims = _accessTokenClaims(session.accessToken);
-    if (claims == null ||
-        _isAccessTokenExpired(claims) ||
-        !_hasCareerClaims(claims)) {
+        session.refreshToken.isEmpty ||
+        session.universityId.isEmpty) {
       await _localDataSource.clearSession();
       return false;
     }
 
+    final claims = _accessTokenClaims(session.accessToken);
+    if (claims == null || !_hasSessionClaims(claims)) {
+      await _localDataSource.clearSession();
+      return false;
+    }
+
+    if (!_isAccessTokenExpired(claims)) return true;
+
     try {
-      final isSessionValid =
-          await _remoteDataSource.refreshAccessToken(session) != null;
-      if (!isSessionValid) {
+      final newAccessToken = await _remoteDataSource.refreshAccessToken(
+        session,
+      );
+      if (newAccessToken == null || newAccessToken.isEmpty) {
         await _localDataSource.clearSession();
         return false;
       }
+
+      await _localDataSource.saveSession(
+        session.copyWith(accessToken: newAccessToken),
+      );
       return true;
     } catch (_) {
       return false;
     }
+  }
+
+  bool _sameCareer(CareerProfileEntity left, CareerProfileEntity right) {
+    return left.studentId == right.studentId &&
+        left.enrollmentId == right.enrollmentId &&
+        left.studentNumber == right.studentNumber;
   }
 
   Map<String, dynamic>? _accessTokenClaims(String token) {
@@ -93,7 +137,12 @@ class AuthRepositoryImpl implements AuthRepository {
         .isAfter(expirationDate);
   }
 
-  bool _hasCareerClaims(Map<String, dynamic> claims) {
-    return claims['stuId'] != null && claims['matId'] != null;
+  bool _hasSessionClaims(Map<String, dynamic> claims) {
+    final subject = claims['sub'] as String?;
+    final universityId = claims['uni'] as String?;
+    return subject != null &&
+        subject.trim().isNotEmpty &&
+        universityId != null &&
+        universityId.trim().isNotEmpty;
   }
 }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:ohmyuniversity/config/routes/app_routes.dart';
 import 'package:ohmyuniversity/features/auth/domain/entities/auth_session_entity.dart';
+import 'package:ohmyuniversity/features/auth/domain/entities/career_profile_entity.dart';
 import 'package:ohmyuniversity/features/auth/domain/repositories/auth_repository.dart';
 import 'package:ohmyuniversity/features/auth/domain/usecases/login_usecase.dart';
 import 'package:ohmyuniversity/features/auth/presentation/pages/login_page.dart';
@@ -479,6 +480,11 @@ class _FailingAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<AuthSessionEntity> switchCareer(CareerProfileEntity profile) {
+    throw Exception('Career switch failed');
+  }
+
+  @override
   Future<void> logout() async {}
 
   @override
@@ -499,7 +505,23 @@ class _SuccessfulAuthRepository implements AuthRepository {
     return AuthSessionEntity(
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
+      universityId: universityId,
       username: username,
+      nome: 'Mario',
+      cognome: 'Rossi',
+      profiles: const [],
+    );
+  }
+
+  @override
+  Future<AuthSessionEntity> switchCareer(CareerProfileEntity profile) async {
+    return AuthSessionEntity(
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+      universityId: profile.universityId,
+      username: profile.studentNumber,
+      nome: 'Mario',
+      cognome: 'Rossi',
       profiles: const [],
     );
   }
@@ -537,6 +559,11 @@ class _ImmediateDidatticaRepository implements DidatticaRepository {
 
   @override
   Future<List<ExamBookingHistoryEntity>?> getCachedExamBookingHistory() async {
+    return const [];
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getSuggestedExams() async {
     return const [];
   }
 }

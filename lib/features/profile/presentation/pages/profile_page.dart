@@ -46,6 +46,8 @@ class _ProfileContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final photoSrc = ref.watch(studentProfilePhotoProvider).value;
+
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(studentBadgeProvider);
@@ -57,68 +59,128 @@ class _ProfileContent extends ConsumerWidget {
           parent: BouncingScrollPhysics(),
         ),
         children: [
-            _ProfileHeader(
-              name: badge.fullName,
-              subtitle: badge.courseName,
+          _ProfileHeader(
+            name: badge.fullName,
+            subtitle: badge.courseName,
+            photoSrc: photoSrc,
+          ),
+          const SizedBox(height: 18),
+          Text(
+            'Informazioni accademiche',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w800,
             ),
-            const SizedBox(height: 18),
-            Text(
-              'Informazioni accademiche',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w800,
+          ),
+          const SizedBox(height: 10),
+          _ProfileSection(
+            children: [
+              _ProfileInfoRow(
+                icon: LucideIcons.creditCard,
+                label: 'Matricola',
+                value: badge.studentNumber,
               ),
-            ),
-            const SizedBox(height: 10),
-            _ProfileSection(
-              children: [
+              _ProfileInfoRow(
+                icon: LucideIcons.university,
+                label: 'Ateneo',
+                value: badge.universityName,
+              ),
+              _ProfileInfoRow(
+                icon: LucideIcons.bookOpen,
+                label: 'Corso di laurea',
+                value: badge.courseName,
+              ),
+              if (badge.facultyName.isNotEmpty)
                 _ProfileInfoRow(
-                  icon: LucideIcons.creditCard,
-                  label: 'Matricola',
-                  value: badge.studentNumber,
+                  icon: LucideIcons.graduationCap,
+                  label: 'Dipartimento',
+                  value: badge.facultyName,
                 ),
-                _ProfileInfoRow(
-                  icon: LucideIcons.university,
-                  label: 'Ateneo',
-                  value: badge.universityName,
-                ),
-                _ProfileInfoRow(
-                  icon: LucideIcons.bookOpen,
-                  label: 'Corso di laurea',
-                  value: badge.courseName,
-                ),
-                if (badge.facultyName.isNotEmpty)
-                  _ProfileInfoRow(
-                    icon: LucideIcons.graduationCap,
-                    label: 'Dipartimento',
-                    value: badge.facultyName,
-                  ),
+              if (badge.academicYear.isNotEmpty)
                 _ProfileInfoRow(
                   icon: LucideIcons.calendarDays,
                   label: 'Anno accademico',
                   value: badge.academicYear,
-                  showDivider: badge.rfid.isNotEmpty,
                 ),
-                if (badge.rfid.isNotEmpty)
-                  _ProfileInfoRow(
-                    icon: LucideIcons.scanLine,
-                    label: 'RFID badge',
-                    value: badge.rfid,
-                    showDivider: false,
-                  ),
-              ],
+              if (badge.statusCode.isNotEmpty)
+                _ProfileInfoRow(
+                  icon: LucideIcons.badgeCheck,
+                  label: 'Stato carriera',
+                  value: badge.statusCode,
+                ),
+              if (badge.rfid.isNotEmpty)
+                _ProfileInfoRow(
+                  icon: LucideIcons.scanLine,
+                  label: 'RFID badge',
+                  value: badge.rfid,
+                  showDivider: false,
+                ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Text(
+            'Dati personali',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w800,
             ),
+          ),
+          const SizedBox(height: 10),
+          _ProfileSection(
+            children: [
+              _ProfileInfoRow(
+                icon: LucideIcons.user,
+                label: 'Nome',
+                value: badge.firstName,
+              ),
+              _ProfileInfoRow(
+                icon: LucideIcons.userRound,
+                label: 'Cognome',
+                value: badge.lastName,
+              ),
+              if (badge.taxCode.isNotEmpty)
+                _ProfileInfoRow(
+                  icon: LucideIcons.fingerprint,
+                  label: 'Codice fiscale',
+                  value: badge.taxCode,
+                ),
+              if (badge.validFrom != null)
+                _ProfileInfoRow(
+                  icon: LucideIcons.calendarCheck,
+                  label: 'Valido dal',
+                  value: _formatDate(badge.validFrom!),
+                ),
+              if (badge.validUntil != null)
+                _ProfileInfoRow(
+                  icon: LucideIcons.calendarClock,
+                  label: 'Valido fino al',
+                  value: _formatDate(badge.validUntil!),
+                  showDivider: false,
+                ),
+            ],
+          ),
         ],
       ),
     );
   }
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/'
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.year}';
+  }
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({required this.name, required this.subtitle});
+  const _ProfileHeader({
+    required this.name,
+    required this.subtitle,
+    required this.photoSrc,
+  });
 
   final String name;
   final String subtitle;
+  final String? photoSrc;
 
   @override
   Widget build(BuildContext context) {
@@ -126,21 +188,14 @@ class _ProfileHeader extends StatelessWidget {
       children: [
         Row(
           children: [
-            CustomAvatarWidget(
-              name: name,
-              size: AvatarSize.xl,
-              variant: AvatarVariant.success,
-              showRing: true,
-              ringColor: AppColors.colorSuccessDark,
-              dotStatus: AvatarDotStatus.online,
-            ),
+            _ProfileAvatar(name: name, photoSrc: photoSrc),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    name.isEmpty ? 'Studente' : name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -150,7 +205,7 @@ class _ProfileHeader extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    subtitle,
+                    subtitle.isEmpty ? 'Corso non disponibile' : subtitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -167,9 +222,9 @@ class _ProfileHeader extends StatelessWidget {
                       color: AppColors.colorSuccessLight.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Profilo universitario',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.colorSuccessText,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -186,6 +241,26 @@ class _ProfileHeader extends StatelessWidget {
   }
 }
 
+class _ProfileAvatar extends StatelessWidget {
+  const _ProfileAvatar({required this.name, required this.photoSrc});
+
+  final String name;
+  final String? photoSrc;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomAvatarWidget(
+      src: photoSrc,
+      name: name.isEmpty ? 'Studente' : name,
+      size: AvatarSize.xl,
+      variant: AvatarVariant.success,
+      showRing: true,
+      ringColor: AppColors.colorSuccessDark,
+      dotStatus: AvatarDotStatus.online,
+    );
+  }
+}
+
 class _ProfileUnavailable extends StatelessWidget {
   const _ProfileUnavailable();
 
@@ -195,7 +270,7 @@ class _ProfileUnavailable extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(24),
         child: Text(
-          'Nessun badge universitario disponibile per questa carriera.',
+          'Nessun profilo universitario disponibile per questa carriera.',
           textAlign: TextAlign.center,
         ),
       ),
@@ -302,7 +377,7 @@ class _ProfileInfoRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      value,
+                      value.isEmpty ? 'Non disponibile' : value,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w700,

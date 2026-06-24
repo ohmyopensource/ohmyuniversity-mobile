@@ -6,6 +6,7 @@ import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
+import '../../domain/usecases/switch_career_usecase.dart';
 
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
   return AuthRemoteDataSource(ref.watch(apiDioProvider));
@@ -24,6 +25,10 @@ final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
 
 final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
   return LogoutUseCase(ref.watch(authRepositoryProvider));
+});
+
+final switchCareerUseCaseProvider = Provider<SwitchCareerUseCase>((ref) {
+  return SwitchCareerUseCase(ref.watch(authRepositoryProvider));
 });
 
 final isAuthenticatedProvider = NotifierProvider<IsAuthenticated, bool>(
