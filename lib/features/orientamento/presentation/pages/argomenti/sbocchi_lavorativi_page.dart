@@ -10,10 +10,7 @@ import '../../providers/orientation_providers.dart';
 import '../../widgets/orientation_bottom_nav.dart';
 import '../../widgets/orientation_simple_charts.dart';
 
-// ─── Colore di sfondo pastel ──────────────────────────────────────────────────
-const _pastelBackground = Color(0xFFE9F6ED); // green-50 leggero
-
-// ─── Dati statici ─────────────────────────────────────────────────────────────
+const _pastelBackground = Color(0xFFE9F6ED);
 
 class _CareerArea {
   const _CareerArea({
@@ -85,8 +82,6 @@ const _careerTips = [
   ),
 ];
 
-// ─── Pagina principale ────────────────────────────────────────────────────────
-
 class SbocchiLavorativiPage extends ConsumerStatefulWidget {
   const SbocchiLavorativiPage({
     super.key,
@@ -127,12 +122,6 @@ class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
     ref.read(orientationQuestionStageProvider.notifier).showQuestions();
   }
 
-  Color _occupazioneColor(int val) {
-    if (val >= 75) return AppColors.colorSuccessDark;
-    if (val >= 55) return AppColors.colorWarningDark;
-    return AppColors.colorErrorDark;
-  }
-
   BadgeVariant _occupazioneVariant(int val) {
     if (val >= 75) return BadgeVariant.success;
     if (val >= 55) return BadgeVariant.warning;
@@ -148,7 +137,6 @@ class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Header progresso ─────────────────────────────────────────────
             _TopicProgressHeader(
               index: widget.activeIndex + 1,
               total: widget.totalTopics,
@@ -158,13 +146,11 @@ class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
               totalCount: widget.totalCount,
             ),
 
-            // ── Contenuto scrollabile ─────────────────────────────────────────
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  // Macro-area badge
                   CustomBadgeWidget(
                     label:
                         'Macro-area ${widget.activeIndex + 1} di ${widget.totalTopics}',
@@ -174,7 +160,6 @@ class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Titolo sezione
                   Text(
                     'Sbocchi lavorativi',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -193,7 +178,6 @@ class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
                   ),
                   const SizedBox(height: 24),
 
-                  // ── Chart occupazione ─────────────────────────────────────
                   Text(
                     'Occupazione a 1 anno dalla laurea',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -213,7 +197,6 @@ class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
                   const OrientationCareerDirectionsCard(),
                   const SizedBox(height: 24),
 
-                  // ── Tabella stipendi ──────────────────────────────────────
                   Text(
                     'Stipendi medi netti al primo impiego',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -236,7 +219,6 @@ class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
                   ),
                   const SizedBox(height: 24),
 
-                  // ── Come leggere i dati (timeline) ────────────────────────
                   Text(
                     'Come leggere questi dati',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -259,7 +241,6 @@ class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
                   }),
                   const SizedBox(height: 24),
 
-                  // ── Callout AlmaLaurea ────────────────────────────────────
                   CustomCardWidget(
                     variant: CardVariant.success,
                     padding: CardPadding.md,
@@ -299,7 +280,6 @@ class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
                               ),
                         ),
                         const SizedBox(height: 12),
-                        // Link esterno visivo
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
@@ -346,7 +326,6 @@ class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
               ),
             ),
 
-            // ── Nav inferiore ─────────────────────────────────────────────────
             OrientationBottomNav(
               hasPrevious: widget.activeIndex > 0,
               hasNext: widget.activeIndex < widget.totalTopics - 1,
@@ -364,8 +343,6 @@ class _SbocchiLavorativiPageState extends ConsumerState<SbocchiLavorativiPage> {
     );
   }
 }
-
-// ─── Widget privati ───────────────────────────────────────────────────────────
 
 class _TopicProgressHeader extends StatelessWidget {
   const _TopicProgressHeader({
@@ -464,7 +441,6 @@ class _SalaryTable extends StatelessWidget {
               _TableHeader('Stipendio'),
             ],
           ),
-          // Righe dati
           ...areas.map(
             (area) => TableRow(
               decoration: const BoxDecoration(color: Colors.white),

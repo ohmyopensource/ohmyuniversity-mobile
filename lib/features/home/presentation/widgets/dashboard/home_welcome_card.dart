@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../../config/constants/app_day_greeting.dart';
 import '../../../../../config/theme/app_colors.dart';
-import '../../../../../shared/mocks/app_mock_data.dart';
+import '../../../../profile/presentation/providers/student_badge_providers.dart';
 
-class HomeWelcomeCard extends StatelessWidget {
+class HomeWelcomeCard extends ConsumerWidget {
   const HomeWelcomeCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final greeting = AppDayGreeting.resolve();
+    final badge = ref.watch(studentBadgeProvider).value;
+    final firstName = badge?.firstName.trim();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -38,7 +41,9 @@ class HomeWelcomeCard extends StatelessWidget {
             children: [
               TextSpan(text: '$greeting, '),
               TextSpan(
-                text: AppMockData.student.firstName,
+                text: firstName == null || firstName.isEmpty
+                    ? 'Alessio'
+                    : firstName,
                 style: const TextStyle(fontWeight: FontWeight.w900),
               ),
             ],

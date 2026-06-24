@@ -100,6 +100,18 @@ abstract final class DashboardWidgetOptions {
     size: Size(304, 132),
   );
 
+  static const timetable = DashboardWidgetOption(
+    key: 'timetable',
+    title: 'Orari lezioni',
+    subtitle: 'Orario del tuo corso',
+    icon: LucideIcons.clock3,
+    accentColor: AppColors.colorPrimaryDark,
+    accentBackgroundColor: AppColors.colorPrimaryLight,
+    columnSpan: 10,
+    rowSpan: 4,
+    size: Size(304, 132),
+  );
+
   static const acquiredCredits = DashboardWidgetOption(
     key: 'acquired_credits',
     title: 'Avanzamento percorso',
@@ -238,6 +250,7 @@ abstract final class DashboardWidgetOptions {
     weightedAverage,
     averagePair,
     calendarAgenda,
+    timetable,
     acquiredCredits,
     acquiredCreditsCompact,
     graduationProjection,

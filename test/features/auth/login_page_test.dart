@@ -562,7 +562,6 @@ class _ImmediateDidatticaRepository implements DidatticaRepository {
     return const [];
   }
 
-  @override
   Future<List<Map<String, dynamic>>> getSuggestedExams() async {
     return const [];
   }

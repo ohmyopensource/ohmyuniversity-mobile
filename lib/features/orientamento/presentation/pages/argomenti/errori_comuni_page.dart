@@ -9,10 +9,7 @@ import '../../../domain/entities/orientation_question_entity.dart';
 import '../../providers/orientation_providers.dart';
 import '../../widgets/orientation_bottom_nav.dart';
 
-// ─── Colore di sfondo pastel ──────────────────────────────────────────────────
-const _pastelBackground = Color(0xFFFFF7ED); // orange-50 leggero
-
-// ─── Dati statici ─────────────────────────────────────────────────────────────
+const _pastelBackground = Color(0xFFFFF7ED);
 
 class _CommonMistake {
   const _CommonMistake({
@@ -79,8 +76,6 @@ const _commonMistakes = [
   ),
 ];
 
-// ─── Pagina principale ────────────────────────────────────────────────────────
-
 class ErroriComuniPage extends ConsumerStatefulWidget {
   const ErroriComuniPage({
     super.key,
@@ -129,7 +124,6 @@ class _ErroriComuniPageState extends ConsumerState<ErroriComuniPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Header progresso ─────────────────────────────────────────────
             _TopicProgressHeader(
               index: widget.activeIndex + 1,
               total: widget.totalTopics,
@@ -139,13 +133,11 @@ class _ErroriComuniPageState extends ConsumerState<ErroriComuniPage> {
               totalCount: widget.totalCount,
             ),
 
-            // ── Contenuto scrollabile ─────────────────────────────────────────
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  // Macro-area badge
                   CustomBadgeWidget(
                     label:
                         'Macro-area ${widget.activeIndex + 1} di ${widget.totalTopics}',
@@ -155,7 +147,6 @@ class _ErroriComuniPageState extends ConsumerState<ErroriComuniPage> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Titolo sezione
                   Text(
                     'Errori comuni da evitare',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -174,7 +165,6 @@ class _ErroriComuniPageState extends ConsumerState<ErroriComuniPage> {
                   ),
                   const SizedBox(height: 24),
 
-                  // ── Lista errori ──────────────────────────────────────────
                   Text(
                     'Le trappole più comuni',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -202,7 +192,6 @@ class _ErroriComuniPageState extends ConsumerState<ErroriComuniPage> {
               ),
             ),
 
-            // ── Nav inferiore ─────────────────────────────────────────────────
             OrientationBottomNav(
               hasPrevious: widget.activeIndex > 0,
               hasNext: widget.activeIndex < widget.totalTopics - 1,
@@ -220,8 +209,6 @@ class _ErroriComuniPageState extends ConsumerState<ErroriComuniPage> {
     );
   }
 }
-
-// ─── Widget privati ───────────────────────────────────────────────────────────
 
 class _TopicProgressHeader extends StatelessWidget {
   const _TopicProgressHeader({
@@ -306,7 +293,6 @@ class _ErrorCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icona
           Container(
             width: 38,
             height: 38,
@@ -321,7 +307,6 @@ class _ErrorCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Titolo errore
                 Text(
                   errore.titolo,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -330,7 +315,6 @@ class _ErrorCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 5),
-                // Perché succede
                 Text(
                   errore.perche,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -339,7 +323,6 @@ class _ErrorCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Soluzione in card verde
                 CustomCardWidget(
                   variant: CardVariant.success,
                   padding: CardPadding.sm,

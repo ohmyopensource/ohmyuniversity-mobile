@@ -36,11 +36,14 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [studentBadgeProvider.overrideWith((ref) async => badge)],
+        overrides: [
+          studentBadgeProvider.overrideWith((ref) async => badge),
+          studentProfilePhotoProvider.overrideWith((ref) async => ''),
+        ],
         child: const MaterialApp(home: ProfilePage()),
       ),
     );
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.text('Alessio Del Muto'), findsOneWidget);
     expect(find.text('123456'), findsOneWidget);

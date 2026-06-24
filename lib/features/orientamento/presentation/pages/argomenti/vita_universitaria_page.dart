@@ -9,10 +9,7 @@ import '../../../domain/entities/orientation_question_entity.dart';
 import '../../providers/orientation_providers.dart';
 import '../../widgets/orientation_bottom_nav.dart';
 
-// ─── Colore di sfondo pastel per questa sezione ───────────────────────────────
-const _pastelBackground = Color(0xFFEEF2FF); // indigo-50 leggero
-
-// ─── Dati statici ─────────────────────────────────────────────────────────────
+const _pastelBackground = Color(0xFFEEF2FF);
 
 class _WeekBlock {
   const _WeekBlock({
@@ -116,8 +113,6 @@ const _studioTips = [
   ),
 ];
 
-// ─── Pagina principale ────────────────────────────────────────────────────────
-
 class VitaUniversitariaPage extends ConsumerStatefulWidget {
   const VitaUniversitariaPage({
     super.key,
@@ -144,7 +139,6 @@ class VitaUniversitariaPage extends ConsumerStatefulWidget {
 }
 
 class _VitaUniversitariaPageState extends ConsumerState<VitaUniversitariaPage> {
-  // Domande per questa sezione (recuperate dalla lista topic)
   late final List<OrientationQuestionEntity> _questions;
 
   @override
@@ -168,7 +162,6 @@ class _VitaUniversitariaPageState extends ConsumerState<VitaUniversitariaPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Header progresso ─────────────────────────────────────────────
             _TopicProgressHeader(
               index: widget.activeIndex + 1,
               total: widget.totalTopics,
@@ -178,13 +171,11 @@ class _VitaUniversitariaPageState extends ConsumerState<VitaUniversitariaPage> {
               totalCount: widget.totalCount,
             ),
 
-            // ── Contenuto scrollabile ─────────────────────────────────────────
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  // Macro-area badge
                   CustomBadgeWidget(
                     label:
                         'Macro-area ${widget.activeIndex + 1} di ${widget.totalTopics}',
@@ -194,7 +185,6 @@ class _VitaUniversitariaPageState extends ConsumerState<VitaUniversitariaPage> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Titolo sezione
                   Text(
                     'Orari e impegno',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -213,7 +203,6 @@ class _VitaUniversitariaPageState extends ConsumerState<VitaUniversitariaPage> {
                   ),
                   const SizedBox(height: 24),
 
-                  // ── Sezione: settimana tipo ───────────────────────────────
                   Text(
                     'Come si distribuisce la settimana',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -231,7 +220,6 @@ class _VitaUniversitariaPageState extends ConsumerState<VitaUniversitariaPage> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Grid 2×2 dei blocchi orari
                   Row(
                     children: [
                       Expanded(child: _WeekBlockCard(block: _weekBlocks[0])),
@@ -249,7 +237,6 @@ class _VitaUniversitariaPageState extends ConsumerState<VitaUniversitariaPage> {
                   ),
                   const SizedBox(height: 24),
 
-                  // ── Sezione: orari delle lezioni (timeline) ───────────────
                   Text(
                     'Gli orari delle lezioni',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -272,7 +259,6 @@ class _VitaUniversitariaPageState extends ConsumerState<VitaUniversitariaPage> {
                   }),
                   const SizedBox(height: 24),
 
-                  // ── Sezione: studio individuale ───────────────────────────
                   Text(
                     'Studio individuale – la vera differenza',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -297,7 +283,6 @@ class _VitaUniversitariaPageState extends ConsumerState<VitaUniversitariaPage> {
                   ),
                   const SizedBox(height: 24),
 
-                  // ── Stat highlight 40h / 3x ───────────────────────────────
                   Row(
                     children: const [
                       Expanded(
@@ -322,7 +307,6 @@ class _VitaUniversitariaPageState extends ConsumerState<VitaUniversitariaPage> {
               ),
             ),
 
-            // ── Nav inferiore ─────────────────────────────────────────────────
             OrientationBottomNav(
               hasPrevious: widget.activeIndex > 0,
               hasNext: widget.activeIndex < widget.totalTopics - 1,
@@ -340,8 +324,6 @@ class _VitaUniversitariaPageState extends ConsumerState<VitaUniversitariaPage> {
     );
   }
 }
-
-// ─── Widget privati ───────────────────────────────────────────────────────────
 
 class _TopicProgressHeader extends StatelessWidget {
   const _TopicProgressHeader({

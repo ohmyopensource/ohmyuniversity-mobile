@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 // features: image / initials / icon fallback, ring, status dot,
 // size variants, shape variants, color variants, clickable, dark theme.
 
@@ -118,7 +120,6 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
   bool get _showImage =>
       widget.src != null && widget.src!.isNotEmpty && !_imgError;
   bool get _showInitials => !_showImage && (widget.name?.isNotEmpty ?? false);
-  bool get _showIcon => !_showImage && !_showInitials;
 
   String get _initials {
     final n = widget.name?.trim() ?? '';
@@ -356,8 +357,22 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
   /// Renders the inner content: image, initials, or icon.
   Widget _buildFallbackContent(Color textColor) {
     if (_showImage) {
+      final src = widget.src!;
+      if (src.startsWith('data:image/')) {
+        final commaIndex = src.indexOf(',');
+        if (commaIndex != -1) {
+          return Image.memory(
+            base64Decode(src.substring(commaIndex + 1)),
+            width: _dimension,
+            height: _dimension,
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => const SizedBox.shrink(),
+          );
+        }
+      }
+
       return Image.network(
-        widget.src!,
+        src,
         width: _dimension,
         height: _dimension,
         fit: BoxFit.cover,
@@ -369,7 +384,6 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
         },
       );
     }
-
     if (_showInitials) {
       return Center(
         child: Text(
