@@ -57,6 +57,7 @@ class AcademicRepositoryImpl implements AcademicRepository {
   Future<List<Map<String, dynamic>>> getSuggestedExams() {
     return _dataSource.getSuggestedExams();
   }
+
   @override
   Future<List<ExamBookingEntity>> getAvailableExamBookings({
     required int degreeCourseId,
