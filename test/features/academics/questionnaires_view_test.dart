@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ohmyuniversity/features/academics/data/mocks/questionnaires_mock_data.dart';
 import 'package:ohmyuniversity/features/academics/presentation/providers/questionnaires_provider.dart';
 import 'package:ohmyuniversity/features/academics/presentation/views/questionnaires_view.dart';
 
@@ -8,7 +9,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('separates pending and completed questionnaires', () {
-    final container = ProviderContainer();
+    final container = ProviderContainer(overrides: _questionnaireOverrides);
     addTearDown(container.dispose);
 
     expect(container.read(pendingQuestionnairesProvider), hasLength(3));
@@ -24,7 +25,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
+        overrides: _questionnaireOverrides,
         child: MaterialApp(home: Scaffold(body: QuestionnairesView())),
       ),
     );
@@ -49,7 +51,8 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
+        overrides: _questionnaireOverrides,
         child: MaterialApp(home: Scaffold(body: QuestionnairesView())),
       ),
     );
@@ -60,3 +63,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 }
+
+final _questionnaireOverrides = [
+  remoteQuestionnairesProvider.overrideWith(
+    (ref) async => questionnairesMockData,
+  ),
+];

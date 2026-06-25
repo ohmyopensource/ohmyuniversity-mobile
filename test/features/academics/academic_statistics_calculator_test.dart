@@ -67,6 +67,19 @@ void main() {
     expect(statistics.hasSimulation, isTrue);
   });
 
+  test('builds grade history and weighted average trend in exam order', () {
+    final statistics = calculator.calculate(courses);
+
+    expect(statistics.gradeHistory.map((point) => point.value), [30, 24]);
+    expect(statistics.averageTrend.map((point) => point.value), [30, 26]);
+    expect(
+      statistics.gradeHistory.first.date.isBefore(
+        statistics.gradeHistory.last.date,
+      ),
+      isTrue,
+    );
+  });
+
   test('ignores malformed simulated grades', () {
     final statistics = calculator.calculate(
       courses,

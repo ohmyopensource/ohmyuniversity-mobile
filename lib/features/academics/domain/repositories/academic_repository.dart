@@ -10,4 +10,5 @@ abstract interface class AcademicRepository {
   });
   Future<List<ExamBookingHistoryEntity>> getExamBookingHistory(String password);
   Future<List<ExamBookingHistoryEntity>?> getCachedExamBookingHistory();
+  Future<List<Map<String, dynamic>>> getSuggestedExams();
 }

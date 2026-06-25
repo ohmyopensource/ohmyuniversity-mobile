@@ -212,16 +212,30 @@ final visibleExamBookingsProvider = Provider<List<ExamBookingEntity>>((ref) {
       .toList(growable: false);
 });
 
+final suggestedExamsProvider = FutureProvider<List<Map<String, dynamic>>>((
+  ref,
+) {
+  return ref.watch(academicRepositoryProvider).getSuggestedExams();
+});
+
 final recommendedExamBookingsProvider = Provider<List<RecommendedExamBooking>>((
   ref,
 ) {
   final state = ref.watch(appealsControllerProvider);
   final career = ref.watch(careerProvider);
   final exams = ref.watch(allExamBookingsProvider);
+  final suggested = ref
+      .watch(suggestedExamsProvider)
+      .maybeWhen(
+        data: (items) => items,
+        orElse: () => const <Map<String, dynamic>>[],
+      );
+
   final query = state.searchQuery.trim().toLowerCase();
 
   final examsByCode = <String, List<ExamBookingEntity>>{};
   final examsByName = <String, List<ExamBookingEntity>>{};
+
   for (final exam in exams) {
     if (exam.courseAcronym.trim().isNotEmpty) {
       examsByCode
@@ -231,12 +245,34 @@ final recommendedExamBookingsProvider = Provider<List<RecommendedExamBooking>>((
     examsByName.putIfAbsent(_normalize(exam.courseName), () => []).add(exam);
   }
 
+  final suggestedKeys = suggested
+      .map((item) {
+        final code = item['adCod'] ?? item['codice'] ?? item['code'];
+        final name = item['adDes'] ?? item['nome'] ?? item['name'];
+        return _normalize((code ?? name ?? '').toString());
+      })
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
+
   final pendingCourses = career.courses.where((course) {
     if (course.passed) return false;
+
     return query.isEmpty ||
         course.name.toLowerCase().contains(query) ||
         course.code.toLowerCase().contains(query);
-  }).toList()..sort(_comparePendingCourses);
+  }).toList();
+
+  if (suggestedKeys.isNotEmpty) {
+    pendingCourses.sort((first, second) {
+      final firstIndex = _suggestedIndex(first, suggestedKeys);
+      final secondIndex = _suggestedIndex(second, suggestedKeys);
+
+      if (firstIndex != secondIndex) return firstIndex.compareTo(secondIndex);
+      return _comparePendingCourses(first, second);
+    });
+  } else {
+    pendingCourses.sort(_comparePendingCourses);
+  }
 
   return pendingCourses
       .map((course) {
@@ -244,6 +280,7 @@ final recommendedExamBookingsProvider = Provider<List<RecommendedExamBooking>>((
             examsByCode[_normalize(course.code)] ??
             examsByName[_normalize(course.name)] ??
             const <ExamBookingEntity>[];
+
         return RecommendedExamBooking(
           course: course,
           appeal: _bestExamBooking(matchingExams),
@@ -251,6 +288,18 @@ final recommendedExamBookingsProvider = Provider<List<RecommendedExamBooking>>((
       })
       .toList(growable: false);
 });
+
+int _suggestedIndex(
+  AcademicExamCourseEntity course,
+  List<String> suggestedKeys,
+) {
+  final code = _normalize(course.code);
+  final name = _normalize(course.name);
+
+  final index = suggestedKeys.indexWhere((key) => key == code || key == name);
+
+  return index == -1 ? 9999 : index;
+}
 
 int _comparePendingCourses(
   AcademicExamCourseEntity first,

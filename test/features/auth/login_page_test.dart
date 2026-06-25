@@ -562,6 +562,7 @@ class _ImmediateAcademicRepository implements AcademicRepository {
     return const [];
   }
 
+  @override
   Future<List<Map<String, dynamic>>> getSuggestedExams() async {
     return const [];
   }

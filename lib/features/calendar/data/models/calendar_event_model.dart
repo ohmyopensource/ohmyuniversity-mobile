@@ -27,20 +27,43 @@ class CalendarEventModel extends CalendarEventEntity {
   }
 
   factory CalendarEventModel.fromJson(Map<String, dynamic> json) {
-    final startDate = DateTime.parse(json['startDate'] as String).toLocal();
-    final rawEndDate = json['endDate'] as String?;
+    final startDate = _parseRequiredDate(
+      json['startDate'] ??
+          json['start_date'] ??
+          json['dataInizio'] ??
+          json['startsAt'],
+    );
+
+    final endDate =
+        _parseOptionalDate(
+          json['endDate'] ??
+              json['end_date'] ??
+              json['dataFine'] ??
+              json['endsAt'],
+        ) ??
+        startDate;
 
     return CalendarEventModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String? ?? '',
+      id: _textOrFallback(
+        json['id'] ?? json['eventId'] ?? json['universityEventId'],
+        '',
+      ),
+      title: _textOrFallback(
+        json['title'] ?? json['titolo'] ?? json['name'],
+        'Evento',
+      ),
+      description: _textOrFallback(
+        json['description'] ?? json['descrizione'] ?? json['notes'],
+        '',
+      ),
       startDate: startDate,
-      endDate: rawEndDate == null
-          ? startDate
-          : DateTime.parse(rawEndDate).toLocal(),
+      endDate: endDate,
       type: _typeFromBackend(json['type'] as String?),
-      location: json['notes'] as String? ?? '',
-      isAllDay: json['allDay'] as bool? ?? false,
+      location: _textOrFallback(
+        json['location'] ?? json['aula'] ?? json['luogo'] ?? json['notes'],
+        '',
+      ),
+      isAllDay: json['allDay'] as bool? ?? json['all_day'] as bool? ?? false,
     );
   }
 
@@ -56,8 +79,41 @@ class CalendarEventModel extends CalendarEventEntity {
     };
   }
 
+  static DateTime _parseRequiredDate(Object? value) {
+    final parsed = _parseOptionalDate(value);
+    if (parsed == null) {
+      throw const FormatException('Invalid calendar event date');
+    }
+    return parsed;
+  }
+
+  static DateTime? _parseOptionalDate(Object? value) {
+    if (value == null) return null;
+
+    final text = value.toString().trim();
+    if (text.isEmpty) return null;
+
+    final isoDate = DateTime.tryParse(text);
+    if (isoDate != null) return isoDate.toLocal();
+
+    final match = RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})').firstMatch(text);
+    if (match == null) return null;
+
+    return DateTime(
+      int.parse(match.group(3)!),
+      int.parse(match.group(2)!),
+      int.parse(match.group(1)!),
+    );
+  }
+
+  static String _textOrFallback(Object? value, String fallback) {
+    final text = value?.toString().trim();
+    if (text == null || text.isEmpty) return fallback;
+    return text;
+  }
+
   static CalendarEventType _typeFromBackend(String? value) {
-    return switch (value) {
+    return switch (value?.toUpperCase()) {
       'EXAM' => CalendarEventType.exam,
       'REMINDER' || 'DEADLINE' => CalendarEventType.reminder,
       _ => CalendarEventType.event,

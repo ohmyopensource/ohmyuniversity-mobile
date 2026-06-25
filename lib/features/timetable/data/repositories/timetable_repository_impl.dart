@@ -5,10 +5,10 @@ import '../datasources/timetable_remote_datasource.dart';
 
 class TimetableRepositoryImpl implements TimetableRepository {
   const TimetableRepositoryImpl(
-    this._remoteDataSource,
-    this._mockDataSource, {
-    required bool useMock,
-  }) : _useMock = useMock;
+      this._remoteDataSource,
+      this._mockDataSource, {
+        required bool useMock,
+      }) : _useMock = useMock;
 
   final TimetableRemoteDataSource _remoteDataSource;
   final TimetableMockDataSource _mockDataSource;
@@ -22,36 +22,47 @@ class TimetableRepositoryImpl implements TimetableRepository {
     final documents = _useMock
         ? _mockDataSource.getStudentTimetables()
         : await _remoteDataSource.getStudentTimetables(
-            universityId: universityId,
-          );
-    final studentDocuments = _useMock
-        ? documents
-        : documents
-              .where((document) => _belongsToCourse(document, courseName))
-              .toList(growable: false);
+      universityId: universityId,
+      courseName: courseName,
+    );
 
-    return List<TimetableDocumentEntity>.unmodifiable(studentDocuments);
+    final studentDocuments = documents
+        .where((document) => _belongsToCourse(document, courseName))
+        .toList(growable: false);
+
+    if (studentDocuments.isNotEmpty) {
+      return List<TimetableDocumentEntity>.unmodifiable(studentDocuments);
+    }
+
+    return List<TimetableDocumentEntity>.unmodifiable(documents);
   }
 
   bool _belongsToCourse(TimetableDocumentEntity document, String courseName) {
-    final uri = Uri.tryParse(document.sourceUrl);
-    if (uri == null || uri.pathSegments.isEmpty) return false;
-
-    final slug = uri.pathSegments.last.replaceFirst(RegExp(r'_lezioni$'), '');
     final courseTokens = _tokens(courseName);
-    final slugTokens = _tokens(slug);
-    if (courseTokens.isEmpty || slugTokens.isEmpty) return false;
+    if (courseTokens.isEmpty) return true;
+
+    final searchableText = [
+      document.title,
+      document.department,
+      document.degreeClass,
+      document.sourceUrl,
+      document.fileUrl ?? '',
+    ].join(' ');
+
+    final documentTokens = _tokens(searchableText);
+    if (documentTokens.isEmpty) return false;
 
     final matches = courseTokens
         .where(
-          (courseToken) => slugTokens.any(
-            (slugToken) => _tokensMatch(courseToken, slugToken),
-          ),
-        )
+          (courseToken) => documentTokens.any(
+            (documentToken) => _tokensMatch(courseToken, documentToken),
+      ),
+    )
         .length;
+
     final minimumMatches = courseTokens.length == 1 ? 1 : 2;
 
-    return matches >= minimumMatches && matches / courseTokens.length >= 0.6;
+    return matches >= minimumMatches && matches / courseTokens.length >= 0.55;
   }
 
   Set<String> _tokens(String value) {
@@ -68,7 +79,13 @@ class TimetableRepositoryImpl implements TimetableRepository {
       'dei',
       'di',
       'e',
+      'in',
+      'per',
+      'classe',
+      'lezioni',
+      'orario',
     };
+
     return value
         .toLowerCase()
         .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')

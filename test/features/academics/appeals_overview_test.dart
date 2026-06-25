@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ohmyuniversity/features/academics/data/mocks/exam_bookings_mock_data.dart';
+import 'package:ohmyuniversity/features/academics/data/mocks/questionnaires_mock_data.dart';
+import 'package:ohmyuniversity/features/academics/domain/entities/exam_booking_entity.dart';
 import 'package:ohmyuniversity/features/academics/presentation/providers/appeals_controller.dart';
+import 'package:ohmyuniversity/features/academics/presentation/providers/career_data_providers.dart';
 import 'package:ohmyuniversity/features/academics/presentation/providers/questionnaires_provider.dart';
 import 'package:ohmyuniversity/features/academics/presentation/views/appeals_overview_view.dart';
 import 'package:ohmyuniversity/shared/widgets/custom_button/custom_button_widget.dart';
+
+import '../../helpers/career_test_snapshot.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +52,35 @@ void main() {
       ),
       isFalse,
     );
+  });
+
+  test('recommends pending exams from the study plan ordered by CFU', () async {
+    final container = _mockAppealsWithCareerContainer();
+    addTearDown(container.dispose);
+
+    await container.read(careerSnapshotProvider.future);
+
+    final recommendations = container.read(recommendedExamBookingsProvider);
+    final credits = recommendations
+        .map((recommendation) => recommendation.course.credits)
+        .toList();
+
+    expect(recommendations, isNotEmpty);
+    expect(credits, orderedEquals([...credits]..sort()));
+    expect(recommendations.first.course.credits, 6);
+
+    final operatingSystems = recommendations.firstWhere(
+      (recommendation) => recommendation.course.name == 'Sistemi Operativi',
+    );
+    expect(operatingSystems.appeal?.id, 'e2');
+    expect(operatingSystems.appeal?.status, ExamBookingStatus.closing);
+
+    container.read(appealsControllerProvider.notifier).search('reti');
+    final filtered = container.read(recommendedExamBookingsProvider);
+
+    expect(filtered, hasLength(1));
+    expect(filtered.single.course.name, 'Reti di Calcolatori');
+    expect(filtered.single.appeal?.id, 'e5');
   });
 
   testWidgets('is responsive and confirms an eligible booking', (tester) async {
@@ -107,6 +141,12 @@ void main() {
       ProviderScope(
         overrides: [
           appealsControllerProvider.overrideWith(_MockAppealsController.new),
+          remoteQuestionnairesProvider.overrideWith(
+            (ref) async => questionnairesMockData,
+          ),
+          suggestedExamsProvider.overrideWith(
+            (ref) async => const <Map<String, dynamic>>[],
+          ),
         ],
         child: const MaterialApp(home: Scaffold(body: AppealsOverviewView())),
       ),
@@ -139,6 +179,12 @@ void main() {
       ProviderScope(
         overrides: [
           appealsControllerProvider.overrideWith(_MockAppealsController.new),
+          remoteQuestionnairesProvider.overrideWith(
+            (ref) async => questionnairesMockData,
+          ),
+          suggestedExamsProvider.overrideWith(
+            (ref) async => const <Map<String, dynamic>>[],
+          ),
         ],
         child: const MaterialApp(home: Scaffold(body: AppealsOverviewView())),
       ),
@@ -157,6 +203,29 @@ ProviderContainer _mockAppealsContainer() {
   return ProviderContainer(
     overrides: [
       appealsControllerProvider.overrideWith(_MockAppealsController.new),
+      remoteQuestionnairesProvider.overrideWith(
+        (ref) async => questionnairesMockData,
+      ),
+      suggestedExamsProvider.overrideWith(
+        (ref) async => const <Map<String, dynamic>>[],
+      ),
+    ],
+  );
+}
+
+ProviderContainer _mockAppealsWithCareerContainer() {
+  return ProviderContainer(
+    overrides: [
+      appealsControllerProvider.overrideWith(_MockAppealsController.new),
+      remoteQuestionnairesProvider.overrideWith(
+        (ref) async => questionnairesMockData,
+      ),
+      suggestedExamsProvider.overrideWith(
+        (ref) async => const <Map<String, dynamic>>[],
+      ),
+      careerSnapshotProvider.overrideWith(
+        (ref) async => buildCareerTestSnapshot(),
+      ),
     ],
   );
 }

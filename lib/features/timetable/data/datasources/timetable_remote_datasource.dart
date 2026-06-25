@@ -10,11 +10,15 @@ class TimetableRemoteDataSource {
 
   Future<List<TimetableModel>> getStudentTimetables({
     required String universityId,
+    required String courseName,
   }) async {
     try {
       final response = await _dio.get<List<dynamic>>(
         '/v1/fetcher/timetables',
-        queryParameters: {'universityId': universityId},
+        queryParameters: {
+          'universityId': universityId,
+          'courseName': courseName,
+        },
       );
 
       return (response.data ?? const <dynamic>[])
@@ -28,13 +32,13 @@ class TimetableRemoteDataSource {
       );
     } on DioException catch (error) {
       throw TimetableException(switch (error.response?.statusCode) {
-        401 => 'Sessione scaduta. Effettua nuovamente l\'accesso.',
-        404 => 'Nessun orario configurato per il tuo ateneo.',
+        401 => "Sessione scaduta. Effettua nuovamente l'accesso.",
+        404 => 'Nessun orario configurato per il tuo corso.',
         503 => 'Il servizio orari non è momentaneamente disponibile.',
         _
-            when error.type == DioExceptionType.connectionTimeout ||
-                error.type == DioExceptionType.receiveTimeout =>
-          'Tempo di connessione scaduto.',
+        when error.type == DioExceptionType.connectionTimeout ||
+            error.type == DioExceptionType.receiveTimeout =>
+        'Tempo di connessione scaduto.',
         _ => 'Impossibile caricare gli orari delle lezioni.',
       });
     }
