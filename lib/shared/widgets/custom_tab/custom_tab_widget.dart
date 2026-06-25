@@ -752,23 +752,19 @@ class _CardTabState extends State<_CardTab> {
     Color textColor;
     Color bgColor;
     Color borderColor;
-    Color bottomColor; // covers the bottom border when active
 
     if (isActive) {
       textColor = accentColor;
       bgColor = w._cardActiveTabBg;
       borderColor = w._cardTabBorder;
-      bottomColor = w._cardActiveTabBg; // hides bottom border
     } else if (_hovered && !isDisabled) {
       textColor = w._hoverTextColor;
       bgColor = w._pillHoverBg;
       borderColor = w._cardTabBorder;
-      bottomColor = Colors.transparent;
     } else {
       textColor = w._idleTextColor;
       bgColor = w._cardTabBg;
       borderColor = w._cardTabBorder;
-      bottomColor = Colors.transparent;
     }
 
     final badgeBg = isActive ? accentColor : w._badgeIdleBg;
@@ -798,8 +794,7 @@ class _CardTabState extends State<_CardTab> {
                 top: BorderSide(color: borderColor, width: 1.5),
                 left: BorderSide(color: borderColor, width: 1.5),
                 right: BorderSide(color: borderColor, width: 1.5),
-                // Bottom: transparent when active to blend with content area
-                bottom: BorderSide(color: bottomColor, width: 1.5),
+                bottom: BorderSide(color: borderColor, width: 1.5),
               ),
             ),
             child: Padding(

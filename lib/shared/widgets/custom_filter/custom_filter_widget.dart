@@ -142,12 +142,12 @@ class _CustomFilterWidgetState extends State<CustomFilterWidget> {
       text: widget.initialState?.search ?? '',
     );
 
-    _selectValues = {
+    _selectValues = <String, Object?>{
       for (final s in widget.selects)
         s.key: widget.initialState?.selects[s.key],
     };
 
-    _chipValues = {
+    _chipValues = <String, List<Object>>{
       for (final c in widget.chips)
         c.key: List<Object>.from(widget.initialState?.chips[c.key] ?? const []),
     };
@@ -178,8 +178,9 @@ class _CustomFilterWidgetState extends State<CustomFilterWidget> {
   FilterState _buildState() => FilterState(
     search: _searchCtrl.text.trim(),
     selects: Map.unmodifiable(_selectValues),
-    chips: Map.unmodifiable({
-      for (final e in _chipValues.entries) e.key: List.unmodifiable(e.value),
+    chips: Map<String, List<Object>>.unmodifiable({
+      for (final e in _chipValues.entries)
+        e.key: List<Object>.unmodifiable(e.value),
     }),
   );
 
@@ -194,7 +195,7 @@ class _CustomFilterWidgetState extends State<CustomFilterWidget> {
         _selectValues[k] = null;
       }
       for (final k in _chipValues.keys) {
-        _chipValues[k] = [];
+        _chipValues[k] = <Object>[];
       }
     });
     final empty = _buildState();
@@ -207,12 +208,14 @@ class _CustomFilterWidgetState extends State<CustomFilterWidget> {
       final current = _chipValues[groupKey] ?? [];
       if (multiple) {
         if (current.contains(value)) {
-          _chipValues[groupKey] = current.where((v) => v != value).toList();
+          _chipValues[groupKey] = current
+              .where((v) => v != value)
+              .toList(growable: false);
         } else {
-          _chipValues[groupKey] = [...current, value];
+          _chipValues[groupKey] = <Object>[...current, value];
         }
       } else {
-        _chipValues[groupKey] = current.contains(value) ? [] : [value];
+        _chipValues[groupKey] = current.contains(value) ? <Object>[] : [value];
       }
     });
   }
