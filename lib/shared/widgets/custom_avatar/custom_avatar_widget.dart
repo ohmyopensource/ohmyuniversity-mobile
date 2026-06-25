@@ -361,13 +361,21 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
       if (src.startsWith('data:image/')) {
         final commaIndex = src.indexOf(',');
         if (commaIndex != -1) {
-          return Image.memory(
-            base64Decode(src.substring(commaIndex + 1)),
-            width: _dimension,
-            height: _dimension,
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => const SizedBox.shrink(),
-          );
+          try {
+            return Image.memory(
+              base64Decode(src.substring(commaIndex + 1)),
+              width: _dimension,
+              height: _dimension,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) {
+                _markImageError();
+                return const SizedBox.shrink();
+              },
+            );
+          } on FormatException {
+            _markImageError();
+            return const SizedBox.shrink();
+          }
         }
       }
 
@@ -377,9 +385,7 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
         height: _dimension,
         fit: BoxFit.cover,
         errorBuilder: (_, _, _) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) setState(() => _imgError = true);
-          });
+          _markImageError();
           return const SizedBox.shrink();
         },
       );
@@ -426,5 +432,11 @@ class _CustomAvatarWidgetState extends State<CustomAvatarWidget> {
       ),
       child: avatar,
     );
+  }
+
+  void _markImageError() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _imgError = true);
+    });
   }
 }
