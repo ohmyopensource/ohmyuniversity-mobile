@@ -21,9 +21,9 @@ class AcademicRemoteDataSource {
 
       final rawItems =
           data['esami'] as List<dynamic>? ??
-              data['suggeriti'] as List<dynamic>? ??
-              data['appelli'] as List<dynamic>? ??
-              const [];
+          data['suggeriti'] as List<dynamic>? ??
+          data['appelli'] as List<dynamic>? ??
+          const [];
 
       return rawItems.whereType<Map<String, dynamic>>().toList(growable: false);
     } on DioException catch (_) {
@@ -59,8 +59,8 @@ class AcademicRemoteDataSource {
   }
 
   Future<List<ExamBookingHistoryEntity>> getExamBookingHistory(
-      String password,
-      ) async {
+    String password,
+  ) async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
         '/v1/carriera/prenotazioni-libretto',
