@@ -4,9 +4,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../../config/theme/app_colors.dart';
 import '../../../../../shared/widgets/custom_card/custom_card_widget.dart';
 import '../../../../../shared/widgets/custom_text/custom_text_widget.dart';
-import '../../../../calendario/domain/entities/calendar_event_entity.dart';
-import '../../../../calendario/presentation/widgets/calendar_date_labels.dart';
-import '../../../../calendario/presentation/widgets/calendar_event_type_ui.dart';
+import '../../../../calendar/domain/entities/calendar_event_entity.dart';
+import '../../../../calendar/presentation/widgets/calendar_date_labels.dart';
+import '../../../../calendar/presentation/widgets/calendar_event_type_ui.dart';
 
 class DashboardCalendarAgendaWidget extends StatelessWidget {
   const DashboardCalendarAgendaWidget({

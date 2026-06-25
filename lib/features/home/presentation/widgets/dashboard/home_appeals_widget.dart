@@ -4,8 +4,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../../config/theme/app_colors.dart';
 import '../../../../../shared/widgets/custom_badge/custom_badge_widget.dart';
 import '../../../../../shared/widgets/custom_card/custom_card_widget.dart';
-import '../../../../didattica/domain/entities/exam_booking_entity.dart';
-import '../../../../didattica/presentation/utils/exam_booking_formatters.dart';
+import '../../../../academics/domain/entities/exam_booking_entity.dart';
+import '../../../../academics/presentation/utils/exam_booking_formatters.dart';
 
 class HomeAppealsWidget extends StatelessWidget {
   const HomeAppealsWidget({super.key, required this.appeals});

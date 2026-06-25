@@ -14,7 +14,7 @@ import '../../data/constants/login_universities.dart';
 import '../../domain/entities/login_university.dart';
 import '../../domain/exceptions/auth_exception.dart';
 import '../../domain/usecases/login_usecase.dart';
-import '../../../didattica/presentation/providers/career_data_providers.dart';
+import '../../../academics/presentation/providers/career_data_providers.dart';
 import '../providers/auth_provider.dart';
 import 'university_search_select.dart';
 

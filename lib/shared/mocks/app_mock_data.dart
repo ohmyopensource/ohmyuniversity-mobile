@@ -316,7 +316,7 @@ abstract final class AppMockData {
   ];
 
   // Mock data used by Didattica exam lists until real study plan data is available.
-  static final List<MockExamCourseData> didatticaExamCourses = [
+  static final List<MockExamCourseData> academicExamCourses = [
     MockExamCourseData(
       id: 'exam-1-1-1',
       year: 1,

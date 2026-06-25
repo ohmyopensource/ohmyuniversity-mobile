@@ -1,0 +1,61 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:ohmyuniversity/features/academics/presentation/pages/academics_page.dart';
+import 'package:ohmyuniversity/features/academics/presentation/providers/career_data_providers.dart';
+
+import '../../helpers/career_test_snapshot.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('switches between the three internal didattica pages', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          careerSnapshotProvider.overrideWith(
+            (ref) async => buildCareerTestSnapshot(),
+          ),
+        ],
+        child: const MaterialApp(home: AcademicsPage()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text('Panoramica'), findsOneWidget);
+    expect(find.text('Appelli'), findsOneWidget);
+    expect(find.text('Questionari'), findsOneWidget);
+    expect(_activeIndex(tester), 0);
+
+    await tester.tap(find.text('Appelli').hitTestable());
+    await tester.pump();
+    expect(_activeIndex(tester), 1);
+
+    await tester.tap(find.text('Questionari').hitTestable());
+    await tester.pump();
+    expect(_activeIndex(tester), 2);
+
+    await tester.tap(find.text('Panoramica').hitTestable());
+    await tester.pump();
+    expect(_activeIndex(tester), 0);
+    expect(tester.takeException(), isNull);
+  });
+}
+
+int _activeIndex(WidgetTester tester) {
+  return tester
+          .widget<IndexedStack>(
+            find.byKey(const Key('didattica-section-stack')),
+          )
+          .index ??
+      -1;
+}
