@@ -100,6 +100,7 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
                   _TopBarAction(
                     icon: LucideIcons.search,
                     tooltip: 'Cerca',
+                    color: AppColors.colorPrimaryDark,
                     hasSoftBackground: true,
                     onTap: () {},
                   ),
@@ -111,12 +112,14 @@ class AppTopBar extends ConsumerWidget implements PreferredSizeWidget {
                   _TopBarAction(
                     icon: LucideIcons.heart,
                     tooltip: 'Preferiti',
+                    color: AppColors.colorTertiaryDark,
                     onTap: () => context.pushNamed(AppRoutes.preferitiName),
                   ),
                   const SizedBox(width: 14),
                   _TopBarAction(
                     icon: LucideIcons.menu,
                     tooltip: 'Menu',
+                    color: AppColors.colorPrimaryDark,
                     onTap: () => scaffoldKey.currentState?.openEndDrawer(),
                   ),
                 ],
@@ -145,12 +148,14 @@ class _TopBarAction extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onTap,
+    required this.color,
     this.hasSoftBackground = false,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onTap;
+  final Color color;
   final bool hasSoftBackground;
 
   @override
@@ -168,11 +173,11 @@ class _TopBarAction extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: hasSoftBackground
-                  ? AppColors.textPrimary.withValues(alpha: 0.06)
+                  ? color.withValues(alpha: 0.12)
                   : Colors.transparent,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: AppColors.textPrimary, size: 23),
+            child: Icon(icon, color: color, size: 23),
           ),
         ),
       ),

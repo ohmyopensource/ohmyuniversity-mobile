@@ -11,12 +11,12 @@ import 'package:ohmyuniversity/features/auth/domain/usecases/login_usecase.dart'
 import 'package:ohmyuniversity/features/auth/presentation/pages/login_page.dart';
 import 'package:ohmyuniversity/features/auth/presentation/providers/auth_provider.dart';
 import 'package:ohmyuniversity/features/auth/presentation/widgets/university_search_select.dart';
-import 'package:ohmyuniversity/features/didattica/domain/entities/career_snapshot_entity.dart';
-import 'package:ohmyuniversity/features/didattica/domain/entities/exam_booking_entity.dart';
-import 'package:ohmyuniversity/features/didattica/domain/entities/exam_booking_history_entity.dart';
-import 'package:ohmyuniversity/features/didattica/domain/repositories/didattica_repository.dart';
-import 'package:ohmyuniversity/features/didattica/domain/usecases/get_exam_booking_history_usecase.dart';
-import 'package:ohmyuniversity/features/didattica/presentation/providers/career_data_providers.dart';
+import 'package:ohmyuniversity/features/academics/domain/entities/career_snapshot_entity.dart';
+import 'package:ohmyuniversity/features/academics/domain/entities/exam_booking_entity.dart';
+import 'package:ohmyuniversity/features/academics/domain/entities/exam_booking_history_entity.dart';
+import 'package:ohmyuniversity/features/academics/domain/repositories/academic_repository.dart';
+import 'package:ohmyuniversity/features/academics/domain/usecases/get_exam_booking_history_usecase.dart';
+import 'package:ohmyuniversity/features/academics/presentation/providers/career_data_providers.dart';
 import 'package:ohmyuniversity/shared/widgets/custom_button/custom_button_widget.dart';
 import 'package:ohmyuniversity/shared/widgets/custom_toast/custom_toast_model.dart';
 import 'package:ohmyuniversity/shared/widgets/custom_toast/custom_toast_service.dart';
@@ -299,7 +299,7 @@ void main() {
             LoginUseCase(_SuccessfulAuthRepository()),
           ),
           getExamBookingHistoryUseCaseProvider.overrideWithValue(
-            GetExamBookingHistoryUseCase(_ImmediateDidatticaRepository()),
+            GetExamBookingHistoryUseCase(_ImmediateAcademicRepository()),
           ),
         ],
       );
@@ -536,7 +536,7 @@ class _SuccessfulAuthRepository implements AuthRepository {
   Future<AuthSessionEntity?> currentSession() async => null;
 }
 
-class _ImmediateDidatticaRepository implements DidatticaRepository {
+class _ImmediateAcademicRepository implements AcademicRepository {
   @override
   Future<CareerSnapshotEntity> getCareerSnapshot() {
     throw UnimplementedError();
@@ -562,6 +562,7 @@ class _ImmediateDidatticaRepository implements DidatticaRepository {
     return const [];
   }
 
+  @override
   Future<List<Map<String, dynamic>>> getSuggestedExams() async {
     return const [];
   }

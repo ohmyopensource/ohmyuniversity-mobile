@@ -5,7 +5,7 @@ import '../../../../../config/theme/app_colors.dart';
 import '../../../../../shared/widgets/academic/academic_history_chart.dart';
 import '../../../../../shared/widgets/custom_badge/custom_badge_widget.dart';
 import '../../../../../shared/widgets/custom_card/custom_card_widget.dart';
-import '../../../../didattica/domain/entities/average_trend_point_entity.dart';
+import '../../../../academics/domain/entities/average_trend_point_entity.dart';
 
 class HomeCareerProgressWidget extends StatelessWidget {
   const HomeCareerProgressWidget({

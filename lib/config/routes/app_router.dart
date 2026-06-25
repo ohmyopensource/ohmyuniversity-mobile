@@ -5,30 +5,31 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../features/academic_career/presentation/pages/academic_career_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/aziende/presentation/pages/aziende_page.dart';
-import '../../features/calendario/presentation/pages/calendario_page.dart';
+import '../../features/companies/presentation/pages/companies_page.dart';
+import '../../features/calendar/presentation/pages/calendar_page.dart';
 import '../../features/chat/presentation/pages/chat_page.dart';
-import '../../features/didattica/presentation/pages/didattica_page.dart';
-import '../../features/didattica/presentation/pages/recommended_exam_appeals_page.dart';
-import '../../features/didattica/presentation/pages/study_plan_page.dart';
-import '../../features/didattica/presentation/pages/tuition_fees_page.dart';
+import '../../features/academics/presentation/pages/academics_page.dart';
+import '../../features/academics/presentation/pages/recommended_exam_appeals_page.dart';
+import '../../features/academics/presentation/pages/study_plan_page.dart';
+import '../../features/academics/presentation/pages/tuition_fees_page.dart';
 import '../../features/email/presentation/pages/email_inbox_page.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/notifiche/presentation/pages/notifiche_page.dart';
+import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
-import '../../features/orario_lezioni/presentation/pages/orario_lezioni_page.dart';
-import '../../features/orientamento/presentation/pages/argomenti/come_funziona_universita_page.dart';
-import '../../features/orientamento/presentation/pages/argomenti/quiz_autovalutazione_page.dart';
-import '../../features/orientamento/presentation/pages/argomenti/scegli_corso_page.dart';
-import '../../features/orientamento/presentation/pages/orientamento_page.dart';
-import '../../features/preferiti/presentation/pages/preferiti_page.dart';
+import '../../features/timetable/presentation/pages/timetable_page.dart';
+import '../../features/orientation/presentation/pages/topics/how_university_works_page.dart';
+import '../../features/orientation/presentation/pages/topics/self_assessment_quiz_page.dart';
+import '../../features/orientation/presentation/pages/topics/choose_course_page.dart';
+import '../../features/orientation/presentation/pages/orientation_page.dart';
+import '../../features/favorites/presentation/pages/favorites_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/services/presentation/pages/services_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/app_top_bar.dart';
 import '../routes/app_routes.dart';
+import '../theme/app_colors.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -56,7 +57,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.orientamento,
         name: AppRoutes.orientamentoName,
-        builder: (context, state) => const OrientamentoPage(),
+        builder: (context, state) => const OrientationPage(),
       ),
       GoRoute(
         path: AppRoutes.orientamentoScegliCorso,
@@ -83,22 +84,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.preferiti,
         name: AppRoutes.preferitiName,
-        builder: (context, state) => const PreferitiPage(),
+        builder: (context, state) => const FavoritesPage(),
       ),
       GoRoute(
         path: AppRoutes.notifiche,
         name: AppRoutes.notificheName,
-        builder: (context, state) => const NotifichePage(),
+        builder: (context, state) => const NotificationsPage(),
       ),
       GoRoute(
         path: AppRoutes.calendario,
         name: AppRoutes.calendarioName,
-        builder: (context, state) => const CalendarioPage(),
+        builder: (context, state) => const CalendarPage(),
       ),
       GoRoute(
         path: AppRoutes.orarioLezioni,
         name: AppRoutes.orarioLezioniName,
-        builder: (context, state) => const OrarioLezioniPage(),
+        builder: (context, state) => const TimetablePage(),
       ),
       GoRoute(
         path: AppRoutes.services,
@@ -150,7 +151,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.didattica,
                 name: AppRoutes.didatticaName,
-                builder: (context, state) => const DidatticaPage(),
+                builder: (context, state) => const AcademicsPage(),
               ),
             ],
           ),
@@ -177,7 +178,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.aziende,
                 name: AppRoutes.aziendeName,
-                builder: (context, state) => const AziendePage(),
+                builder: (context, state) => const CompaniesPage(),
               ),
             ],
           ),
@@ -204,28 +205,43 @@ class _AppShellState extends State<AppShell> {
 
   static const _destinations = [
     NavigationDestination(
-      icon: Icon(LucideIcons.layoutDashboard),
-      selectedIcon: Icon(LucideIcons.layoutDashboard),
+      icon: Icon(
+        LucideIcons.layoutDashboard,
+        color: AppColors.colorPrimaryDark,
+      ),
+      selectedIcon: Icon(
+        LucideIcons.layoutDashboard,
+        color: AppColors.colorPrimaryDark,
+      ),
       label: 'Dashboard',
     ),
     NavigationDestination(
-      icon: Icon(LucideIcons.chartLine),
-      selectedIcon: Icon(LucideIcons.chartLine),
+      icon: Icon(LucideIcons.chartLine, color: AppColors.colorSecondaryDark),
+      selectedIcon: Icon(
+        LucideIcons.chartLine,
+        color: AppColors.colorSecondaryDark,
+      ),
       label: 'Carriera',
     ),
     NavigationDestination(
-      icon: Icon(LucideIcons.globe2),
-      selectedIcon: Icon(LucideIcons.globe2),
+      icon: Icon(LucideIcons.globe2, color: AppColors.colorWarningDark),
+      selectedIcon: Icon(LucideIcons.globe2, color: AppColors.colorWarningDark),
       label: 'Futuro',
     ),
     NavigationDestination(
-      icon: Icon(LucideIcons.messagesSquare),
-      selectedIcon: Icon(LucideIcons.messagesSquare),
+      icon: Icon(LucideIcons.messagesSquare, color: AppColors.colorInfoDark),
+      selectedIcon: Icon(
+        LucideIcons.messagesSquare,
+        color: AppColors.colorInfoDark,
+      ),
       label: 'Messaggi',
     ),
     NavigationDestination(
-      icon: Icon(LucideIcons.handshake),
-      selectedIcon: Icon(LucideIcons.handshake),
+      icon: Icon(LucideIcons.handshake, color: AppColors.colorSuccessDark),
+      selectedIcon: Icon(
+        LucideIcons.handshake,
+        color: AppColors.colorSuccessDark,
+      ),
       label: 'Partner',
     ),
   ];
@@ -237,16 +253,30 @@ class _AppShellState extends State<AppShell> {
       appBar: AppTopBar(scaffoldKey: _scaffoldKey),
       endDrawer: const AppDrawer(),
       body: widget.navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: widget.navigationShell.currentIndex,
-        onDestinationSelected: (index) {
-          widget.navigationShell.goBranch(
-            index,
-            initialLocation: index == widget.navigationShell.currentIndex,
-          );
-        },
-        destinations: _destinations,
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          indicatorColor: _bottomBarColors[widget.navigationShell.currentIndex]
+              .withValues(alpha: 0.14),
+        ),
+        child: NavigationBar(
+          selectedIndex: widget.navigationShell.currentIndex,
+          onDestinationSelected: (index) {
+            widget.navigationShell.goBranch(
+              index,
+              initialLocation: index == widget.navigationShell.currentIndex,
+            );
+          },
+          destinations: _destinations,
+        ),
       ),
     );
   }
 }
+
+const _bottomBarColors = [
+  AppColors.colorPrimaryDark,
+  AppColors.colorSecondaryDark,
+  AppColors.colorWarningDark,
+  AppColors.colorInfoDark,
+  AppColors.colorSuccessDark,
+];

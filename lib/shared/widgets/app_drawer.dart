@@ -69,6 +69,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                         _DrawerLabelTile(
                           icon: LucideIcons.bell,
                           label: 'Notifiche',
+                          iconColor: AppColors.colorTertiaryDark,
                           badgeCount: widget.notificationCount,
                           onTap: () => _openRoute(AppRoutes.notificheName),
                         ),
@@ -76,18 +77,21 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                         _DrawerLabelTile(
                           icon: LucideIcons.calendarDays,
                           label: 'Agenda',
+                          iconColor: AppColors.colorSuccessDark,
                           onTap: () => _openRoute(AppRoutes.calendarioName),
                         ),
                         const SizedBox(height: 6),
                         _DrawerLabelTile(
                           icon: LucideIcons.calendarClock,
                           label: 'Orario Lezioni',
+                          iconColor: AppColors.colorWarningDark,
                           onTap: () => _openRoute(AppRoutes.orarioLezioniName),
                         ),
                         const SizedBox(height: 6),
                         _DrawerLabelTile(
                           icon: LucideIcons.mail,
                           label: 'Email istituzionale',
+                          iconColor: AppColors.colorInfoDark,
                           onTap: () => _openRoute(AppRoutes.emailInboxName),
                         ),
                         const SizedBox(height: 12),
@@ -95,6 +99,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                           id: 'transport',
                           icon: LucideIcons.bus,
                           label: 'Trasporti',
+                          iconColor: AppColors.colorSecondaryDark,
                           isExpanded: _expandedSectionId == 'transport',
                           onTap: () => _toggleSection('transport'),
                           children: [
@@ -111,6 +116,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                         _DrawerLabelTile(
                           icon: LucideIcons.externalLink,
                           label: 'Portali',
+                          iconColor: AppColors.colorPrimaryDark,
                           onTap: () => _openRoute(AppRoutes.servicesName),
                         ),
                         const SizedBox(height: 6),
@@ -118,6 +124,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                           id: 'rooms',
                           icon: LucideIcons.doorOpen,
                           label: 'Aule',
+                          iconColor: AppColors.colorErrorDark,
                           isExpanded: _expandedSectionId == 'rooms',
                           onTap: () => _toggleSection('rooms'),
                           children: [
@@ -176,6 +183,7 @@ class _DrawerBottomGroup extends StatelessWidget {
           _DrawerLabelTile(
             icon: LucideIcons.contactRound,
             label: 'Contatti',
+            iconColor: AppColors.colorSuccessDark,
             onTap: () => onShowPlaceholderFeedback('Contatti'),
           ),
           const SizedBox(height: 8),
@@ -183,6 +191,7 @@ class _DrawerBottomGroup extends StatelessWidget {
             id: 'secretariat',
             icon: LucideIcons.briefcaseBusiness,
             label: 'Segreteria',
+            iconColor: AppColors.colorWarningDark,
             isExpanded: expandedSectionId == 'secretariat',
             onTap: () => onToggleSection('secretariat'),
             children: [
@@ -204,12 +213,14 @@ class _DrawerBottomGroup extends StatelessWidget {
           _DrawerLabelTile(
             icon: LucideIcons.settings,
             label: 'Impostazioni',
+            iconColor: AppColors.colorNeutral500,
             onTap: () => onShowPlaceholderFeedback('Impostazioni'),
           ),
           const SizedBox(height: 8),
           _DrawerLabelTile(
             icon: LucideIcons.info,
             label: 'Info app',
+            iconColor: AppColors.colorInfoDark,
             onTap: () => onShowPlaceholderFeedback('Info app'),
           ),
         ],
@@ -291,6 +302,7 @@ class _DrawerAccordionSection extends StatelessWidget {
     required this.id,
     required this.icon,
     required this.label,
+    this.iconColor,
     required this.isExpanded,
     required this.onTap,
     required this.children,
@@ -299,6 +311,7 @@ class _DrawerAccordionSection extends StatelessWidget {
   final String id;
   final IconData icon;
   final String label;
+  final Color? iconColor;
   final bool isExpanded;
   final VoidCallback onTap;
   final List<Widget> children;
@@ -312,6 +325,7 @@ class _DrawerAccordionSection extends StatelessWidget {
           _DrawerLabelTile(
             icon: icon,
             label: label,
+            iconColor: iconColor,
             isSelected: isExpanded,
             trailing: AnimatedRotation(
               turns: isExpanded ? 0.5 : 0,
@@ -348,6 +362,7 @@ class _DrawerLabelTile extends StatefulWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.iconColor,
     this.isSelected = false,
     this.trailing,
     this.badgeCount = 0,
@@ -356,6 +371,7 @@ class _DrawerLabelTile extends StatefulWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final Color? iconColor;
   final bool isSelected;
   final Widget? trailing;
   final int badgeCount;
@@ -390,7 +406,11 @@ class _DrawerLabelTileState extends State<_DrawerLabelTile> {
           ),
           child: Row(
             children: [
-              Icon(widget.icon, size: 19, color: AppColors.textPrimary),
+              Icon(
+                widget.icon,
+                size: 19,
+                color: widget.iconColor ?? AppColors.textPrimary,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(

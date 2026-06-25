@@ -1,0 +1,1 @@
+enum AcademicCourseType { mandatory, elective }

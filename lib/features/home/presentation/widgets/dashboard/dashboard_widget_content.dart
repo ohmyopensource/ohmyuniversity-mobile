@@ -8,13 +8,13 @@ import '../../../../../config/theme/app_colors.dart';
 import '../../../../../shared/widgets/academic/academic_exam_widgets.dart';
 import '../../../../../shared/widgets/academic/academic_summary_tiles.dart';
 import '../../../../../shared/widgets/academic/academic_tuition_widgets.dart';
-import '../../../../calendario/presentation/providers/calendar_providers.dart';
-import '../../../../didattica/domain/entities/didattica_exam_course_entity.dart';
-import '../../../../didattica/domain/entities/tuition_fee_entity.dart';
-import '../../../../didattica/presentation/providers/appeals_controller.dart';
-import '../../../../didattica/presentation/providers/career_provider.dart';
-import '../../../../didattica/presentation/providers/tuition_providers.dart';
-import '../../../../orario_lezioni/presentation/providers/timetable_providers.dart';
+import '../../../../calendar/presentation/providers/calendar_providers.dart';
+import '../../../../academics/domain/entities/academic_exam_course_entity.dart';
+import '../../../../academics/domain/entities/tuition_fee_entity.dart';
+import '../../../../academics/presentation/providers/appeals_controller.dart';
+import '../../../../academics/presentation/providers/career_provider.dart';
+import '../../../../academics/presentation/providers/tuition_providers.dart';
+import '../../../../timetable/presentation/providers/timetable_providers.dart';
 import '../../../../profile/presentation/mappers/student_identity_mapper.dart';
 import '../../../../profile/presentation/providers/student_badge_providers.dart';
 import '../../models/dashboard_widget_option.dart';
@@ -149,7 +149,7 @@ class _DashboardExamsWidgetState extends ConsumerState<_DashboardExamsWidget> {
   final Map<String, int> _provisionalGrades = {};
 
   static AcademicExamCourseData _toAcademicExamCourseData(
-    DidatticaExamCourseEntity course,
+    AcademicExamCourseEntity course,
   ) {
     return AcademicExamCourseData(
       id: course.id,
