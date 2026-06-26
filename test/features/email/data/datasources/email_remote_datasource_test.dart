@@ -51,11 +51,7 @@ Dio _dioWithResponse(Object? data) {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           handler.resolve(
-            Response(
-              requestOptions: options,
-              statusCode: 200,
-              data: data,
-            ),
+            Response(requestOptions: options, statusCode: 200, data: data),
           );
         },
       ),

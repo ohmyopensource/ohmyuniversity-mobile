@@ -14,7 +14,7 @@ class CalendarRemoteDataSource {
   }) async {
     try {
       final response = await _dio.get<List<dynamic>>(
-        '/v1/calendar/events',
+        '/v1/agenda/events',
         queryParameters: {
           if (startDate != null) 'from': startDate.toUtc().toIso8601String(),
           if (endDate != null) 'to': endDate.toUtc().toIso8601String(),
@@ -34,7 +34,7 @@ class CalendarRemoteDataSource {
   Future<List<CalendarEventModel>> getUniversityEvents() async {
     try {
       final response = await _dio.get<List<dynamic>>(
-        '/v1/calendar/university-events',
+        '/v1/agenda/university-events',
       );
 
       return _eventsFrom(response.data);
@@ -49,7 +49,7 @@ class CalendarRemoteDataSource {
 
   Future<void> importUniversityEvent(String eventId) async {
     try {
-      await _dio.post<void>('/v1/calendar/university-events/$eventId/import');
+      await _dio.post<void>('/v1/agenda/university-events/$eventId/import');
     } on DioException catch (error) {
       throw CalendarException(_messageFor(error));
     }
@@ -58,7 +58,7 @@ class CalendarRemoteDataSource {
   Future<CalendarEventModel> createEvent(CalendarEventModel event) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
-        '/v1/calendar/events',
+        '/v1/agenda/events',
         data: event.toRequestJson(),
       );
 
@@ -71,7 +71,7 @@ class CalendarRemoteDataSource {
   Future<CalendarEventModel> updateEvent(CalendarEventModel event) async {
     try {
       final response = await _dio.put<Map<String, dynamic>>(
-        '/v1/calendar/events/${event.id}',
+        '/v1/agenda/events/${event.id}',
         data: event.toRequestJson(),
       );
 
@@ -83,7 +83,7 @@ class CalendarRemoteDataSource {
 
   Future<void> deleteEvent(String eventId) async {
     try {
-      await _dio.delete<void>('/v1/calendar/events/$eventId');
+      await _dio.delete<void>('/v1/agenda/events/$eventId');
     } on DioException catch (error) {
       throw CalendarException(_messageFor(error));
     }
