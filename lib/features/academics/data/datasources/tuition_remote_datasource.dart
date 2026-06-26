@@ -11,7 +11,7 @@ class TuitionRemoteDataSource {
   Future<TuitionSnapshotModel> getTuitionSnapshot() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
-        '/v1/carriera/tasse',
+        '/v1/fees/status',
       );
 
       final data = response.data;

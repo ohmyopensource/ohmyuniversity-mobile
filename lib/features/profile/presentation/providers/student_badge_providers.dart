@@ -39,7 +39,7 @@ final studentProfilePhotoProvider = FutureProvider<String?>((ref) async {
     final response = await ref
         .watch(apiDioProvider)
         .get<List<int>>(
-          '/v1/carriera/foto',
+          '/v1/profile/avatar',
           options: Options(responseType: ResponseType.bytes),
         );
 

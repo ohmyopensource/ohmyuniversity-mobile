@@ -11,7 +11,7 @@ class StudentBadgeRemoteDataSource {
   Future<StudentBadgeModel?> getBadge() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
-        '/v1/carriera/badge',
+        '/v1/profile/badge',
       );
 
       final data = response.data;

@@ -13,7 +13,7 @@ class AcademicRemoteDataSource {
   Future<List<Map<String, dynamic>>> getSuggestedExams() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
-        '/v1/carriera/esami-suggeriti',
+        '/v1/career/recommendations',
       );
 
       final data = response.data;
@@ -34,9 +34,9 @@ class AcademicRemoteDataSource {
   Future<CareerApiDataModel> getCareerData() async {
     try {
       final responses = await Future.wait([
-        _dio.get<Map<String, dynamic>>('/v1/carriera/libretto'),
-        _dio.get<Map<String, dynamic>>('/v1/carriera/medie'),
-        _dio.get<Map<String, dynamic>>('/v1/carriera/piano'),
+        _dio.get<Map<String, dynamic>>('/v1/career/transcript'),
+        _dio.get<Map<String, dynamic>>('/v1/career/grades'),
+        _dio.get<Map<String, dynamic>>('/v1/career/study-plan'),
       ]);
       final transcriptJson = responses[0].data;
       final metricsJson = responses[1].data;
@@ -62,8 +62,9 @@ class AcademicRemoteDataSource {
     String password,
   ) async {
     try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/v1/carriera/prenotazioni-libretto',
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/v1/exams/bookings/legacy',
+        data: {'password': password},
       );
 
       final bookings = response.data?['prenotazioni'] as List<dynamic>? ?? [];
@@ -90,7 +91,7 @@ class AcademicRemoteDataSource {
 
     try {
       final response = await _dio.get<Map<String, dynamic>>(
-        '/v1/carriera/appelli-prenotabili',
+        '/v1/exams/bookable',
       );
       final appeals = response.data?['appelli'] as List<dynamic>? ?? [];
       return appeals
@@ -110,7 +111,7 @@ class AcademicRemoteDataSource {
   Future<List<CourseQuestionnaireEntity>> getQuestionnaires() async {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
-        '/v1/carriera/questionari',
+        '/v1/exams/surveys',
       );
       final pending = response.data?['daCompilare'] as List<dynamic>? ?? [];
       final completed = response.data?['compilati'] as List<dynamic>? ?? [];
