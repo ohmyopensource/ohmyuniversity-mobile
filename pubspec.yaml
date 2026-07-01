@@ -65,7 +65,7 @@ dependencies:
   # UI - Animations ================================
   animations: ^2.0.11
   google_fonts: ^8.1.0
-  lottie: ^3.3.1
+  lottie: ^3.4.0
   flutter_svg:
   lucide_icons_flutter: ^3.1.14+2
 
