@@ -28,7 +28,7 @@ dependencies:
   riverpod_annotation: ^4.0.3
 
   # Network ================================
-  dio: ^5.8.0+1
+  dio: ^5.10.0
 
   # Auth SSO ================================
   flutter_appauth: ^12.0.1
